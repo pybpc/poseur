@@ -36,15 +36,19 @@ pypi-clean:
 	[ -d dist ] && find dist -iname '*.tar.gz' -exec mv {} sdist \; || true
 	rm -rf build dist *.egg-info
 
-pypi-dist: pypi-clean
-	pipenv run python setup.py sdist bdist_wheel
+pypi-dist: pypi-clean sync-setup
+	pipenv run python scripts/setup.pypi.py sdist bdist_wheel
+	pipenv run python scripts/setup.pypitest.py sdist bdist_wheel
 
 pypi-register: pypi-dist
 	twine check dist/* || true
 	twine register dist/*.whl -r pypi --skip-existing
-	# twine register dist/*.whl -r pypitest --skip-existing
+	twine register dist/python*.whl -r pypitest --skip-existing
 
 pypi-upload:
 	twine check dist/* || true
 	twine upload dist/* -r pypi --skip-existing
-	# twine upload dist/* -r pypitest --skip-existing
+	twine upload dist/python* -r pypitest --skip-existing
+
+sync-setup:
+	pipenv run python scripts/sync-setup.py
