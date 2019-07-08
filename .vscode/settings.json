@@ -3,7 +3,18 @@
     "python.linting.enabled": true,
     "restructuredtext.confPath": "${workspaceFolder}/docs/conf.py",
     "cSpell.words": [
+        "Envs",
+        "NPROCESSORS",
+        "flst",
+        "funcdef",
         "gaocegege",
-        "spython"
+        "getcwd",
+        "ispy",
+        "parso",
+        "poflag",
+        "posuer",
+        "sched",
+        "spython",
+        "sysconf"
     ]
 }
