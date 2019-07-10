@@ -13,7 +13,7 @@ import uuid
 import parso
 import tbtrim
 
-__all__ = ['posuer', 'convert']
+__all__ = ['posuer', 'convert', 'decorator']
 
 # multiprocessing may not be supported
 try:        # try first
@@ -87,6 +87,97 @@ def decorator(*posuer):
 # Main convertion implementation
 
 
+def parse(string, source, error_recovery=False):
+    """Parse source string.
+
+    Args:
+     - string -- str, context to be converted
+     - source -- str, source of the context
+     - error_recovery -- bool, see `parso.Grammar.parse` (default: `False`)
+
+    Envs:
+     - POSUER_VERSION -- convert against Python version (same as `--python` option in CLI)
+
+    Returns:
+     - parso.python.tree.Module -- parso AST
+
+    Raises:
+     - ConvertError -- when `parso.ParserSyntaxError` raised
+
+    """
+    try:
+        return parso.parse(string, error_recovery=error_recovery,
+                           version=os.getenv('POSUER_VERSION', POSUER_VERSION[-1]))
+    except parso.ParserSyntaxError as error:
+        message = '%s: <%s: %r> from %s' % (error.message, error.error_leaf.token_type,
+                                            error.error_leaf.value, source)
+        raise ConvertError(message).with_traceback(error.__traceback__) from None
+
+
+def decorate(node):
+    pass
+
+
+def dismiss(node):
+    string = ''
+
+    # <Operator: (>
+    string += '('
+
+    params = ''
+    poflag = False
+    for child in node.children[1:-1]:
+        if child.type == 'operator' and child.value == '/':
+            poflag = True
+            params += child.get_code().replace('/', '')
+        elif poflag and child.type == 'operator' and child.value == ',':
+            pass
+        else:
+            params += child.get_code()
+    string += re.sub(r'(^\s*,\s*)|(\s*,\s*)$', r'', params)
+
+    # <Operator: )>
+    string += ')'
+
+    return string
+
+
+def walk(node):
+    """Walk parso AST.
+
+    Args:
+     - node -- parso.python.tree.Module, parso AST
+
+    Envs:
+     - POSUER_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+
+    Returns:
+     - str -- converted string
+
+    """
+    string = ''
+
+    if node.type == 'funcdef':
+        POSUER_DISMISS = BOOLEAN_STATES.get(os.getenv('POSUER_DISMISS', '0').casefold(), False)
+        if not POSUER_DISMISS:
+            string += decorate(node)
+        for child in node:
+            if child.type == 'parameters':
+                string += dismiss(child)
+            else:
+                string += node.get_code()
+        return string
+
+    if isinstance(node, parso.python.tree.PythonLeaf):
+        string += node.get_code()
+
+    if hasattr(node, 'children'):
+        for child in node.children:
+            string += walk(child)
+
+    return string
+
+
 def convert(string, source='<unknown>'):
     """The main conversion process.
 
@@ -102,70 +193,8 @@ def convert(string, source='<unknown>'):
      - str -- converted string
 
     """
-    POSUER_DISMISS = BOOLEAN_STATES.get(os.getenv('POSUER_DISMISS', '0').casefold(), False)
-
-    def parse(string, error_recovery=False):
-        try:
-            return parso.parse(string, error_recovery=error_recovery,
-                               version=os.getenv('POSUER_VERSION', POSUER_VERSION[-1]))
-        except parso.ParserSyntaxError as error:
-            message = '%s: <%s: %r> from %s' % (error.message, error.error_leaf.token_type,
-                                                error.error_leaf.value, source)
-            raise ConvertError(message).with_traceback(error.__traceback__)
-
-
-    def decorate(node):
-        pass
-
-
-    def dismiss(node):
-        string = ''
-
-        # <Operator: (>
-        string += '('
-
-        params = ''
-        poflag = False
-        for child in node.children[1:-1]:
-            if child.type == 'operator' and child.value == '/':
-                poflag = True
-                params += child.get_code().replace('/', '')
-            elif poflag and child.type == 'operator' and child.value == ',':
-                pass
-            else:
-                params += child.get_code()
-        string += re.sub(r'(^\s*,\s*)|(\s*,\s*)$', r'', params)
-
-        # <Operator: )>
-        string += ')'
-
-        return string
-
-
-    def walk(node):
-        string = ''
-
-        if node.type == 'funcdef':
-            if not POSUER_DISMISS:
-                string += decorate(node)
-            for child in node:
-                if child.type == 'parameters':
-                    string += dismiss(child)
-                else:
-                    string += node.get_code()
-            return string
-
-        if isinstance(node, parso.python.tree.PythonLeaf):
-            string += node.get_code()
-
-        if hasattr(node, 'children'):
-            for child in node.children:
-                string += walk(child)
-
-        return string
-
     # parse source string
-    module = parse(string)
+    module = parse(string, source)
 
     # convert source string
     string = walk(module)
@@ -217,6 +246,12 @@ __posuer_encoding__ = os.getenv('POSUER_ENCODING', LOCALE_ENCODING)
 
 
 def get_parser():
+    """Generate CLI parser.
+
+    Returns:
+     - argparse.ArgumentParser -- CLI parser for posuer
+
+    """
     parser = argparse.ArgumentParser(prog='posuer',
                                      usage='posuer [options] <python source files and folders...>',
                                      description='Back-port compiler for Python 3.8 positional-only parameters.')
@@ -248,7 +283,12 @@ def get_parser():
 
 
 def main(argv=None):
-    """Entry point for posuer."""
+    """Entry point for posuer.
+
+    Args:
+     - argv -- list[str], CLI arguments (default: None)
+
+    """
     parser = get_parser()
     args = parser.parse_args(argv)
 
