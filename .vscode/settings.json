@@ -9,10 +9,12 @@
         "funcdef",
         "gaocegege",
         "getcwd",
+        "inited",
         "ispy",
         "parso",
         "poflag",
         "posuer",
+        "prflag",
         "sched",
         "spython",
         "sysconf"

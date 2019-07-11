@@ -30,7 +30,7 @@ update-maintainer:
 	go run github.com/gaocegege/maintainer contributing
 
 pypi-clean:
-	mkdir -p sdist eggs wheels
+	mkdir -p dist sdist eggs wheels
 	[ -d dist ] && find dist -iname '*.egg' -exec mv {} eggs \; || true
 	[ -d dist ] && find dist -iname '*.whl' -exec mv {} wheels \; || true
 	[ -d dist ] && find dist -iname '*.tar.gz' -exec mv {} sdist \; || true
