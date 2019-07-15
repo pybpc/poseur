@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+# Indicates there are no completions
+__poseur_comp_null() {
+  COMPREPLY=""
+}
+
+__poseur_comp_words_include() {
+  local i=1
+  while [[ "$i" -lt "$COMP_CWORD" ]]
+  do
+    if [[ "${COMP_WORDS[i]}" = "$1" ]]
+    then
+      return
+    fi
+    (( i++ ))
+  done
+  return 1
+}
+
+__poseur_comp() {
+  # break $1 on space, tab, and newline characters,
+  # and turn it into a newline separated list of words
+  local list s sep=$'\n' IFS=$' \t\n'
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+
+  for s in $1
+  do
+    __poseur_comp_words_include "$s" && continue
+    list="$list$s$sep"
+  done
+
+  IFS="$sep"
+  COMPREPLY=($(compgen -W "$list" -- "$cur"))
+}
+
+###########################################################
+# Bash Completion for `poseur`
+###########################################################
+
+_poseur() {
+  local cur prev opts cmds
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  opts="--help --version --no-archive --dismiss --linting"
+  cmds="--archive-path --encoding --python --linesep"
+
+  if [[ ${prev} =~ "--help|--version|--no-archive" ]]
+  then
+    __poseur_comp_null
+    return
+  elif [[ ${prev} =~ "--archive-path|--encoding|--linesep" ]]
+  then
+    __poseur_comp_null
+    return
+  elif [[ ${prev} =~ "--python" ]]
+  then
+    __poseur_comp "3.8"
+    return
+  fi
+
+  if [[ ${cur} =~ -* ]]
+  then
+    __poseur_comp "${opts} ${cmds}"
+    return
+  elif [[ ${cur} == * ]]
+  then
+    __poseur_comp "$(ls *.py *.pyw 2>/dev/null | xargs)"
+    return
+  fi
+}
+
+# keep around for compatibility
+_poseur_to_completion() {
+  _poseur
+}
+
+complete -o bashdefault -o default -F _poseur             poseur

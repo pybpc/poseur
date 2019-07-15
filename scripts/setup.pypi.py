@@ -26,7 +26,7 @@ setup(
     url='https://github.com/JarryShaw/poseur',
     license='MIT License',
     keywords=['positional-only parameters', 'back-port compiler'],
-    description='Back-port compiler for Python 3.8 positional-only parameters.',
+    description='Back-port compiler for Python 3.8 positional-only parameter syntax.',
     long_description=long_desc,
     long_description_content_type='text/x-rst; charset=UTF-8',
     # python_requires='>=3.3',

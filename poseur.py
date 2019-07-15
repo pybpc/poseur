@@ -13,7 +13,7 @@ import uuid
 import parso
 import tbtrim
 
-__all__ = ['posuer', 'convert', 'decorator']
+__all__ = ['poseur', 'convert', 'decorator']
 
 # multiprocessing may not be supported
 try:        # try first
@@ -32,7 +32,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.1.0.dev1'
+__version__ = '0.1.0'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,
@@ -45,7 +45,7 @@ LOCALE_ENCODING = locale.getpreferredencoding(False)
 
 # macros
 grammar_regex = re.compile(r"grammar(\d)(\d)\.txt")
-POSUER_VERSION = sorted(filter(lambda version: version >= '3.8',  # when Python starts to have positional-only arguments
+POSEUR_VERSION = sorted(filter(lambda version: version >= '3.8',  # when Python starts to have positional-only arguments
                                map(lambda path: '%s.%s' % grammar_regex.match(os.path.split(path)[1]).groups(),
                                    glob.glob(os.path.join(parso.__path__[0], 'python', 'grammar??.txt')))))
 del grammar_regex
@@ -63,7 +63,7 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 
 
 def predicate(filename):  # pragma: no cover
-    if os.path.basename(filename) == 'posuer':
+    if os.path.basename(filename) == 'poseur':
         return True
     return (ROOT in os.path.realpath(filename))
 
@@ -74,8 +74,8 @@ tbtrim.set_trim_rule(predicate, strict=True, target=ConvertError)
 # Positional-only decorator
 
 
-_decorator = '''\
-def _posuer_decorator(*posuer):
+_decorator = '''
+def _poseur_decorator(*poseur):
     """Positional-only arguments runtime checker.
 
     Args:
@@ -89,16 +89,16 @@ def _posuer_decorator(*posuer):
     def caller(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            for posuer_args in posuer:
-                if posuer_args in kwargs:
-                    raise TypeError('%s() got an unexpected keyword argument %r' % (func.__name__, posuer_args))
+            for poseur_args in poseur:
+                if poseur_args in kwargs:
+                    raise TypeError('%s() got an unexpected keyword argument %r' % (func.__name__, poseur_args))
             return func(*args, **kwargs)
         return wrapper
     return caller
 '''
 
 
-def decorator(*posuer):
+def decorator(*poseur):
     """Positional-only arguments runtime checker.
 
     Args:
@@ -111,9 +111,9 @@ def decorator(*posuer):
     def caller(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            for posuer_args in posuer:
-                if posuer_args in kwargs:
-                    raise TypeError('%s() got an unexpected keyword argument %r' % (func.__name__, posuer_args))
+            for poseur_args in poseur:
+                if poseur_args in kwargs:
+                    raise TypeError('%s() got an unexpected keyword argument %r' % (func.__name__, poseur_args))
             return func(*args, **kwargs)
         return wrapper
     return caller
@@ -132,7 +132,7 @@ def parse(string, source, error_recovery=False):
      - error_recovery -- bool, see `parso.Grammar.parse` (default: `False`)
 
     Envs:
-     - POSUER_VERSION -- convert against Python version (same as `--python` option in CLI)
+     - POSEUR_VERSION -- convert against Python version (same as `--python` option in CLI)
 
     Returns:
      - parso.python.tree.Module -- parso AST
@@ -143,7 +143,7 @@ def parse(string, source, error_recovery=False):
     """
     try:
         return parso.parse(string, error_recovery=error_recovery,
-                           version=os.getenv('POSUER_VERSION', POSUER_VERSION[-1]))
+                           version=os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1]))
     except parso.ParserSyntaxError as error:
         message = '%s: <%s: %r> from %s' % (error.message, error.error_leaf.token_type,
                                             error.error_leaf.value, source)
@@ -151,7 +151,7 @@ def parse(string, source, error_recovery=False):
 
 
 def decorate_lambdef(parameters, lambdef):
-    """Append posuer decorator to lambda definition.
+    """Append poseur decorator to lambda definition.
 
     Args:
      - parameters -- list[parso.python.tree.Param], extracted positional-only arguments
@@ -161,7 +161,7 @@ def decorate_lambdef(parameters, lambdef):
      - str -- decorated lambda definition
 
     """
-    return '_posuer_decorator(%s)(%s)' % (', '.join(map(lambda param: repr(param.name.value), parameters)), lambdef)
+    return '_poseur_decorator(%s)(%s)' % (', '.join(map(lambda param: repr(param.name.value), parameters)), lambdef)
 
 
 def dismiss_lambdef(node):
@@ -171,7 +171,7 @@ def dismiss_lambdef(node):
      - node -- parso.python.tree.Lambda, AST of lambda parameters
 
     Envs:
-     - POSUER_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
 
     Returns:
      - str -- converted lambda definition
@@ -181,35 +181,38 @@ def dismiss_lambdef(node):
     prefix = ''
     suffix = ''
 
-    flag_1 = False
-    flag_2 = False
+    flag_param = False
+    flag_suite = False
     for child in node.children:
         # <Param: ...>
         if child.type == 'param':
-            flag_1 = True
-            params += child.get_code()
+            flag_param = True
+            if child.default is None:
+                params += child.get_code()
+            else:
+                params += walk(child)
         # lambda parameters
-        elif flag_1:
+        elif flag_param:
             # <Operator: />
             if child.type == 'operator' and child.value == '/':
                 params += child.get_code().replace('/', '')
             # <Operator: :>
             elif child.type == 'operator' and child.value == ':':
-                flag_1 = False
-                flag_2 = True
+                flag_param = False
+                flag_suite = True
                 suffix += child.get_code()
             # <Operator: *> / <Operator: ,> / <Param: ...>
             else:
                 params += child.get_code()
         # lambda suite
-        elif flag_2:
-            suffix += child.get_code()
+        elif flag_suite:
+            suffix += walk(child)
         # lambda declration
         else:
             prefix += child.get_code()
 
-    POSUER_LINTING = BOOLEAN_STATES.get(os.getenv('POSUER_LINTING', '0').casefold(), False)
-    if POSUER_LINTING:
+    POSEUR_LINTING = BOOLEAN_STATES.get(os.getenv('POSEUR_LINTING', '0').casefold(), False)
+    if POSEUR_LINTING:
         params += ', '.join(filter(None, map(lambda s: s.strip(), params.split(','))))
     else:
         params += ','.join(filter(lambda s: s.strip(), params.split(',')))
@@ -241,7 +244,7 @@ def extract_lambdef(node):
 
 
 def decorate_funcdef(parameters, column, funcdef):
-    """Append posuer decorator to function definition.
+    """Append poseur decorator to function definition.
 
     Args:
      - parameters -- list[parso.python.tree.Param], extracted positional-only arguments
@@ -249,16 +252,17 @@ def decorate_funcdef(parameters, column, funcdef):
      - funcdef -- str, converted function string
 
     Envs:
-     - POSUER_LINSEP -- line separator to process source files (same as `--linsep` option in CLI)
+     - POSEUR_LINSEP -- line separator to process source files (same as `--linsep` option in CLI)
 
     Returns:
      - str -- decorated function definition
 
     """
-    return '%s@_posuer_decorator(%s)%s%s' % ('\t'.expandtabs(column),
+    POSEUR_LINESEP = os.getenv('POSEUR_LINSEP', os.linesep)
+    return '%s@_poseur_decorator(%s)%s%s' % ('\t'.expandtabs(column),
                                              ', '.join(map(lambda param: repr(param.name.value), parameters)),
-                                             os.getenv('POSUER_LINSEP', os.linesep),
-                                             funcdef)
+                                             POSEUR_LINESEP,
+                                             funcdef.lstrip(POSEUR_LINESEP))
 
 
 def dismiss_funcdef(node):
@@ -268,7 +272,7 @@ def dismiss_funcdef(node):
      - node -- parso.python.tree.PythonNode, AST of function parameters
 
     Envs:
-     - POSUER_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
 
     Returns:
      - str -- converted parameters string
@@ -285,15 +289,17 @@ def dismiss_funcdef(node):
         if child.type == 'operator' and child.value == '/':
             poflag = True
             params += child.get_code().replace('/', '')
-        elif child.type == 'param' and child.default is not None:
-            walk_string, _ = walk(child.default)
-            params += walk_string
+        elif child.type == 'param':
+            if child.default is None:
+                params += child.get_code()
+            else:
+                params += walk(child)
         # <Operator: *> / <Operator: ,>
         else:
             params += child.get_code()
 
-    POSUER_LINTING = BOOLEAN_STATES.get(os.getenv('POSUER_LINTING', '0').casefold(), False)
-    if POSUER_LINTING:
+    POSEUR_LINTING = BOOLEAN_STATES.get(os.getenv('POSEUR_LINTING', '0').casefold(), False)
+    if POSEUR_LINTING:
         string += ', '.join(filter(None, map(lambda s: s.strip(), params.split(','))))
     else:
         string += ','.join(filter(lambda s: s.strip(), params.split(',')))
@@ -327,6 +333,95 @@ def extract_funcdef(node):
     return pos_only
 
 
+def check_lambdef(node):
+    """Check if lambda definition contains positional-only arguments.
+
+    Args:
+     - node -- parso.python.tree.Lambda, lambda definition
+
+    Returns:
+     - bool -- if lambda definition contains positional-only arguments
+
+    """
+    param = False
+    suite = False
+    for child in node.children:
+        if child.type == 'param':
+            if child.default is not None:
+                if has_poseur(child.default):
+                    return True
+            param = True
+        elif child.type == 'operator' and child.value == ':':
+            param = False
+            suite = True
+        elif param and child.type == 'operator' and child.value == '/':
+            return True
+        elif suite and has_poseur(child):
+            return True
+    return False
+
+
+def check_funcdef(node):
+    """Check if function definition contains positional-only arguments.
+
+    Args:
+     - node -- parso.python.tree.Function, function definition
+
+    Returns:
+     - bool -- if function definition contains positional-only arguments
+
+    """
+    for child in node.children:
+        if child.type == 'suite' and has_poseur(child):
+            return True
+        if child.type == 'parameters':
+            for child in child.children[1:-1]:
+                if child.type == 'operator' and child.value == '/':
+                    return True
+                if child.default is not None and has_poseur(child.default):
+                    return True
+    return False
+
+
+def has_poseur(node):
+    """Check if node has function/lambda definitions.
+
+    Args:
+     - node -- typing.Union[parso.python.tree.PythonNode,
+                            parso.python.tree.PythonLeaf], node to search
+
+    Return:
+     - bool -- if node has function/lambda definitions
+
+    """
+    if node.type == 'funcdef':
+        return check_funcdef(node)
+    if node.type == 'lambdef':
+        return check_lambdef(node)
+    if not hasattr(node, 'children'):
+        return False
+    return any(map(has_poseur, node.children))
+
+
+def find_poseur(node, root=0):
+    """Find node to insert poseur decorator.
+
+    Args:
+     - node -- parso.python.tree.Module, parso AST
+     - root -- int, index for insertion (based on `node`)
+
+    Returns:
+     - int -- index for insertion (based on `node`)
+
+    """
+    for index, child in enumerate(node.children, start=1):
+        if has_poseur(child):
+            return root
+        if child.get_first_leaf().column == 0:
+            root = index
+    return -1
+
+
 def walk(node):
     """Walk parso AST.
 
@@ -336,41 +431,56 @@ def walk(node):
                             parso.python.tree.PythonLeaf], parso AST
 
     Envs:
-     - POSUER_LINSEP -- line separator to process source files (same as `--linsep` option in CLI)
-     - POSUER_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - POSUER_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - POSEUR_LINSEP -- line separator to process source files (same as `--linsep` option in CLI)
+     - POSEUR_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
 
     Returns:
      - str -- converted string
-     - bool -- if contains positional-only arguments
 
     """
-
-    POSUER_DISMISS = BOOLEAN_STATES.get(os.getenv('POSUER_DISMISS', '0').casefold(), False)
-    if isinstance(node, parso.python.tree.Module) and (not POSUER_DISMISS):
+    POSEUR_DISMISS = BOOLEAN_STATES.get(os.getenv('POSEUR_DISMISS', '0').casefold(), False)
+    if isinstance(node, parso.python.tree.Module) and (not POSEUR_DISMISS):
         prefix = ''
         suffix = ''
 
-        indent = False
-        poflag = False
-        for child in node.children:
-            if child.get_first_leaf().column != 0:
-                indent = True
-            walk_string, walk_flag = walk(child)
-            if indent:
-                suffix += walk_string
+        postmt = find_poseur(node)
+        for index, child in enumerate(node.children):
+            if index < postmt:
+                prefix += walk(child)
             else:
-                prefix += walk_string
-            if walk_flag:
-                poflag = True
+                suffix += walk(child)
 
-        if poflag:
-            return (prefix + _decorator + suffix), poflag
-        return (prefix + suffix), poflag
+        if postmt >= 0:
+            POSEUR_LINTING = BOOLEAN_STATES.get(os.getenv('POSEUR_LINTING', '0').casefold(), False)
+            if POSEUR_LINTING:
+                POSEUR_LINESEP = os.getenv('POSEUR_LINSEP', os.linesep)
+                if prefix:
+                    if prefix.endswith(POSEUR_LINESEP * 2):
+                        pass
+                    elif prefix.endswith(POSEUR_LINESEP):
+                        prefix += POSEUR_LINESEP
+                    else:
+                        prefix += POSEUR_LINESEP * 2
 
+                if suffix:
+                    if suffix.startswith(POSEUR_LINESEP * 2):
+                        pass
+                    elif suffix.startswith(POSEUR_LINESEP):
+                        suffix = POSEUR_LINESEP + suffix
+                    else:
+                        suffix = POSEUR_LINESEP * 2 + suffix
+
+            middle = _decorator
+            if not prefix:
+                middle = middle.lstrip()
+            if not suffix:
+                middle = middle.rstrip()
+            return (prefix + middle + suffix)
+        return (prefix + suffix)
+
+    # string buffer
     string = ''
-    poflag = False
-    walk_flag = False
 
     if node.type == 'funcdef':
         funcdef = ''
@@ -378,36 +488,29 @@ def walk(node):
             if child.type == 'parameters':
                 parameters = extract_funcdef(child)
                 if parameters:
-                    walk_flag = True
                     funcdef += dismiss_funcdef(child)
                 else:
                     funcdef += child.get_code()
             elif child.type == 'suite':
-                walk_string, walk_flag = walk(child)
-                string += walk_string
+                funcdef += walk(child)
             else:
-                funcdef += node.get_code()
-            if walk_flag:
-                poflag = True
-        if parameters and (not POSUER_DISMISS):
+                funcdef += child.get_code()
+        if parameters and (not POSEUR_DISMISS):
             column = node.get_first_leaf().column
             string += decorate_funcdef(parameters, column, funcdef)
         else:
             string += funcdef
-        return string, poflag
+        return string
 
     if node.type == 'lambdef':
         parameters = extract_lambdef(node)
         if parameters:
-            walk_flag = True
             lambdef = dismiss_lambdef(node)
-            if not POSUER_DISMISS:
+            if not POSEUR_DISMISS:
                 lambdef = decorate_lambdef(parameters, lambdef)
             string += lambdef
         else:
             string += node.get_code()
-        if walk_flag:
-            poflag = True
         return string
 
     if isinstance(node, parso.python.tree.PythonLeaf):
@@ -415,12 +518,9 @@ def walk(node):
 
     if hasattr(node, 'children'):
         for child in node.children:
-            walk_string, walk_flag = walk(child)
-            string += walk_string
+            string += walk(child)
 
-    if walk_flag:
-        poflag = True
-    return string, poflag
+    return string
 
 
 def convert(string, source='<unknown>'):
@@ -431,10 +531,10 @@ def convert(string, source='<unknown>'):
      - source -- str, source of the context
 
     Envs:
-     - POSUER_VERSION -- convert against Python version (same as `--python` option in CLI)
-     - POSUER_LINSEP -- line separator to process source files (same as `--linsep` option in CLI)
-     - POSUER_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - POSUER_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - POSEUR_VERSION -- convert against Python version (same as `--python` option in CLI)
+     - POSEUR_LINSEP -- line separator to process source files (same as `--linsep` option in CLI)
+     - POSEUR_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
 
     Returns:
      - str -- converted string
@@ -444,33 +544,33 @@ def convert(string, source='<unknown>'):
     module = parse(string, source)
 
     # convert source string
-    string, _ = walk(module)
+    string = walk(module)
 
     # return converted string
     return string
 
 
-def posuer(filename):
+def poseur(filename):
     """Wrapper works for conversion.
 
     Args:
      - filename -- str, file to be converted
 
     Envs:
-     - POSUER_QUIET -- run in quiet mode (same as `--quiet` option in CLI)
-     - POSUER_ENCODING -- encoding to open source files (same as `--encoding` option in CLI)
-     - POSUER_VERSION -- convert against Python version (same as `--python` option in CLI)
-     - POSUER_LINSEP -- line separator to process source files (same as `--linsep` option in CLI)
-     - POSUER_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - POSUER_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - POSEUR_QUIET -- run in quiet mode (same as `--quiet` option in CLI)
+     - POSEUR_ENCODING -- encoding to open source files (same as `--encoding` option in CLI)
+     - POSEUR_VERSION -- convert against Python version (same as `--python` option in CLI)
+     - POSEUR_LINSEP -- line separator to process source files (same as `--linsep` option in CLI)
+     - POSEUR_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
 
     """
-    POSUER_QUIET = BOOLEAN_STATES.get(os.getenv('POSUER_QUIET', '0').casefold(), False)
-    if not POSUER_QUIET:
+    POSEUR_QUIET = BOOLEAN_STATES.get(os.getenv('POSEUR_QUIET', '0').casefold(), False)
+    if not POSEUR_QUIET:
         print('Now converting %r...' % filename)
 
     # fetch encoding
-    encoding = os.getenv('POSUER_ENCODING', LOCALE_ENCODING)
+    encoding = os.getenv('POSEUR_ENCODING', LOCALE_ENCODING)
 
     # file content
     with open(filename, 'r', encoding=encoding) as file:
@@ -490,20 +590,20 @@ def posuer(filename):
 # default values
 __cwd__ = os.getcwd()
 __archive__ = os.path.join(__cwd__, 'archive')
-__posuer_version__ = os.getenv('POSUER_VERSION', POSUER_VERSION[-1])
-__posuer_encoding__ = os.getenv('POSUER_ENCODING', LOCALE_ENCODING)
-__posuer_linesep__ = os.getenv('POSUER_LINESEP', os.linesep)
+__poseur_version__ = os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1])
+__poseur_encoding__ = os.getenv('POSEUR_ENCODING', LOCALE_ENCODING)
+__poseur_linesep__ = os.getenv('POSEUR_LINESEP', os.linesep)
 
 
 def get_parser():
     """Generate CLI parser.
 
     Returns:
-     - argparse.ArgumentParser -- CLI parser for posuer
+     - argparse.ArgumentParser -- CLI parser for poseur
 
     """
-    parser = argparse.ArgumentParser(prog='posuer',
-                                     usage='posuer [options] <python source files and folders...>',
+    parser = argparse.ArgumentParser(prog='poseur',
+                                     usage='poseur [options] <python source files and folders...>',
                                      description='Back-port compiler for Python 3.8 positional-only parameters.')
     parser.add_argument('-V', '--version', action='version', version=__version__)
     parser.add_argument('-q', '--quiet', action='store_true',
@@ -518,13 +618,13 @@ def get_parser():
 
     convert_group = parser.add_argument_group(title='convert options',
                                               description='compatibility configuration for none-unicode files')
-    convert_group.add_argument('-c', '--encoding', action='store', default=__posuer_encoding__, metavar='CODING',
-                               help='encoding to open source files (%s)' % __posuer_encoding__)
+    convert_group.add_argument('-c', '--encoding', action='store', default=__poseur_encoding__, metavar='CODING',
+                               help='encoding to open source files (%s)' % __poseur_encoding__)
     convert_group.add_argument('-v', '--python', action='store', metavar='VERSION',
-                               default=__posuer_version__, choices=POSUER_VERSION,
-                               help='convert against Python version (%s)' % __posuer_version__)
-    convert_group.add_argument('-s', '--linsep', action='store', default=__posuer_linesep__, metavar='SEP',
-                               help='line separator to process source files (%s)' % __posuer_linesep__)
+                               default=__poseur_version__, choices=POSEUR_VERSION,
+                               help='convert against Python version (%s)' % __poseur_version__)
+    convert_group.add_argument('-s', '--linesep', action='store', default=__poseur_linesep__, metavar='SEP',
+                               help='line separator to process source files (%s)' % __poseur_linesep__)
     convert_group.add_argument('-d', '--dismiss', action='store_true',
                                help='dismiss runtime checks for positional-only parameters')
     convert_group.add_argument('-l', '--linting', action='store_true',
@@ -537,18 +637,18 @@ def get_parser():
 
 
 def main(argv=None):
-    """Entry point for posuer.
+    """Entry point for poseur.
 
     Args:
      - argv -- list[str], CLI arguments (default: None)
 
     Envs:
-     - POSUER_QUIET -- run in quiet mode (same as `--quiet` option in CLI)
-     - POSUER_ENCODING -- encoding to open source files (same as `--encoding` option in CLI)
-     - POSUER_VERSION -- convert against Python version (same as `--python` option in CLI)
-     - POSUER_LINSEP -- line separator to process source files (same as `--linsep` option in CLI)
-     - POSUER_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - POSUER_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - POSEUR_QUIET -- run in quiet mode (same as `--quiet` option in CLI)
+     - POSEUR_ENCODING -- encoding to open source files (same as `--encoding` option in CLI)
+     - POSEUR_VERSION -- convert against Python version (same as `--python` option in CLI)
+     - POSEUR_LINSEP -- line separator to process source files (same as `--linsep` option in CLI)
+     - POSEUR_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
 
     """
     parser = get_parser()
@@ -557,15 +657,15 @@ def main(argv=None):
     # set up variables
     ARCHIVE = args.archive_path
     archive = (not args.no_archive)
-    os.environ['POSUER_VERSION'] = args.python
-    os.environ['POSUER_ENCODING'] = args.encoding
-    os.environ['POSUER_LINSEP'] = args.linsep
-    POSUER_QUIET = os.getenv('POSUER_QUIET')
-    os.environ['POSUER_QUIET'] = '1' if args.quiet else ('0' if POSUER_QUIET is None else POSUER_QUIET)
-    POSUER_DISMISS = os.getenv('POSUER_DISMISS')
-    os.environ['POSUER_DISMISS'] = '1' if args.dismiss else ('0' if POSUER_DISMISS is None else POSUER_DISMISS)
-    POSUER_LINTING = os.getenv('POSUER_LINTING')
-    os.environ['POSUER_LINTING'] = '1' if args.dismiss else ('0' if POSUER_LINTING is None else POSUER_LINTING)
+    os.environ['POSEUR_VERSION'] = args.python
+    os.environ['POSEUR_ENCODING'] = args.encoding
+    os.environ['POSEUR_LINSEP'] = args.linsep
+    POSEUR_QUIET = os.getenv('POSEUR_QUIET')
+    os.environ['POSEUR_QUIET'] = '1' if args.quiet else ('0' if POSEUR_QUIET is None else POSEUR_QUIET)
+    POSEUR_DISMISS = os.getenv('POSEUR_DISMISS')
+    os.environ['POSEUR_DISMISS'] = '1' if args.dismiss else ('0' if POSEUR_DISMISS is None else POSEUR_DISMISS)
+    POSEUR_LINTING = os.getenv('POSEUR_LINTING')
+    os.environ['POSEUR_LINTING'] = '1' if args.linting else ('0' if POSEUR_LINTING is None else POSEUR_LINTING)
 
     def find(root):  # pragma: no cover
         """Recursively find all files under root."""
@@ -614,9 +714,9 @@ def main(argv=None):
 
     # process files
     if mp is None or CPU_CNT <= 1:
-        [posuer(filename) for filename in filelist]  # pragma: no cover
+        [poseur(filename) for filename in filelist]  # pragma: no cover
     else:
-        mp.Pool(processes=CPU_CNT).map(posuer, filelist)
+        mp.Pool(processes=CPU_CNT).map(poseur, filelist)
 
 
 if __name__ == '__main__':
