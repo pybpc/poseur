@@ -6,6 +6,7 @@
         "CWORD",
         "Envs",
         "NPROCESSORS",
+        "aktau",
         "cmds",
         "flst",
         "funcdef",

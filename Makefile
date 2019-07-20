@@ -1,7 +1,27 @@
+# get version string
+version  = $(shell cat poseur.py | grep "^__version__" | sed "s/__version__ = '\(.*\)'/\1/")
+
+after: git-after
 clean: pypi-clean
 pipenv: pipenv-update
-pypi: pypi-dist pypi-upload
 maintainer: update-maintainer
+
+dist: test pypi setup github formula maintainer after
+github: git-upload git-release
+pypi: pypi-dist pypi-upload
+setup: setup-sync setup-manual
+
+.ONESHELL:
+formula: setup-formula
+	set -ae
+	cd Tap
+	git pull
+	git add Formula/poseur.rb
+	git commit -S -m "poseur: $(version)"
+	git push
+
+test:
+	pipenv run python tests/test.py
 
 pipenv-init:
 	pipenv install --dev \
@@ -36,9 +56,21 @@ pypi-clean:
 	[ -d dist ] && find dist -iname '*.tar.gz' -exec mv {} sdist \; || true
 	rm -rf build dist *.egg-info
 
-pypi-dist: pypi-clean sync-setup
-	pipenv run python scripts/setup.pypi.py sdist bdist_wheel
-	pipenv run python scripts/setup.pypitest.py sdist bdist_wheel
+pypi-dist: pypi-clean setup-sync dist-pypi dist-pypitest
+
+dist-pypi: pypi-clean setup-sync
+	rm -f setup.py
+	cp scripts/setup.pypi.py setup.py
+	pipenv run python setup.py sdist bdist_wheel
+	rm -f setup.py
+	ln -s scripts/setup.pypi.py setup.py
+
+dist-pypitest: pypi-clean setup-sync
+	rm -f setup.py
+	cp scripts/setup.pypitest.py setup.py
+	pipenv run python setup.py sdist bdist_wheel
+	rm -f setup.py
+	ln -s scripts/setup.pypitest.py setup.py
 
 pypi-register: pypi-dist
 	twine check dist/* || true
@@ -50,5 +82,34 @@ pypi-upload:
 	twine upload dist/* -r pypi --skip-existing
 	twine upload dist/python* -r pypitest --skip-existing
 
-sync-setup:
-	pipenv run python scripts/sync-setup.py
+setup-version:
+	pipenv run python scripts/setup-version.py
+
+setup-sync: setup-version
+	pipenv run python scripts/setup-sync.py
+
+setup-formula: setup-version
+	pipenv run python scripts/setup-formula.py
+
+setup-manual: setup-version
+	pipenv run rst2man.py share/poseur.rst > share/poseur.1
+
+git-upload:
+	git pull
+	git add .
+	git commit -S
+	git push
+
+git-after:
+	git pull
+	git add .
+	git commit -S -m "Regular update after distribution"
+	git push
+
+git-release:
+	go run github.com/aktau/github-release release \
+	    --user JarryShaw \
+	    --repo poseur \
+	    --tag "v$(version)" \
+	    --name "poseur v$(version)" \
+	    --description "$(shell git log -1 --pretty=%B)"

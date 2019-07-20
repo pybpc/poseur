@@ -1,8 +1,22 @@
 global-include *.py
 
-include README.rst
+include README.md
 include LICENSE
 
 prune .github
 prune .venv
 prune .vscode
+
+prune build
+prune dist
+prune eggs
+prune sdist
+prune wheels
+
+prune poseur.egg-info
+prune python_poseur.egg-info
+
+prune Tap
+prune scripts
+prune share
+prune tests

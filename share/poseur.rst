@@ -6,8 +6,8 @@ poseur
 back-port compiler for Python 3.8 positional-only parameter syntax
 ------------------------------------------------------------------
 
-:Version: v0.7.3
-:Date: July 10, 2019
+:Version: v0.1.0
+:Date: July 20, 2019
 :Manual section: 1
 :Author:
     Jarry Shaw, a newbie programmer, is the author, owner and maintainer
@@ -71,7 +71,7 @@ compatibility configuration for none-unicode files
                       line separator to process source files
 
 -d, --dismiss         dismiss runtime checks for positional-only parameters
--l, --linting         lint converted codes
+-nl, --no-linting     do not lint converted codes
 
 ENVIRONMENT
 ===========

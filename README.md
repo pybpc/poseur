@@ -82,20 +82,19 @@ convert options:
                         encoding to open source files (${LOCALE_ENCODING})
   -v VERSION, --python VERSION
                         convert against Python version (${LATEST_VERSION})
+  -s SEP, --linesep SEP
+                        line separator to process source files (${OS_LINESEP})
+  -d, --dismiss         dismiss runtime checks for positional-only parameters
+  -nl, --no-linting     do not lint converted codes
 ```
 
-&emsp; `poseur` will read then convert all *f-string* literals in every Python file under this
-path. In case there might be some problems with the conversion, `poseur` will duplicate all
-original files it is to modify into `archive` directory ahead of the process, if `-n` not set.
+&emsp; `poseur` will read then convert all *positional-only parameters* syntax in every Python
+file under this path. In case there might be some problems with the conversion, `poseur` will
+duplicate all original files it is to modify into `archive` directory ahead of the process,
+if `-n` not set.
 
-&emsp; For instance, the code will be converted as follows.
-
-```python
-# the original code
-var = f'foo{(1+2)*3:>5}bar{"a", "b"!r}boo'
-# after `poseur`
-var = 'foo{:>5}bar{!r}boo'.format((1+2)*3, ("a", "b"))
-```
+&emsp; Besides, to keep consistency of API to users, `poseur` ships with a *decorator* for
+such functions to check positional-only parameters at runtime, if `-nl` not set.
 
 ## Developer Reference
 
@@ -106,6 +105,9 @@ var = 'foo{:>5}bar{!r}boo'.format((1+2)*3, ("a", "b"))
 - `F2FORMAT_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
 - `F2FORMAT_VERSION` -- convert against Python version (same as `--python` option in CLI)
 - `F2FORMAT_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
+- `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+- `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+- `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 
 ### APIs
 
@@ -124,6 +126,9 @@ Envs:
 - `F2FORMAT_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
 - `F2FORMAT_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
 - `F2FORMAT_VERSION`-- convert against Python version (same as `--python` option in CLI)
+- `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+- `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+- `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 
 Raises:
 
@@ -143,6 +148,9 @@ Args:
 Envs:
 
 - `F2FORMAT_VERSION`-- convert against Python version (same as `--python` option in CLI)
+- `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+- `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+- `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 
 Returns:
 
