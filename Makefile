@@ -23,6 +23,14 @@ formula: setup-formula
 test:
 	pipenv run python tests/test.py
 
+ln-prep:
+	rm -f setup.py
+	cp scripts/setup.${name}.py setup.py
+
+ln-post:
+	rm -f setup.py
+	ln -s scripts/setup.pypi.py setup.py
+
 pipenv-init:
 	pipenv install --dev \
 	    autopep8 \
@@ -33,6 +41,7 @@ pipenv-init:
 	    sphinx
 
 pipenv-update:
+	$(MAKE) name="pypi" ln-prep
 	pipenv run pip install -U \
 	    pip \
 	    setuptools \
@@ -40,6 +49,7 @@ pipenv-update:
 	pipenv update
 	pipenv install --dev
 	pipenv clean
+	$(MAKE) ln-post
 
 pipenv-deinit:
 	pipenv --rm
@@ -59,18 +69,14 @@ pypi-clean:
 pypi-dist: pypi-clean setup-sync dist-pypi dist-pypitest
 
 dist-pypi: pypi-clean setup-sync
-	rm -f setup.py
-	cp scripts/setup.pypi.py setup.py
+	$(MAKE) name="pypi" ln-prep
 	pipenv run python setup.py sdist bdist_wheel
-	rm -f setup.py
-	ln -s scripts/setup.pypi.py setup.py
+	$(MAKE) ln-post
 
 dist-pypitest: pypi-clean setup-sync
-	rm -f setup.py
-	cp scripts/setup.pypitest.py setup.py
+	$(MAKE) name="pypitest" ln-prep
 	pipenv run python setup.py sdist bdist_wheel
-	rm -f setup.py
-	ln -s scripts/setup.pypitest.py setup.py
+	$(MAKE) ln-post
 
 pypi-register: pypi-dist
 	twine check dist/* || true

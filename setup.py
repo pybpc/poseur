@@ -1,1 +1,1 @@
-scripts/setup.pypitest.py
+scripts/setup.pypi.py
