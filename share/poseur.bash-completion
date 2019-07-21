@@ -42,7 +42,7 @@ _poseur() {
   local cur prev opts cmds
   cur="${COMP_WORDS[COMP_CWORD]}"
   prev="${COMP_WORDS[COMP_CWORD-1]}"
-  opts="--help --version --no-archive --dismiss --linting"
+  opts="--help --version --no-archive --dismiss --no-linting"
   cmds="--archive-path --encoding --python --linesep"
 
   if [[ ${prev} =~ "--help|--version|--no-archive" ]]

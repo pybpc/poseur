@@ -29,14 +29,14 @@ setup(
     description='Back-port compiler for Python 3.8 positional-only parameter syntax.',
     long_description=long_desc,
     long_description_content_type='text/markdown; charset=UTF-8',
-    # python_requires='>=3.3',
+    python_requires='>=3.3',
     zip_safe=True,
     py_modules=['poseur'],
-    # entry_points={
-    #     'console_scripts': [
-    #         'poseur = poseur:main',
-    #     ]
-    # },
+    entry_points={
+        'console_scripts': [
+            'poseur = poseur:main',
+        ]
+    },
     package_data={
         '': [
             'LICENSE',

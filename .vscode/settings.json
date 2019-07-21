@@ -1,7 +1,4 @@
 {
-    "python.pythonPath": ".venv/bin/python",
-    "python.linting.enabled": true,
-    "restructuredtext.confPath": "${workspaceFolder}/docs/conf.py",
     "cSpell.words": [
         "CWORD",
         "Envs",
@@ -22,5 +19,8 @@
         "spython",
         "sysconf",
         "virtualenv"
-    ]
+    ],
+    "python.linting.enabled": true,
+    "python.pythonPath": ".venv/bin/python",
+    "restructuredtext.confPath": "${workspaceFolder}/docs/conf.py"
 }

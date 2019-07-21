@@ -5,7 +5,7 @@ import sys
 import tempfile
 import unittest
 
-from poseur import get_parser, poseur
+from poseur import decorator, get_parser, poseur
 
 
 class TestPoseur(unittest.TestSuite):

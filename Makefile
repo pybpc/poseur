@@ -6,7 +6,7 @@ clean: pypi-clean
 pipenv: pipenv-update
 maintainer: update-maintainer
 
-dist: test pypi setup github formula maintainer after
+dist: pipenv test pypi setup github formula maintainer after
 github: git-upload git-release
 pypi: pypi-dist pypi-upload
 setup: setup-sync setup-manual
@@ -94,7 +94,7 @@ setup-version:
 setup-sync: setup-version
 	pipenv run python scripts/setup-sync.py
 
-setup-formula: setup-version
+setup-formula: setup-version pipenv-update
 	pipenv run python scripts/setup-formula.py
 
 setup-manual: setup-version
@@ -112,10 +112,12 @@ git-after:
 	git commit -S -m "Regular update after distribution"
 	git push
 
+.ONESHELL:
 git-release:
+	message=$$(git log -1 --pretty=%B)
 	go run github.com/aktau/github-release release \
 	    --user JarryShaw \
 	    --repo poseur \
 	    --tag "v$(version)" \
 	    --name "poseur v$(version)" \
-	    --description "$(shell git log -1 --pretty=%B)"
+	    --description "$${message}"

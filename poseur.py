@@ -23,7 +23,7 @@ except ImportError:  # pragma: no cover
 else:       # CPU number if multiprocessing supported
     if os.name == 'posix' and 'SC_NPROCESSORS_CONF' in os.sysconf_names:  # pragma: no cover
         CPU_CNT = os.sysconf('SC_NPROCESSORS_CONF')
-    elif 'sched_getaffinity' in os.__all__:  # pragma: no cover
+    elif hasattr(os, 'sched_getaffinity'):  # pragma: no cover
         CPU_CNT = len(os.sched_getaffinity(0))  # pylint: disable=E1101
     else:  # pragma: no cover
         CPU_CNT = os.cpu_count() or 1
@@ -32,7 +32,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.1.0.post1'
+__version__ = '0.1.1'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,
@@ -89,9 +89,10 @@ def _poseur_decorator(*poseur):
     def caller(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            for poseur_args in poseur:
-                if poseur_args in kwargs:
-                    raise TypeError('%s() got an unexpected keyword argument %r' % (func.__name__, poseur_args))
+            poseur_args = set(poseur).intersection(kwargs)
+            if poseur_args:
+                raise TypeError('%s() got some positional-only arguments passed as keyword arguments: %r' %
+                                (func.__name__, ', '.join(poseur_args)))
             return func(*args, **kwargs)
         return wrapper
     return caller
@@ -111,9 +112,10 @@ def decorator(*poseur):
     def caller(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            for poseur_args in poseur:
-                if poseur_args in kwargs:
-                    raise TypeError('%s() got an unexpected keyword argument %r' % (func.__name__, poseur_args))
+            poseur_args = set(poseur).intersection(kwargs)
+            if poseur_args:
+                raise TypeError('%s() got some positional-only arguments passed as keyword arguments: %r' %
+                                (func.__name__, ', '.join(poseur_args)))
             return func(*args, **kwargs)
         return wrapper
     return caller
@@ -715,7 +717,7 @@ def get_parser():
 
     archive_group = parser.add_argument_group(title='archive options',
                                               description="duplicate original files in case there's any issue")
-    archive_group.add_argument('-n', '--no-archive', action='store_true',
+    archive_group.add_argument('-na', '--no-archive', action='store_false', dest='archive',
                                help='do not archive original files')
     archive_group.add_argument('-p', '--archive-path', action='store', default=__archive__, metavar='PATH',
                                help='path to archive original files (%s)' % __archive__)
@@ -799,7 +801,6 @@ def main(argv=None):
 
     # set up variables
     ARCHIVE = args.archive_path
-    archive = (not args.no_archive)
     os.environ['POSEUR_VERSION'] = args.python
     os.environ['POSEUR_ENCODING'] = args.encoding
     os.environ['POSEUR_LINSEP'] = args.linesep
@@ -811,20 +812,20 @@ def main(argv=None):
     os.environ['POSEUR_LINTING'] = '1' if args.linting else ('0' if POSEUR_LINTING is None else POSEUR_LINTING)
 
     # make archive directory
-    if archive:
+    if args.archive:
         os.makedirs(ARCHIVE, exist_ok=True)
 
     # fetch file list
     filelist = list()
     for path in args.file:
         if os.path.isfile(path):
-            if archive:
+            if args.archive:
                 dest = rename(path, root=ARCHIVE)
                 os.makedirs(os.path.dirname(dest), exist_ok=True)
                 shutil.copy(path, dest)
             filelist.append(path)
         if os.path.isdir(path):
-            if archive:
+            if args.archive:
                 shutil.copytree(path, rename(path, root=ARCHIVE))
             filelist.extend(find(path))
 

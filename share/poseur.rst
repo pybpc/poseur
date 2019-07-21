@@ -51,7 +51,7 @@ archive options
 
 duplicate original files in case there's any issue
 
--n, --no-archive      do not archive original files
+-na, --no-archive     do not archive original files
 
 -p *PATH*, --archive-path *PATH*
                       path to archive original files
