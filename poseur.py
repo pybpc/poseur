@@ -65,7 +65,7 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 def predicate(filename):  # pragma: no cover
     if os.path.basename(filename) == 'poseur':
         return True
-    return (ROOT in os.path.realpath(filename))
+    return ROOT in os.path.realpath(filename)
 
 
 tbtrim.set_trim_rule(predicate, strict=True, target=ConvertError)
@@ -79,7 +79,7 @@ def _poseur_decorator(*poseur):
     """Positional-only arguments runtime checker.
 
     Args:
-     - str, name of positional-only arguments
+     - `*poseur` -- `str`, name of positional-only arguments
 
     Refs:
      - https://mail.python.org/pipermail/python-ideas/2017-February/044888.html
@@ -99,11 +99,11 @@ def _poseur_decorator(*poseur):
 '''
 
 
-def decorator(*poseur):
+def decorator(*poseurs):
     """Positional-only arguments runtime checker.
 
     Args:
-     - str, name of positional-only arguments
+     - `*poseurs` -- `str`, name of positional-only arguments
 
     Refs:
      - https://mail.python.org/pipermail/python-ideas/2017-February/044888.html
@@ -112,7 +112,7 @@ def decorator(*poseur):
     def caller(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            poseur_args = set(poseur).intersection(kwargs)
+            poseur_args = set(poseurs).intersection(kwargs)
             if poseur_args:
                 raise TypeError('%s() got some positional-only arguments passed as keyword arguments: %r' %
                                 (func.__name__, ', '.join(poseur_args)))
@@ -129,18 +129,18 @@ def parse(string, source, error_recovery=False):
     """Parse source string.
 
     Args:
-     - string -- str, context to be converted
-     - source -- str, source of the context
-     - error_recovery -- bool, see `parso.Grammar.parse` (default: `False`)
+     - `string` -- `str`, context to be converted
+     - `source` -- `str`, source of the context
+     - `error_recovery` -- `bool`, see `parso.Grammar.parse`
 
     Envs:
-     - POSEUR_VERSION -- convert against Python version (same as `--python` option in CLI)
+     - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
 
     Returns:
-     - parso.python.tree.Module -- parso AST
+     - `parso.python.tree.Module` -- parso AST
 
     Raises:
-     - ConvertError -- when `parso.ParserSyntaxError` raised
+     - `ConvertError` -- when `parso.ParserSyntaxError` raised
 
     """
     try:
@@ -156,11 +156,11 @@ def decorate_lambdef(parameters, lambdef):
     """Append poseur decorator to lambda definition.
 
     Args:
-     - parameters -- list[parso.python.tree.Param], extracted positional-only arguments
-     - lambdef -- str, converted lambda string
+     - `parameters` -- `List[parso.python.tree.Param]`, extracted positional-only arguments
+     - `lambdef` -- `str`, converted lambda string
 
     Returns:
-     - str -- decorated lambda definition
+     - `str` -- decorated lambda definition
 
     """
     match_prefix = re.match(r'^(?P<prefix>\s*).*?', lambdef, re.DOTALL | re.MULTILINE)
@@ -179,13 +179,13 @@ def dismiss_lambdef(node):
     """Dismiss positional-only arguments syntax.
 
     Args:
-     - node -- parso.python.tree.Lambda, AST of lambda parameters
+     - `node` -- `parso.python.tree.Lambda`, AST of lambda parameters
 
     Envs:
-     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 
     Returns:
-     - str -- converted lambda definition
+     - `str` -- converted lambda definition
 
     """
     params = ''
@@ -228,17 +228,17 @@ def dismiss_lambdef(node):
     else:
         params = ','.join(filter(lambda s: s.strip(), params.split(',')))
 
-    return (prefix + params + suffix)
+    return prefix + params + suffix
 
 
 def extract_lambdef(node):
     """Extract positional-only arguments from lambda definition.
 
     Args:
-     - node -- parso.python.tree.Lambda, AST of lambda definition
+     - `node` -- `parso.python.tree.Lambda`, AST of lambda definition
 
     Returns:
-     - list[parso.python.tree.Param] -- extracted positional-only arguments
+     - `List[parso.python.tree.Param]` -- extracted positional-only arguments
 
     """
     pos_only = list()
@@ -258,13 +258,13 @@ def process_lambdef(node, flag):
     """Process lambda definition.
 
     Args:
-     - node -- parso.python.tree.Lambda, lambda AST
+     - `node` -- `parso.python.tree.Lambda`, lambda AST
 
     Envs:
-     - POSEUR_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 
     Returns:
-     - str -- processed source string
+     - `str` -- processed source string
 
     """
     # string buffer
@@ -285,15 +285,15 @@ def decorate_funcdef(parameters, column, funcdef):
     """Append poseur decorator to function definition.
 
     Args:
-     - parameters -- list[parso.python.tree.Param], extracted positional-only arguments
-     - column -- int, indentation of function definition
-     - funcdef -- str, converted function string
+     - `parameters` -- `List[parso.python.tree.Param]`, extracted positional-only arguments
+     - `column` -- `int`, indentation of function definition
+     - `funcdef` -- `str`, converted function string
 
     Envs:
-     - POSEUR_LINSEP -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
 
     Returns:
-     - str -- decorated function definition
+     - `str` -- decorated function definition
 
     """
     POSEUR_LINESEP = os.getenv('POSEUR_LINSEP', os.linesep)
@@ -321,13 +321,13 @@ def dismiss_funcdef(node):
     """Dismiss positional-only arguments syntax.
 
     Args:
-     - node -- parso.python.tree.PythonNode, AST of function parameters
+     - `node` -- `parso.python.tree.PythonNode`, AST of function parameters
 
     Envs:
-     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 
     Returns:
-     - str -- converted parameters string
+     - `str` -- converted parameters string
 
     """
     # <Operator: (>
@@ -337,7 +337,6 @@ def dismiss_funcdef(node):
     for child in node.children[1:-1]:
         # <Operator: />
         if child.type == 'operator' and child.value == '/':
-            poflag = True
             params += child.get_code().replace('/', '')
         elif child.type == 'param':
             if child.default is None:
@@ -364,10 +363,10 @@ def extract_funcdef(node):
     """Extract positional-only arguments from function parameters.
 
     Args:
-     - node -- parso.python.tree.PythonNode, AST of function parameters
+     - `node` -- `parso.python.tree.PythonNode`, AST of function parameters
 
     Returns:
-     - list[parso.python.tree.Param] -- extracted positional-only arguments
+     - `List[parso.python.tree.Param]` -- extracted positional-only arguments
 
     """
     pos_only = list()
@@ -387,16 +386,16 @@ def process_funcdef(node, flag, *, async_ctx=None):
     """Process function definition.
 
     Args:
-     - node -- parso.python.tree.Function, function AST
+     - `node` -- `parso.python.tree.Function`, function AST
 
     Kwds:
-     - async_ctx -- parso.python.tree.PythonNode, async keyword AST node
+     - `async_ctx` -- `parso.python.tree.Keyword`, `async` keyword AST node
 
     Envs:
-     - POSEUR_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 
     Returns:
-     - str -- processed source string
+     - `str` -- processed source string
 
     """
     # string buffer
@@ -428,10 +427,10 @@ def check_lambdef(node):
     """Check if lambda definition contains positional-only arguments.
 
     Args:
-     - node -- parso.python.tree.Lambda, lambda definition
+     - `node` -- `parso.python.tree.Lambda`, lambda definition
 
     Returns:
-     - bool -- if lambda definition contains positional-only arguments
+     - `bool` -- if lambda definition contains positional-only arguments
 
     """
     param = False
@@ -456,22 +455,22 @@ def check_funcdef(node):
     """Check if function definition contains positional-only arguments.
 
     Args:
-     - node -- parso.python.tree.Function, function definition
+     - `node` -- `parso.python.tree.Function`, function definition
 
     Returns:
-     - bool -- if function definition contains positional-only arguments
+     - `bool` -- if function definition contains positional-only arguments
 
     """
     for child in node.children:
         if child.type == 'suite' and has_poseur(child):
             return True
         if child.type == 'parameters':
-            for child in child.children[1:-1]:
-                if child.type == 'operator':
-                    if child.value == '/':
+            for param in child.children[1:-1]:
+                if param.type == 'operator':
+                    if param.value == '/':
                         return True
                     continue
-                if child.default is not None and has_poseur(child.default):
+                if param.default is not None and has_poseur(param.default):
                     return True
     return False
 
@@ -480,11 +479,10 @@ def has_poseur(node):
     """Check if node has function/lambda definitions.
 
     Args:
-     - node -- typing.Union[parso.python.tree.PythonNode,
-                            parso.python.tree.PythonLeaf], node to search
+     - `node` -- `Union[parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`, node to search
 
     Return:
-     - bool -- if node has function/lambda definitions
+     - `bool` -- if node has function/lambda definitions
 
     """
     if node.type == 'funcdef':
@@ -500,11 +498,11 @@ def find_poseur(node, root=0):
     """Find node to insert poseur decorator.
 
     Args:
-     - node -- parso.python.tree.Module, parso AST
-     - root -- int, index for insertion (based on `node`)
+     - `node` -- `parso.python.tree.Module`, parso AST
+     - `root` -- `int`, index for insertion (based on `node`)
 
     Returns:
-     - int -- index for insertion (based on `node`)
+     - `int` -- index for insertion (based on `node`)
 
     """
     for index, child in enumerate(node.children, start=1):
@@ -519,13 +517,13 @@ def process_module(node):
     """Walk top nodes of the AST module.
 
     Args:
-     - node -- parso.python.tree.Module, parso AST
+     - `node` -- `parso.python.tree.Module`, parso AST
 
     Envs:
-     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 
     Returns:
-     - str -- processed source string
+     - `str` -- processed source string
 
     """
     prefix = ''
@@ -576,24 +574,23 @@ def process_module(node):
                 poflag = True
                 string += middle + line
         return string
-    return (prefix + suffix)
+    return prefix + suffix
 
 
 def walk(node):
     """Walk parso AST.
 
     Args:
-     - node -- typing.Union[parso.python.tree.Module,
-                            parso.python.tree.PythonNode,
-                            parso.python.tree.PythonLeaf], parso AST
+     - `node` -- `Union[parso.python.tree.Module, parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`,
+                 parso AST
 
     Envs:
-     - POSEUR_LINSEP -- line separator to process source files (same as `--linesep` option in CLI)
-     - POSEUR_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 
     Returns:
-     - str -- converted string
+     - `str` -- converted string
 
     """
     POSEUR_DISMISS = BOOLEAN_STATES.get(os.getenv('POSEUR_DISMISS', '0').casefold(), False)
@@ -633,17 +630,17 @@ def convert(string, source='<unknown>'):
     """The main conversion process.
 
     Args:
-     - string -- str, context to be converted
-     - source -- str, source of the context
+     - `string` -- `str`, context to be converted
+     - `source` -- `str`, source of the context
 
     Envs:
-     - POSEUR_VERSION -- convert against Python version (same as `--python` option in CLI)
-     - POSEUR_LINSEP -- line separator to process source files (same as `--linesep` option in CLI)
-     - POSEUR_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
+     - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 
     Returns:
-     - str -- converted string
+     - `str` -- converted string
 
     """
     # parse source string
@@ -660,15 +657,15 @@ def poseur(filename):
     """Wrapper works for conversion.
 
     Args:
-     - filename -- str, file to be converted
+     - `filename` -- `str`, file to be converted
 
     Envs:
-     - POSEUR_QUIET -- run in quiet mode (same as `--quiet` option in CLI)
-     - POSEUR_ENCODING -- encoding to open source files (same as `--encoding` option in CLI)
-     - POSEUR_VERSION -- convert against Python version (same as `--python` option in CLI)
-     - POSEUR_LINSEP -- line separator to process source files (same as `--linesep` option in CLI)
-     - POSEUR_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
+     - `POSEUR_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
+     - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
+     - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 
     """
     POSEUR_QUIET = BOOLEAN_STATES.get(os.getenv('POSEUR_QUIET', '0').casefold(), False)
@@ -705,7 +702,7 @@ def get_parser():
     """Generate CLI parser.
 
     Returns:
-     - argparse.ArgumentParser -- CLI parser for poseur
+     - `argparse.ArgumentParser` -- CLI parser for poseur
 
     """
     parser = argparse.ArgumentParser(prog='poseur',
@@ -746,34 +743,32 @@ def find(root):  # pragma: no cover
     """Recursively find all files under root.
 
     Args:
-     - root -- os.PathLike, root path to search
+     - `root` -- `os.PathLike`, root path to search
 
     Returns:
-     - typing.Generator -- yield all files under the root path
+     - `Generator[str, None, None]` -- yield all files under the root path
 
     """
-    flst = list()
-    temp = os.listdir(root)
-    for file in temp:
-        path = os.path.join(root, file)
-        if os.path.isdir(path):
-            flst.extend(find(path))
-        elif os.path.isfile(path):
-            flst.append(path)
-        elif os.path.islink(path):  # exclude symbolic links
+    file_list = list()
+    for entry in os.scandir(root):
+        if entry.is_dir():
+            file_list.extend(find(entry.path))
+        elif entry.is_file():
+            file_list.append(entry.path)
+        elif entry.is_symlink():  # exclude symbolic links
             continue
-    yield from flst
+    yield from file_list
 
 
 def rename(path, root):
     """Rename file for archiving.
 
     Args:
-     - path -- os.PathLike, file to rename
-     - root -- os.PathLike, archive path
+     - `path` -- `os.PathLike`, file to rename
+     - `root` -- `os.PathLike`, archive path
 
     Returns:
-     - str -- the archiving path
+     - `str` -- the archiving path
 
     """
     stem, ext = os.path.splitext(path)
@@ -785,15 +780,15 @@ def main(argv=None):
     """Entry point for poseur.
 
     Args:
-     - argv -- list[str], CLI arguments (default: None)
+     - `argv` -- `List[str]`, CLI arguments (default: None)
 
     Envs:
-     - POSEUR_QUIET -- run in quiet mode (same as `--quiet` option in CLI)
-     - POSEUR_ENCODING -- encoding to open source files (same as `--encoding` option in CLI)
-     - POSEUR_VERSION -- convert against Python version (same as `--python` option in CLI)
-     - POSEUR_LINSEP -- line separator to process source files (same as `--linesep` option in CLI)
-     - POSEUR_DISMISS -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - POSEUR_LINTING -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
+     - `POSEUR_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
+     - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
+     - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 
     """
     parser = get_parser()
@@ -834,12 +829,12 @@ def main(argv=None):
     filelist = sorted(filter(ispy, filelist))
 
     # if no file supplied
-    if len(filelist) == 0:
+    if not filelist:
         parser.error('argument PATH: no valid source file found')
 
     # process files
     if mp is None or CPU_CNT <= 1:
-        [poseur(filename) for filename in filelist]  # pragma: no cover
+        [poseur(filename) for filename in filelist]  # pylint: disable=expression-not-assigned # pragma: no cover
     else:
         mp.Pool(processes=CPU_CNT).map(poseur, filelist)
 
