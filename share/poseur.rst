@@ -6,8 +6,8 @@ poseur
 back-port compiler for Python 3.8 positional-only parameter syntax
 ------------------------------------------------------------------
 
-:Version: v0.1.0.post1
-:Date: July 21, 2019
+:Version: v0.1.1
+:Date: July 26, 2019
 :Manual section: 1
 :Author:
     Jarry Shaw, a newbie programmer, is the author, owner and maintainer

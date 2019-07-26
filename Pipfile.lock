@@ -1,13 +1,23 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a997c249b5b42d59d1bdc5de26922b5a4edce276a572e49dab42149ba1c61bd9"
+            "sha256": "e700909e331ee9206cc28c09cf48ebe76f214c785d02a2b83d482ae4099f1a5c"
         },
         "pipfile-spec": 6,
         "requires": {
             "python_version": "3.7"
         },
         "sources": [
+            {
+                "name": "tuna",
+                "url": "https://pypi.tuna.tsinghua.edu.cn/simple",
+                "verify_ssl": true
+            },
+            {
+                "name": "sjtu",
+                "url": "https://mirrors.sjtug.sjtu.edu.cn/pypi/web/simple",
+                "verify_ssl": true
+            },
             {
                 "name": "pypi",
                 "url": "https://pypi.org/simple",
@@ -153,11 +163,9 @@
         },
         "docutils": {
             "hashes": [
-                "sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6",
-                "sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274",
-                "sha256:7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6"
+                "sha256:f33ddb723332c6d6b6d99731ee1fc0c35eb4044a2df5cca1c64c8aa78eaf22cb"
             ],
-            "version": "==0.14"
+            "version": "==0.15.1.post1"
         },
         "homebrew-pypi-poet": {
             "hashes": [
@@ -360,10 +368,10 @@
         },
         "pyparsing": {
             "hashes": [
-                "sha256:1873c03321fc118f4e9746baf201ff990ceb915f433f23b395f5580d1840cb2a",
-                "sha256:9b6323ef4ab914af344ba97510e966d64ba91055d6b9afa6b30799340e89cc03"
+                "sha256:43c5486cefefa536c9aab528881c992328f020eefe4f6d06332449c365218580",
+                "sha256:d6c5ffe9d0305b9b977f7a642d36b9370954d1da7ada4c62393382cbadad4265"
             ],
-            "version": "==2.4.0"
+            "version": "==2.4.1.1"
         },
         "pytz": {
             "hashes": [

@@ -11,6 +11,15 @@ github: git-upload git-release
 pypi: pypi-dist pypi-upload
 setup: setup-sync setup-manual
 
+coverage:
+	pipenv run coverage run tests/test.py
+	pipenv run coverage html
+	open htmlcov/index.html
+	echo "Press ENTER to continue..."
+	read
+	rm -rf htmlcov
+	rm .coverage
+
 .ONESHELL:
 formula: setup-formula
 	set -ae
@@ -22,6 +31,7 @@ formula: setup-formula
 
 test:
 	pipenv run python tests/test.py
+	rm -rf archive
 
 ln-prep:
 	rm -f setup.py
