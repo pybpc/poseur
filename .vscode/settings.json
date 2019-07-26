@@ -18,7 +18,8 @@
         "sched",
         "spython",
         "sysconf",
-        "virtualenv"
+        "virtualenv",
+        "xenial"
     ],
     "python.linting.enabled": true,
     "python.pythonPath": ".venv/bin/python",
