@@ -32,7 +32,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,
@@ -387,12 +387,10 @@ def process_funcdef(node, flag, *, async_ctx=None):
 
     Args:
      - `node` -- `parso.python.tree.Function`, function AST
+     - `flag` -- `bool`, dismiss runtime checks for positional-only arguments
 
     Kwds:
      - `async_ctx` -- `parso.python.tree.Keyword`, `async` keyword AST node
-
-    Envs:
-     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 
     Returns:
      - `str` -- processed source string
@@ -401,7 +399,11 @@ def process_funcdef(node, flag, *, async_ctx=None):
     # string buffer
     string = ''
 
-    funcdef = ''
+    if async_ctx is None:
+        funcdef = ''
+    else:
+        funcdef = async_ctx.get_code()
+
     for child in node.children:
         if child.type == 'parameters':
             parameters = extract_funcdef(child)
@@ -413,11 +415,9 @@ def process_funcdef(node, flag, *, async_ctx=None):
     if parameters and (not flag):
         if async_ctx is None:
             column = node.get_first_leaf().column
-            string += decorate_funcdef(parameters, column, funcdef)
         else:
             column = async_ctx.column
-            funcdef = async_ctx.get_code() + funcdef
-            string += decorate_funcdef(parameters, column, funcdef)
+        string += decorate_funcdef(parameters, column, funcdef)
     else:
         string += funcdef
     return string
@@ -605,13 +605,13 @@ def walk(node):
 
     if node.type == 'async_stmt':
         child_1st = node.children[0]
-        child_2nd = node.children[0]
+        child_2nd = node.children[1]
 
         flag_1st = child_1st.type == 'keyword' and child_1st.value == 'async'
         flag_2nd = child_2nd.type == 'funcdef'
 
-        if flag_1st and flag_2nd:
-            return process_funcdef(node, flag=POSEUR_DISMISS, async_ctx=child_1st)
+        if flag_1st and flag_2nd:  # pragma: no cover
+            return process_funcdef(child_2nd, flag=POSEUR_DISMISS, async_ctx=child_1st)
 
     if node.type == 'lambdef':
         return process_lambdef(node, flag=POSEUR_DISMISS)
@@ -669,7 +669,7 @@ def poseur(filename):
 
     """
     POSEUR_QUIET = BOOLEAN_STATES.get(os.getenv('POSEUR_QUIET', '0').casefold(), False)
-    if not POSEUR_QUIET:
+    if not POSEUR_QUIET:  # pragma: no cover
         print('Now converting %r...' % filename)
 
     # fetch encoding
@@ -807,19 +807,19 @@ def main(argv=None):
     os.environ['POSEUR_LINTING'] = '1' if args.linting else ('0' if POSEUR_LINTING is None else POSEUR_LINTING)
 
     # make archive directory
-    if args.archive:
+    if args.archive:  # pragma: no cover
         os.makedirs(ARCHIVE, exist_ok=True)
 
     # fetch file list
     filelist = list()
     for path in args.file:
         if os.path.isfile(path):
-            if args.archive:
+            if args.archive:  # pragma: no cover
                 dest = rename(path, root=ARCHIVE)
                 os.makedirs(os.path.dirname(dest), exist_ok=True)
                 shutil.copy(path, dest)
             filelist.append(path)
-        if os.path.isdir(path):
+        if os.path.isdir(path):  # pragma: no cover
             if args.archive:
                 shutil.copytree(path, rename(path, root=ARCHIVE))
             filelist.extend(find(path))
@@ -829,7 +829,7 @@ def main(argv=None):
     filelist = sorted(filter(ispy, filelist))
 
     # if no file supplied
-    if not filelist:
+    if not filelist:  # pragma: no cover
         parser.error('argument PATH: no valid source file found')
 
     # process files

@@ -43,7 +43,7 @@ def test_environ(path, *env):
 
     for var in env:
         if _env[var] is None:
-            del _env[var]
+            del os.environ[var]
         else:
             os.environ[var] = _env[var]
     with open(path, 'w') as file:
@@ -58,6 +58,12 @@ class TestPoseur(unittest.TestCase):
             encoding='utf-8'
         )
         self.assertEqual(output, TEXT)
+
+    def _check_convert(self, src, dst):
+        os.environ['POSEUR_DISMISS'] = 'true'
+        out = convert(src)
+        self.assertEqual(out, dst)
+        del os.environ['POSEUR_DISMISS']
 
     def test_get_parser(self):
         parser = get_parser()
@@ -117,8 +123,22 @@ class TestPoseur(unittest.TestCase):
         def func(a, b, *, c):  # pylint: disable=unused-argument
             pass
 
+        # wrong code
         with self.assertRaises(TypeError):
             func(a=1, b=2, c=3)
+
+        # right code
+        func(1, b=2, c=3)
+
+    def test_async(self):
+        src = 'async def func(param, /): pass'
+        dst = 'async def func(param): pass'
+        self._check_convert(src, dst)
+
+    def test_lambdef(self):
+        src = 'lambda param, /: param'
+        dst = 'lambda param: param'
+        self._check_convert(src, dst)
 
 
 if __name__ == '__main__':
