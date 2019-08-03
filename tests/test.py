@@ -8,7 +8,7 @@ import sys
 import tempfile
 import unittest
 
-from poseur import ConvertError, convert, decorator, get_parser
+from poseur import ConvertError, _decorator, convert, decorator, get_parser
 from poseur import main as main_func
 from poseur import poseur as core_func
 
@@ -52,6 +52,10 @@ def test_environ(path, *env):
 
 class TestPoseur(unittest.TestCase):
 
+    def __init__(self, methodName):
+        self.maxDiff = None
+        super().__init__(methodName)
+
     def _check_output(self, path):
         output = subprocess.check_output(
             [sys.executable, path],
@@ -60,10 +64,8 @@ class TestPoseur(unittest.TestCase):
         self.assertEqual(output, TEXT)
 
     def _check_convert(self, src, dst):
-        os.environ['POSEUR_DISMISS'] = 'true'
         out = convert(src)
         self.assertEqual(out, dst)
-        del os.environ['POSEUR_DISMISS']
 
     def test_get_parser(self):
         parser = get_parser()
@@ -133,11 +135,59 @@ class TestPoseur(unittest.TestCase):
     def test_async(self):
         src = 'async def func(param, /): pass'
         dst = 'async def func(param): pass'
+        dst = "%s@_poseur_decorator(\'param\')\nasync def func(param): pass" % _decorator.lstrip()
         self._check_convert(src, dst)
 
     def test_lambdef(self):
-        src = 'lambda param, /: param'
+        # no poseur
+        src = 'lambda param: param'
         dst = 'lambda param: param'
+        self._check_convert(src, dst)
+
+        # basic poseur
+        src = 'lambda param, /: param'
+        dst = "%s_poseur_decorator('param')(lambda param: param)" % _decorator.lstrip()
+        self._check_convert(src, dst)
+
+        # no poseur in default value
+        src = 'lambda param=lambda p: p: param'
+        dst = 'lambda param=lambda p: p: param'
+        self._check_convert(src, dst)
+
+        # poseur in default value
+        src = 'lambda param=lambda p, /: p: param'
+        dst = "%slambda param=_poseur_decorator('p')(lambda p: p): param" % _decorator.lstrip()
+        self._check_convert(src, dst)
+
+        # poseur in lambda suite
+        src = 'lambda param: lambda p, /: p'
+        dst = "%slambda param: _poseur_decorator('p')(lambda p: p)" % _decorator.lstrip()
+        self._check_convert(src, dst)
+
+        # hybrid poseur
+        src = 'lambda param: param\nlambda param, /: param'
+        dst = "lambda param: param\n%s_poseur_decorator('param')(lambda param: param)" % _decorator
+        self._check_convert(src, dst)
+
+    def test_funcdef(self):
+        # no poseur
+        src = 'def func(): pass'
+        dst = 'def func(): pass'
+        self._check_convert(src, dst)
+
+        # poseur in function suite
+        src = 'def func(): lambda param, /: param'
+        dst = "%sdef func(): _poseur_decorator('param')(lambda param: param)" % _decorator.lstrip()
+        self._check_convert(src, dst)
+
+        # keyword arguments
+        src = 'def func(a, *, b): pass'
+        dst = 'def func(a, *, b): pass'
+        self._check_convert(src, dst)
+
+        # poseur in default value
+        src = 'def func(a=lambda param, /: param): pass'
+        dst = "%sdef func(a=_poseur_decorator('param')(lambda param: param)): pass" % _decorator.lstrip()
         self._check_convert(src, dst)
 
 

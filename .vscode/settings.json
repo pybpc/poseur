@@ -16,6 +16,8 @@
         "postmt",
         "prflag",
         "sched",
+        "sdef",
+        "slambda",
         "spython",
         "sysconf",
         "virtualenv",

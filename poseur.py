@@ -32,7 +32,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,
@@ -259,9 +259,7 @@ def process_lambdef(node, flag):
 
     Args:
      - `node` -- `parso.python.tree.Lambda`, lambda AST
-
-    Envs:
-     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
+     - `flag` -- `bool`, dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 
     Returns:
      - `str` -- processed source string
@@ -277,7 +275,7 @@ def process_lambdef(node, flag):
             lambdef = decorate_lambdef(parameters, lambdef)
         string += lambdef
     else:
-        string += node.get_code()
+        string += dismiss_lambdef(node)
     return string
 
 
@@ -303,7 +301,7 @@ def decorate_funcdef(parameters, column, funcdef):
     deflag = False
 
     for line in funcdef.splitlines(True):
-        if line.strip().startswith('def'):
+        if re.match(r'^\s*(async)\s+?def.*', line) is not None:
             deflag = True
         if deflag:
             suffix += line
@@ -408,10 +406,8 @@ def process_funcdef(node, flag, *, async_ctx=None):
         if child.type == 'parameters':
             parameters = extract_funcdef(child)
             funcdef += dismiss_funcdef(child)
-        elif child.type == 'suite':
+        else:  # suite / ...
             funcdef += walk(child)
-        else:
-            funcdef += child.get_code()
     if parameters and (not flag):
         if async_ctx is None:
             column = node.get_first_leaf().column
@@ -462,8 +458,6 @@ def check_funcdef(node):
 
     """
     for child in node.children:
-        if child.type == 'suite' and has_poseur(child):
-            return True
         if child.type == 'parameters':
             for param in child.children[1:-1]:
                 if param.type == 'operator':
@@ -472,6 +466,8 @@ def check_funcdef(node):
                     continue
                 if param.default is not None and has_poseur(param.default):
                     return True
+        elif has_poseur(child):  # suite / ...
+            return True
     return False
 
 
