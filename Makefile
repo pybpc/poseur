@@ -122,12 +122,11 @@ git-after:
 	git commit -S -m "Regular update after distribution"
 	git push
 
-.ONESHELL:
 git-release:
-	message=$$(git log -1 --pretty=%B)
+	$(eval message := $(shell git log -1 --pretty=%B))
 	go run github.com/aktau/github-release release \
 	    --user JarryShaw \
 	    --repo poseur \
 	    --tag "v$(version)" \
 	    --name "poseur v$(version)" \
-	    --description "$${message}"
+	    --description "$(message)"
