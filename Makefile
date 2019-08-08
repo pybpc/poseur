@@ -123,10 +123,9 @@ git-after:
 	git push
 
 git-release:
-	$(eval message := $(shell git log -1 --pretty=%B))
 	go run github.com/aktau/github-release release \
 	    --user JarryShaw \
 	    --repo poseur \
 	    --tag "v$(version)" \
 	    --name "poseur v$(version)" \
-	    --description "$(message)"
+	    --description "$$(git log -1 --pretty=%B)"
