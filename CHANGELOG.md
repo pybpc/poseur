@@ -1,5 +1,8 @@
 # Change Log
 
+## [v0.2.1](https://github.com/JarryShaw/poseur/tree/v0.2.1) (2019-08-09)
+[Full Changelog](https://github.com/JarryShaw/poseur/compare/v0.2.0...v0.2.1)
+
 ## [v0.2.0](https://github.com/JarryShaw/poseur/tree/v0.2.0) (2019-08-03)
 [Full Changelog](https://github.com/JarryShaw/poseur/compare/v0.1.2...v0.2.0)
 
