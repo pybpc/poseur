@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import functools
 import glob
 import locale
 import os
@@ -13,7 +12,7 @@ import uuid
 import parso
 import tbtrim
 
-__all__ = ['poseur', 'convert', 'decorator']
+__all__ = ['poseur', 'convert', 'decorator']  # pylint: disable=undefined-all-variable
 
 # multiprocessing may not be supported
 try:        # try first
@@ -32,7 +31,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.2.1'
+__version__ = '0.3.0'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,
@@ -75,7 +74,7 @@ tbtrim.set_trim_rule(predicate, strict=True, target=ConvertError)
 
 
 _decorator = '''
-def _poseur_decorator(*poseur):
+def %s(*poseur):
     """Positional-only arguments runtime checker.
 
     Args:
@@ -91,34 +90,14 @@ def _poseur_decorator(*poseur):
         def wrapper(*args, **kwargs):
             poseur_args = set(poseur).intersection(kwargs)
             if poseur_args:
-                raise TypeError('%s() got some positional-only arguments passed as keyword arguments: %r' %
+                raise TypeError('%%s() got some positional-only arguments passed as keyword arguments: %%r' %%
                                 (func.__name__, ', '.join(poseur_args)))
             return func(*args, **kwargs)
         return wrapper
     return caller
 '''
 
-
-def decorator(*poseurs):
-    """Positional-only arguments runtime checker.
-
-    Args:
-     - `*poseurs` -- `str`, name of positional-only arguments
-
-    Refs:
-     - https://mail.python.org/pipermail/python-ideas/2017-February/044888.html
-
-    """
-    def caller(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            poseur_args = set(poseurs).intersection(kwargs)
-            if poseur_args:
-                raise TypeError('%s() got some positional-only arguments passed as keyword arguments: %r' %
-                                (func.__name__, ', '.join(poseur_args)))
-            return func(*args, **kwargs)
-        return wrapper
-    return caller
+exec(_decorator % 'decorator')
 
 
 ###############################################################################
@@ -159,20 +138,26 @@ def decorate_lambdef(parameters, lambdef):
      - `parameters` -- `List[parso.python.tree.Param]`, extracted positional-only arguments
      - `lambdef` -- `str`, converted lambda string
 
+    Envs:
+     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+
     Returns:
      - `str` -- decorated lambda definition
 
     """
+    POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
+
     match_prefix = re.match(r'^(?P<prefix>\s*).*?', lambdef, re.DOTALL | re.MULTILINE)
     prefix = '' if match_prefix is None else match_prefix.group('prefix')
 
     match_suffix = re.match(r'.*?(?P<suffix>\s*)$', lambdef, re.DOTALL | re.MULTILINE)
     suffix = '' if match_suffix is None else match_suffix.group('suffix')
 
-    return '%s_poseur_decorator(%s)(%s)%s' % (prefix,
-                                              ', '.join(map(lambda param: repr(param.name.value), parameters)),
-                                              lambdef.strip(),
-                                              suffix)
+    return '%s%s(%s)(%s)%s' % (prefix,
+                               POSEUR_DECORATOR,
+                               ', '.join(map(lambda param: repr(param.name.value), parameters)),
+                               lambdef.strip(),
+                               suffix)
 
 
 def dismiss_lambdef(node):
@@ -261,6 +246,9 @@ def process_lambdef(node, flag):
      - `node` -- `parso.python.tree.Lambda`, lambda AST
      - `flag` -- `bool`, dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 
+    Envs:
+     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+
     Returns:
      - `str` -- processed source string
 
@@ -289,12 +277,14 @@ def decorate_funcdef(parameters, column, funcdef):
 
     Envs:
      - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
     Returns:
      - `str` -- decorated function definition
 
     """
     POSEUR_LINESEP = os.getenv('POSEUR_LINSEP', os.linesep)
+    POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
 
     prefix = ''
     suffix = ''
@@ -308,11 +298,12 @@ def decorate_funcdef(parameters, column, funcdef):
         else:
             prefix += line
 
-    return '%s%s@_poseur_decorator(%s)%s%s' % (prefix,
-                                               '\t'.expandtabs(column),
-                                               ', '.join(map(lambda param: repr(param.name.value), parameters)),
-                                               POSEUR_LINESEP,
-                                               suffix)
+    return '%s%s@%s(%s)%s%s' % (prefix,
+                                '\t'.expandtabs(column),
+                                POSEUR_DECORATOR,
+                                ', '.join(map(lambda param: repr(param.name.value), parameters)),
+                                POSEUR_LINESEP,
+                                suffix)
 
 
 def dismiss_funcdef(node):
@@ -389,6 +380,9 @@ def process_funcdef(node, flag, *, async_ctx=None):
 
     Kwds:
      - `async_ctx` -- `parso.python.tree.Keyword`, `async` keyword AST node
+
+    Envs:
+     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
     Returns:
      - `str` -- processed source string
@@ -517,6 +511,7 @@ def process_module(node):
 
     Envs:
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
     Returns:
      - `str` -- processed source string
@@ -533,7 +528,8 @@ def process_module(node):
             suffix += walk(child)
 
     if postmt >= 0:
-        middle = _decorator
+        POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
+        middle = _decorator % POSEUR_DECORATOR
         if not prefix:
             middle = middle.lstrip()
         if not suffix:
@@ -584,6 +580,7 @@ def walk(node):
      - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
     Returns:
      - `str` -- converted string
@@ -634,6 +631,7 @@ def convert(string, source='<unknown>'):
      - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
     Returns:
      - `str` -- converted string
@@ -662,6 +660,7 @@ def poseur(filename):
      - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
     """
     POSEUR_QUIET = BOOLEAN_STATES.get(os.getenv('POSEUR_QUIET', '0').casefold(), False)
@@ -692,6 +691,7 @@ __archive__ = os.path.join(__cwd__, 'archive')
 __poseur_version__ = os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1])
 __poseur_encoding__ = os.getenv('POSEUR_ENCODING', LOCALE_ENCODING)
 __poseur_linesep__ = os.getenv('POSEUR_LINESEP', os.linesep)
+__poseur_decorator__ = os.getenv('POSEUR_DECORATOR', '_poseur_decorator')
 
 
 def get_parser():
@@ -728,6 +728,8 @@ def get_parser():
                                help='dismiss runtime checks for positional-only parameters')
     convert_group.add_argument('-nl', '--no-linting', action='store_false', dest='linting',
                                help='do not lint converted codes')
+    convert_group.add_argument('-r', '--decorator', action='store', default=__poseur_decorator__, metavar='VAR',
+                               help='name of decorator for runtime checks (`%s`)' % __poseur_decorator__)
 
     parser.add_argument('file', nargs='+', metavar='SOURCE', default=__cwd__,
                         help='python source files and folders to be converted (%s)' % __cwd__)
@@ -785,6 +787,7 @@ def main(argv=None):
      - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
+     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
     """
     parser = get_parser()
@@ -795,6 +798,7 @@ def main(argv=None):
     os.environ['POSEUR_VERSION'] = args.python
     os.environ['POSEUR_ENCODING'] = args.encoding
     os.environ['POSEUR_LINSEP'] = args.linesep
+    os.environ['POSEUR_DECORATOR'] = args.decorator
     POSEUR_QUIET = os.getenv('POSEUR_QUIET')
     os.environ['POSEUR_QUIET'] = '1' if args.quiet else ('0' if POSEUR_QUIET is None else POSEUR_QUIET)
     POSEUR_DISMISS = os.getenv('POSEUR_DISMISS')

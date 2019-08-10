@@ -6,7 +6,7 @@ poseur
 back-port compiler for Python 3.8 positional-only parameter syntax
 ------------------------------------------------------------------
 
-:Version: v0.2.1
+:Version: v0.3.0
 :Date: August 10, 2019
 :Manual section: 1
 :Author:
@@ -73,6 +73,9 @@ compatibility configuration for none-unicode files
 -d, --dismiss         dismiss runtime checks for positional-only parameters
 -nl, --no-linting     do not lint converted codes
 
+-r *VAR*, --decorator *VAR*
+                      name of decorator for runtime checks (${DECORATOR})
+
 ENVIRONMENT
 ===========
 
@@ -84,6 +87,7 @@ ENVIRONMENT
 :POSEUR_LINSEP:       line separator to process source files
 :POSEUR_DISMISS:      dismiss runtime checks for positional-only arguments
 :POSEUR_LINTING:      lint converted codes
+:POSEUR_DECORATOR:    name of decorator for runtime checks
 
 SEE ALSO
 ========

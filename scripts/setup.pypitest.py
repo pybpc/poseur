@@ -15,7 +15,7 @@ with open(os.path.join(ROOT, 'README.md'), encoding='utf-8') as file:
     long_desc = file.read()
 
 # version string
-__version__ = '0.2.1'
+__version__ = '0.3.0'
 
 # set-up script for pip distribution
 setup(

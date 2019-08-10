@@ -86,6 +86,9 @@ convert options:
                         line separator to process source files (${OS_LINESEP})
   -d, --dismiss         dismiss runtime checks for positional-only parameters
   -nl, --no-linting     do not lint converted codes
+  -r VAR, --decorator VAR
+                        name of decorator for runtime checks (${DECORATOR})
+
 ```
 
 &emsp; `poseur` will read then convert all *positional-only parameters* syntax in every Python
@@ -108,6 +111,7 @@ such functions to check positional-only parameters at runtime, if `-nl` not set.
 - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
 - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
+- `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
 ### APIs
 
@@ -129,6 +133,7 @@ Envs:
 - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
 - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
+- `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
 Raises:
 
