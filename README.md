@@ -5,7 +5,7 @@
 [![PyPI - Format](https://img.shields.io/pypi/format/poseur.svg)](https://pypi.org/project/poseur)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/poseur.svg)](https://pypi.org/project/poseur)
 
-[![Travis CI - Status](https://img.shields.io/travis/JarryShaw/poseur.svg)](https://travis-ci.org/JarryShaw/poseur)
+[![Travis CI - Status](https://travis-ci.com/JarryShaw/poseur.svg)](https://travis-ci.org/JarryShaw/poseur)
 [![Codecov - Coverage](https://codecov.io/gh/JarryShaw/poseur/branch/master/graph/badge.svg)](https://codecov.io/gh/JarryShaw/poseur)
 ![License](https://img.shields.io/github/license/jarryshaw/poseur.svg)
 [![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
