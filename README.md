@@ -105,10 +105,10 @@ such functions to check positional-only parameters at runtime, if `-nl` not set.
 
 `poseur` currently supports three environment arguments:
 
-- `F2FORMAT_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
-- `F2FORMAT_VERSION` -- convert against Python version (same as `--python` option in CLI)
-- `F2FORMAT_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
-- `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+- `POSEUR_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
+- `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
+- `POSEUR_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
+- `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
 - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
@@ -127,10 +127,10 @@ Args:
 
 Envs:
 
-- `F2FORMAT_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
-- `F2FORMAT_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
-- `F2FORMAT_VERSION`-- convert against Python version (same as `--python` option in CLI)
-- `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+- `POSEUR_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
+- `POSEUR_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
+- `POSEUR_VERSION`-- convert against Python version (same as `--python` option in CLI)
+- `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
 - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
@@ -152,8 +152,8 @@ Args:
 
 Envs:
 
-- `F2FORMAT_VERSION`-- convert against Python version (same as `--python` option in CLI)
-- `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+- `POSEUR_VERSION`-- convert against Python version (same as `--python` option in CLI)
+- `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
 - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 

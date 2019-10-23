@@ -276,14 +276,14 @@ def decorate_funcdef(parameters, column, funcdef):
      - `funcdef` -- `str`, converted function string
 
     Envs:
-     - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
     Returns:
      - `str` -- decorated function definition
 
     """
-    POSEUR_LINESEP = os.getenv('POSEUR_LINSEP', os.linesep)
+    POSEUR_LINESEP = os.getenv('POSEUR_LINESEP', os.linesep)
     POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
 
     prefix = ''
@@ -537,7 +537,7 @@ def process_module(node):
 
         POSEUR_LINTING = BOOLEAN_STATES.get(os.getenv('POSEUR_LINTING', '0').casefold(), False)
         if POSEUR_LINTING:
-            POSEUR_LINESEP = os.getenv('POSEUR_LINSEP', os.linesep)
+            POSEUR_LINESEP = os.getenv('POSEUR_LINESEP', os.linesep)
             if prefix:
                 if prefix.endswith(POSEUR_LINESEP * 2):
                     pass
@@ -577,7 +577,7 @@ def walk(node):
                  parso AST
 
     Envs:
-     - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
      - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
@@ -628,7 +628,7 @@ def convert(string, source='<unknown>'):
 
     Envs:
      - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
-     - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
      - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
@@ -657,7 +657,7 @@ def poseur(filename):
      - `POSEUR_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
      - `POSEUR_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
      - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
-     - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
      - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
@@ -784,7 +784,7 @@ def main(argv=None):
      - `POSEUR_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
      - `POSEUR_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
      - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
-     - `POSEUR_LINSEP` -- line separator to process source files (same as `--linesep` option in CLI)
+     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
      - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
@@ -797,7 +797,7 @@ def main(argv=None):
     ARCHIVE = args.archive_path
     os.environ['POSEUR_VERSION'] = args.python
     os.environ['POSEUR_ENCODING'] = args.encoding
-    os.environ['POSEUR_LINSEP'] = args.linesep
+    os.environ['POSEUR_LINESEP'] = args.linesep
     os.environ['POSEUR_DECORATOR'] = args.decorator
     POSEUR_QUIET = os.getenv('POSEUR_QUIET')
     os.environ['POSEUR_QUIET'] = '1' if args.quiet else ('0' if POSEUR_QUIET is None else POSEUR_QUIET)
