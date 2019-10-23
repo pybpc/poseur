@@ -291,7 +291,7 @@ def decorate_funcdef(parameters, column, funcdef):
     deflag = False
 
     for line in funcdef.splitlines(True):
-        if re.match(r'^\s*(async)\s+?def.*', line) is not None:
+        if re.match(r'^\s*(async\s+)?def\s', line) is not None:
             deflag = True
         if deflag:
             suffix += line

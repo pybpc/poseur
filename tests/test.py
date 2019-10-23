@@ -175,6 +175,11 @@ class TestPoseur(unittest.TestCase):
         dst = 'def func(): pass'
         self._check_convert(src, dst)
 
+        # simple poseur
+        src = 'def func(a, /, b): pass'
+        dst = "%s@_poseur_decorator(\'a\')\ndef func(a, b): pass" % (_decorator % '_poseur_decorator').lstrip()
+        self._check_convert(src, dst)
+
         # poseur in function suite
         src = 'def func(): lambda param, /: param'
         dst = "%sdef func(): _poseur_decorator('param')(lambda param: param)" % (_decorator % '_poseur_decorator').lstrip()
