@@ -6,7 +6,7 @@ poseur
 back-port compiler for Python 3.8 positional-only parameter syntax
 ------------------------------------------------------------------
 
-:Version: v0.3.1
+:Version: v0.3.2
 :Date: October 24, 2019
 :Manual section: 1
 :Author:

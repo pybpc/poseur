@@ -15,7 +15,7 @@ with open(os.path.join(ROOT, 'README.md'), encoding='utf-8') as file:
     long_desc = file.read()
 
 # version string
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 # set-up script for pip distribution
 setup(
@@ -31,6 +31,10 @@ setup(
     long_description_content_type='text/markdown; charset=UTF-8',
     python_requires='>=3.3',
     zip_safe=True,
+    install_requires=[
+        'parso~=0.5.0',     # universal AST support
+        'tbtrim>=0.2.1',    # traceback trim support
+    ],
     py_modules=['poseur'],
     entry_points={
         'console_scripts': [
