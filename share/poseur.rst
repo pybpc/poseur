@@ -84,7 +84,7 @@ ENVIRONMENT
 :POSEUR_QUIET:        run in quiet mode
 :POSEUR_ENCODING:     encoding to open source files
 :POSEUR_VERSION:      convert against Python version
-:POSEUR_LINESEP:       line separator to process source files
+:POSEUR_LINESEP:      line separator to process source files
 :POSEUR_DISMISS:      dismiss runtime checks for positional-only arguments
 :POSEUR_LINTING:      lint converted codes
 :POSEUR_DECORATOR:    name of decorator for runtime checks
