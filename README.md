@@ -156,6 +156,7 @@ Envs:
 - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
 - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
+- `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
 Returns:
 

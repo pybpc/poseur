@@ -31,7 +31,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,
@@ -72,7 +72,6 @@ tbtrim.set_trim_rule(predicate, strict=True, target=ConvertError)
 ###############################################################################
 # Positional-only decorator
 
-
 _decorator = '''
 def %s(*poseur):
     """Positional-only arguments runtime checker.
@@ -95,10 +94,9 @@ def %s(*poseur):
             return func(*args, **kwargs)
         return wrapper
     return caller
-'''
+'''.splitlines()
 
-exec(_decorator % 'decorator')
-
+exec(os.linesep.join(_decorator) % 'decorator')
 
 ###############################################################################
 # Main convertion implementation
@@ -510,6 +508,7 @@ def process_module(node):
      - `node` -- `parso.python.tree.Module`, parso AST
 
     Envs:
+     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
      - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
 
@@ -528,8 +527,10 @@ def process_module(node):
             suffix += walk(child)
 
     if postmt >= 0:
+        POSEUR_LINESEP = os.getenv('POSEUR_LINESEP', os.linesep)
         POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
-        middle = _decorator % POSEUR_DECORATOR
+
+        middle = POSEUR_LINESEP.join(_decorator) % POSEUR_DECORATOR
         if not prefix:
             middle = middle.lstrip()
         if not suffix:
@@ -537,7 +538,6 @@ def process_module(node):
 
         POSEUR_LINTING = BOOLEAN_STATES.get(os.getenv('POSEUR_LINTING', '0').casefold(), False)
         if POSEUR_LINTING:
-            POSEUR_LINESEP = os.getenv('POSEUR_LINESEP', os.linesep)
             if prefix:
                 if prefix.endswith(POSEUR_LINESEP * 2):
                     pass
@@ -691,7 +691,7 @@ __archive__ = os.path.join(__cwd__, 'archive')
 __poseur_version__ = os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1])
 __poseur_encoding__ = os.getenv('POSEUR_ENCODING', LOCALE_ENCODING)
 __poseur_linesep__ = os.getenv('POSEUR_LINESEP', os.linesep)
-__poseur_decorator__ = os.getenv('POSEUR_DECORATOR', '_poseur_decorator')
+__poseur_decorator__ = os.getenv('POSEUR_DECORATOR', '__poseur_decorator')
 
 
 def get_parser():
