@@ -31,7 +31,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.3.3'
+__version__ = '0.3.4'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,
@@ -501,6 +501,33 @@ def find_poseur(node, root=0):
     return -1
 
 
+def check_suffix(string):
+    """Strip comments from string.
+
+    Args:
+     - `string` -- `str`, buffer string
+
+    Returns:
+     - `str` -- prefix comments
+     - `str` -- suffix strings
+
+    """
+    prefix = ''
+    suffix = ''
+
+    lines = iter(string.splitlines(True))
+    for line in lines:
+        if line.strip().startswith('#'):
+            prefix += line
+            continue
+        suffix += line
+        break
+
+    for line in lines:
+        suffix += line
+    return prefix, suffix
+
+
 def process_module(node):
     """Walk top nodes of the AST module.
 
@@ -524,7 +551,9 @@ def process_module(node):
         if index < postmt:
             prefix += walk(child)
         else:
-            suffix += walk(child)
+            bufpre, bufsuf = check_suffix(walk(child))
+            prefix += bufpre
+            suffix += bufsuf
 
     if postmt >= 0:
         POSEUR_LINESEP = os.getenv('POSEUR_LINESEP', os.linesep)
