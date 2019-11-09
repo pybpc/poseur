@@ -31,7 +31,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.3.4'
+__version__ = '0.3.5'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,
@@ -51,7 +51,11 @@ del grammar_regex
 
 
 class ConvertError(SyntaxError):
-    pass
+    """Parso syntax error."""
+
+
+class EnvironError(EnvironmentError):
+    """Invalid environment."""
 
 
 ###############################################################################
@@ -72,29 +76,31 @@ tbtrim.set_trim_rule(predicate, strict=True, target=ConvertError)
 ###############################################################################
 # Positional-only decorator
 
-_decorator = '''
-def %s(*poseur):
-    """Positional-only arguments runtime checker.
-
-    Args:
-     - `*poseur` -- `str`, name of positional-only arguments
-
-    Refs:
-     - https://mail.python.org/pipermail/python-ideas/2017-February/044888.html
-
-    """
-    import functools
-    def caller(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            poseur_args = set(poseur).intersection(kwargs)
-            if poseur_args:
-                raise TypeError('%%s() got some positional-only arguments passed as keyword arguments: %%r' %%
-                                (func.__name__, ', '.join(poseur_args)))
-            return func(*args, **kwargs)
-        return wrapper
-    return caller
-'''.splitlines()
+_decorator = [
+    '',
+    'def %s(*poseur):',
+    '    """Positional-only arguments runtime checker.',
+    '',
+    '    Args:',
+    '     - `*poseur` -- `str`, name of positional-only arguments',
+    '',
+    '    Refs:',
+    '     - https://mail.python.org/pipermail/python-ideas/2017-February/044888.html',
+    '',
+    '    """',
+    '    import functools',
+    '    def caller(func):',
+    '        @functools.wraps(func)',
+    '        def wrapper(*args, **kwargs):',
+    '            poseur_args = set(poseur).intersection(kwargs)',
+    '            if poseur_args:',
+    "                raise TypeError('%%s() got some positional-only arguments passed as keyword arguments: %%r' %%",
+    "                                (func.__name__, ', '.join(poseur_args)))",
+    '            return func(*args, **kwargs)',
+    '        return wrapper',
+    '    return caller',
+    '',
+]
 
 exec(os.linesep.join(_decorator) % 'decorator')
 
@@ -281,7 +287,7 @@ def decorate_funcdef(parameters, column, funcdef):
      - `str` -- decorated function definition
 
     """
-    POSEUR_LINESEP = os.getenv('POSEUR_LINESEP', os.linesep)
+    POSEUR_LINESEP = get_linesep(parameters[0])
     POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
 
     prefix = ''
@@ -528,6 +534,53 @@ def check_suffix(string):
     return prefix, suffix
 
 
+def guess_linesep(node):
+    """Guess line separator based on source code.
+
+    Args:
+     - `node` -- `Union[parso.python.tree.Module, parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`,
+                 parso AST
+
+    Returns:
+     - `str` -- line separator
+
+    """
+    root = node.get_root_node()
+    code = root.get_code()
+
+    pool = [0, 0]  # LF, CRLF
+    for line in code.splitlines(True):
+        if line.endswith('\r\n'):
+            pool[1] += 1
+        else:
+            pool[0] += 1
+    if pool[0] >= pool[1]:
+        return '\n'
+    return '\r\n'
+
+
+def get_linesep(node):
+    """Get current line separator configuration.
+
+    Args:
+     - `node` -- `Union[parso.python.tree.Module, parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`,
+                 parso AST
+
+    Returns:
+     - `str` -- line separator
+
+    """
+    env = os.getenv('POSEUR_LINESEP')
+    if env is not None:
+        env_name = env.upper()
+        if env_name == 'LF':
+            return '\n'
+        if env_name == 'CRLF':
+            return '\r\n'
+        raise EnvironError('invlid line separator %r' % env)
+    return guess_linesep(node)
+
+
 def process_module(node):
     """Walk top nodes of the AST module.
 
@@ -556,7 +609,7 @@ def process_module(node):
             suffix += bufsuf
 
     if postmt >= 0:
-        POSEUR_LINESEP = os.getenv('POSEUR_LINESEP', os.linesep)
+        POSEUR_LINESEP = get_linesep(node)
         POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
 
         middle = POSEUR_LINESEP.join(_decorator) % POSEUR_DECORATOR
@@ -719,7 +772,7 @@ __cwd__ = os.getcwd()
 __archive__ = os.path.join(__cwd__, 'archive')
 __poseur_version__ = os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1])
 __poseur_encoding__ = os.getenv('POSEUR_ENCODING', LOCALE_ENCODING)
-__poseur_linesep__ = os.getenv('POSEUR_LINESEP', os.linesep)
+__poseur_linesep__ = os.getenv('POSEUR_LINESEP', 'CRLF' if os.linesep == '\r\n' else 'LF')
 __poseur_decorator__ = os.getenv('POSEUR_DECORATOR', '__poseur_decorator')
 
 

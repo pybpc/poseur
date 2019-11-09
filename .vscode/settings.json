@@ -4,6 +4,8 @@
         "Envs",
         "NPROCESSORS",
         "aktau",
+        "bufpre",
+        "bufsuf",
         "cmds",
         "flst",
         "funcdef",

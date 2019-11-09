@@ -25,8 +25,8 @@ with open(os.path.join(ROOT, 'sample.txt')) as file:
 os.environ['POSEUR_DECORATOR'] = '_poseur_decorator'
 os.environ['POSEUR_QUIET'] = 'true'
 os.environ['POSEUR_ENCODING'] = 'utf-8'
-os.environ['POSEUR_LINESEP'] = '\n'
-POSEUR_LINESEP = os.environ['POSEUR_LINESEP']
+os.environ['POSEUR_LINESEP'] = 'LF'
+POSEUR_LINESEP = '\n'
 
 
 @contextlib.contextmanager
