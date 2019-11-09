@@ -31,7 +31,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.3.5'
+__version__ = '0.4.0'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,
@@ -66,12 +66,12 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 
 
 def predicate(filename):  # pragma: no cover
-    if os.path.basename(filename) == 'poseur':
+    if os.path.basename(filename) == 'poseur.py':
         return True
     return ROOT in os.path.realpath(filename)
 
 
-tbtrim.set_trim_rule(predicate, strict=True, target=ConvertError)
+tbtrim.set_trim_rule(predicate, strict=True, target=(ConvertError, EnvironError))
 
 ###############################################################################
 # Positional-only decorator
@@ -287,7 +287,7 @@ def decorate_funcdef(parameters, column, funcdef):
      - `str` -- decorated function definition
 
     """
-    POSEUR_LINESEP = get_linesep(parameters[0])
+    POSEUR_LINESEP = guess_linesep(parameters[0])
     POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
 
     prefix = ''
@@ -534,7 +534,7 @@ def check_suffix(string):
     return prefix, suffix
 
 
-def guess_linesep(node):
+def guess_linesep(node):  # pylint: disable=inconsistent-return-statements
     """Guess line separator based on source code.
 
     Args:
@@ -548,37 +548,43 @@ def guess_linesep(node):
     root = node.get_root_node()
     code = root.get_code()
 
-    pool = [0, 0]  # LF, CRLF
+    pool = {
+        '\r': 0,
+        '\r\n': 0,
+        '\n': 0,
+    }
     for line in code.splitlines(True):
-        if line.endswith('\r\n'):
-            pool[1] += 1
+        if line.endswith('\r'):
+            pool['\r'] += 1
+        elif line.endswith('\r\n'):
+            pool['\r\n'] += 1
         else:
-            pool[0] += 1
-    if pool[0] >= pool[1]:
-        return '\n'
-    return '\r\n'
+            pool['\n'] += 1
+
+    sort = sorted(pool, key=lambda k: pool[k])
+    if pool[sort[0]] == pool[sort[1]]:
+        return get_linesep()
+    return sort[0]
 
 
-def get_linesep(node):
+def get_linesep():
     """Get current line separator configuration.
-
-    Args:
-     - `node` -- `Union[parso.python.tree.Module, parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`,
-                 parso AST
 
     Returns:
      - `str` -- line separator
 
     """
-    env = os.getenv('POSEUR_LINESEP')
-    if env is not None:
-        env_name = env.upper()
-        if env_name == 'LF':
-            return '\n'
-        if env_name == 'CRLF':
-            return '\r\n'
-        raise EnvironError('invlid line separator %r' % env)
-    return guess_linesep(node)
+    env = os.getenv('POSEUR_LINESEP', os.linesep)
+    env_name = env.upper()
+    if env_name == 'CR':
+        return '\r'
+    if env_name == 'CRLF':
+        return '\r\n'
+    if env_name == 'LF':
+        return '\n'
+    if env in ['\r', '\r\n', '\n']:
+        return env
+    raise EnvironError('invlid line separator %r' % env)
 
 
 def process_module(node):
@@ -609,7 +615,7 @@ def process_module(node):
             suffix += bufsuf
 
     if postmt >= 0:
-        POSEUR_LINESEP = get_linesep(node)
+        POSEUR_LINESEP = guess_linesep(node)
         POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
 
         middle = POSEUR_LINESEP.join(_decorator) % POSEUR_DECORATOR
@@ -772,7 +778,7 @@ __cwd__ = os.getcwd()
 __archive__ = os.path.join(__cwd__, 'archive')
 __poseur_version__ = os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1])
 __poseur_encoding__ = os.getenv('POSEUR_ENCODING', LOCALE_ENCODING)
-__poseur_linesep__ = os.getenv('POSEUR_LINESEP', 'CRLF' if os.linesep == '\r\n' else 'LF')
+__poseur_linesep__ = os.getenv('POSEUR_LINESEP', os.linesep)
 __poseur_decorator__ = os.getenv('POSEUR_DECORATOR', '__poseur_decorator')
 
 
@@ -879,7 +885,6 @@ def main(argv=None):
     ARCHIVE = args.archive_path
     os.environ['POSEUR_VERSION'] = args.python
     os.environ['POSEUR_ENCODING'] = args.encoding
-    os.environ['POSEUR_LINESEP'] = args.linesep
     os.environ['POSEUR_DECORATOR'] = args.decorator
     POSEUR_QUIET = os.getenv('POSEUR_QUIET')
     os.environ['POSEUR_QUIET'] = '1' if args.quiet else ('0' if POSEUR_QUIET is None else POSEUR_QUIET)
@@ -887,6 +892,18 @@ def main(argv=None):
     os.environ['POSEUR_DISMISS'] = '1' if args.dismiss else ('0' if POSEUR_DISMISS is None else POSEUR_DISMISS)
     POSEUR_LINTING = os.getenv('POSEUR_LINTING')
     os.environ['POSEUR_LINTING'] = '1' if args.linting else ('0' if POSEUR_LINTING is None else POSEUR_LINTING)
+
+    linesep = args.linesep.upper()
+    if linesep == 'CR':
+        os.environ['POSEUR_LINESEP'] = '\r'
+    elif linesep == 'CRLF':
+        os.environ['POSEUR_LINESEP'] = '\r\n'
+    elif linesep == 'LF':
+        os.environ['POSEUR_LINESEP'] = '\n'
+    elif args.linesep in ['\r', '\r\n', '\n']:
+        os.environ['POSEUR_LINESEP'] = args.linesep
+    else:
+        raise EnvironError('invalid line separator %r' % args.linesep)
 
     # make archive directory
     if args.archive:  # pragma: no cover
