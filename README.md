@@ -13,9 +13,9 @@
  > Write *positional-only parameters* in Python 3.8 flavour, and let `poseur` worry about back-port issues :beer:
 
 &emsp; Since [PEP 570](https://www.python.org/dev/peps/pep-0570/), Python introduced *positional-only parameters*
-syntax in version __3.8__. For those who wish to use *positional-only parameters* in their codes, `poseur` provides an
+syntax in version __3.8__. For those who wish to use *positional-only parameters* in their code, `poseur` provides an
 intelligent, yet imperfect, solution of a **backport compiler** by removing *positional-only parameters* syntax whilst
-introduce a *decorator* for runtime checks, which guarantees you to always write *positional-only parameters* in Python
+introducing a *decorator* for runtime checks, which guarantees you to always write *positional-only parameters* in Python
 3.8 flavour then compile for compatibility later.
 
 ## Installation
