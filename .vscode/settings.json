@@ -21,7 +21,10 @@
         "sched",
         "sdef",
         "slambda",
+        "sposeur",
         "spython",
+        "sraise",
+        "sreturn",
         "sysconf",
         "virtualenv",
         "xenial"

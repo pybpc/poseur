@@ -1,3 +1,5 @@
+export PIPENV_VERBOSITY=-1
+
 # get version string
 version  = $(shell cat poseur.py | grep "^__version__" | sed "s/__version__ = '\(.*\)'/\1/")
 

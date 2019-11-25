@@ -31,7 +31,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,
@@ -76,33 +76,23 @@ tbtrim.set_trim_rule(predicate, strict=True, target=(ConvertError, EnvironError)
 ###############################################################################
 # Positional-only decorator
 
-_decorator = [
-    '',
-    'def %s(*poseur):',
-    '    """Positional-only arguments runtime checker.',
-    '',
-    '    Args:',
-    '     - `*poseur` -- `str`, name of positional-only arguments',
-    '',
-    '    Refs:',
-    '     - https://mail.python.org/pipermail/python-ideas/2017-February/044888.html',
-    '',
-    '    """',
-    '    import functools',
-    '    def caller(func):',
-    '        @functools.wraps(func)',
-    '        def wrapper(*args, **kwargs):',
-    '            poseur_args = set(poseur).intersection(kwargs)',
-    '            if poseur_args:',
-    "                raise TypeError('%%s() got some positional-only arguments passed as keyword arguments: %%r' %%",
-    "                                (func.__name__, ', '.join(poseur_args)))",
-    '            return func(*args, **kwargs)',
-    '        return wrapper',
-    '    return caller',
-    '',
-]
+# cf. https://mail.python.org/pipermail/python-ideas/2017-February/044888.html
+_decorator = '''\
+def %(decorator)s(*poseur):
+%(tabsize)s"""Positional-only arguments runtime checker."""
+%(tabsize)simport functools
+%(tabsize)sdef caller(func):
+%(tabsize)s%(tabsize)s@functools.wraps(func)
+%(tabsize)s%(tabsize)sdef wrapper(*args, **kwargs):
+%(tabsize)s%(tabsize)s%(tabsize)sposeur_args = set(poseur).intersection(kwargs)
+%(tabsize)s%(tabsize)s%(tabsize)sif poseur_args:
+%(tabsize)s%(tabsize)s%(tabsize)s%(tabsize)sraise TypeError('%%s() got some positional-only arguments passed as keyword arguments: %%r' %% (func.__name__, ', '.join(poseur_args)))
+%(tabsize)s%(tabsize)s%(tabsize)sreturn func(*args, **kwargs)
+%(tabsize)s%(tabsize)sreturn wrapper
+%(tabsize)sreturn caller
+'''.splitlines()  # `str.splitlines` will remove trailing newline
 
-exec(os.linesep.join(_decorator) % 'decorator')
+exec(os.linesep.join(_decorator) % dict(decorator='decorator', tabsize='\t'.expandtabs(4)))
 
 ###############################################################################
 # Main convertion implementation
@@ -534,15 +524,39 @@ def check_suffix(string):
     return prefix, suffix
 
 
-def guess_linesep(node):  # pylint: disable=inconsistent-return-statements
+def guess_tabsize(node):
+    """Check indentation tab size.
+
+    Args:
+        - `node` -- `Union[parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`, parso AST
+
+    Env:
+        - `POSEUR_TABSIZE` -- indentation tab size (same as `--tabsize` option in CLI)
+
+    Returns:
+        - `int` -- indentation tab size
+
+    """
+    for child in node.children:
+        if child.type != 'suite':
+            if hasattr(child, 'children'):
+                return guess_tabsize(child)
+            continue
+        return child.children[1].get_first_leaf().column
+    return int(os.getenv('POSEUR_TABSIZE', __poseur_tabsize__))
+
+
+def guess_linesep(node):
     """Guess line separator based on source code.
 
     Args:
-     - `node` -- `Union[parso.python.tree.Module, parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`,
-                 parso AST
+        - `node` -- `Union[parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`, parso AST
+
+    Envs:
+        - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
 
     Returns:
-     - `str` -- line separator
+        - `str` -- line separator
 
     """
     root = node.get_root_node()
@@ -562,18 +576,9 @@ def guess_linesep(node):  # pylint: disable=inconsistent-return-statements
             pool['\n'] += 1
 
     sort = sorted(pool, key=lambda k: pool[k])
-    if pool[sort[0]] == pool[sort[1]]:
-        return get_linesep()
-    return sort[0]
+    if pool[sort[0]] > pool[sort[1]]:
+        return sort[0]
 
-
-def get_linesep():
-    """Get current line separator configuration.
-
-    Returns:
-     - `str` -- line separator
-
-    """
     env = os.getenv('POSEUR_LINESEP', os.linesep)
     env_name = env.upper()
     if env_name == 'CR':
@@ -597,6 +602,7 @@ def process_module(node):
      - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
      - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+     - `POSEUR_TABSIZE` -- indentation tab size (same as `--tabsize` option in CLI)
 
     Returns:
      - `str` -- processed source string
@@ -615,10 +621,14 @@ def process_module(node):
             suffix += bufsuf
 
     if postmt >= 0:
+        POSEUR_TABSIZE = guess_tabsize(node)
         POSEUR_LINESEP = guess_linesep(node)
         POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
 
-        middle = POSEUR_LINESEP.join(_decorator) % POSEUR_DECORATOR
+        middle = POSEUR_LINESEP.join(_decorator) % dict(
+            decorator=POSEUR_DECORATOR,
+            tabsize='\t'.expandtabs(POSEUR_TABSIZE),
+        )
         if not prefix:
             middle = middle.lstrip()
         if not suffix:
@@ -780,6 +790,7 @@ __poseur_version__ = os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1])
 __poseur_encoding__ = os.getenv('POSEUR_ENCODING', LOCALE_ENCODING)
 __poseur_linesep__ = os.getenv('POSEUR_LINESEP', os.linesep)
 __poseur_decorator__ = os.getenv('POSEUR_DECORATOR', '__poseur_decorator')
+__poseur_tabsize__ = os.getenv('POSEUR_TABSIZE', '4')
 
 
 def get_parser():
@@ -818,6 +829,8 @@ def get_parser():
                                help='do not lint converted codes')
     convert_group.add_argument('-r', '--decorator', action='store', default=__poseur_decorator__, metavar='VAR',
                                help='name of decorator for runtime checks (`%s`)' % __poseur_decorator__)
+    convert_group.add_argument('-t', '--tabsize', action='store', default=__poseur_tabsize__, metavar='INDENT',
+                               help='indentation tab size (%s)' % __poseur_tabsize__, type=int)
 
     parser.add_argument('file', nargs='+', metavar='SOURCE', default=__cwd__,
                         help='python source files and folders to be converted (%s)' % __cwd__)
@@ -876,6 +889,7 @@ def main(argv=None):
      - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
      - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
      - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+     - `POSEUR_TABSIZE` -- indentation tab size (same as `--tabsize` option in CLI)
 
     """
     parser = get_parser()
@@ -886,6 +900,7 @@ def main(argv=None):
     os.environ['POSEUR_VERSION'] = args.python
     os.environ['POSEUR_ENCODING'] = args.encoding
     os.environ['POSEUR_DECORATOR'] = args.decorator
+    os.environ['POSEUR_TABSIZE'] = str(args.tabsize)
     POSEUR_QUIET = os.getenv('POSEUR_QUIET')
     os.environ['POSEUR_QUIET'] = '1' if args.quiet else ('0' if POSEUR_QUIET is None else POSEUR_QUIET)
     POSEUR_DISMISS = os.getenv('POSEUR_DISMISS')

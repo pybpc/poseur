@@ -88,7 +88,8 @@ convert options:
   -nl, --no-linting     do not lint converted codes
   -r VAR, --decorator VAR
                         name of decorator for runtime checks (${DECORATOR})
-
+  -t INDENT, --tabsize INDENT
+                        indentation tab size (4)
 ```
 
 &emsp; `poseur` will read then convert all *positional-only parameters* syntax in every Python
@@ -112,6 +113,7 @@ such functions to check positional-only parameters at runtime, if `-nl` not set.
 - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+- `POSEUR_TABSIZE` -- indentation tab size (same as `--tabsize` option in CLI)
 
 ### APIs
 
@@ -134,6 +136,7 @@ Envs:
 - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+- `POSEUR_TABSIZE` -- indentation tab size (same as `--tabsize` option in CLI)
 
 Raises:
 
@@ -157,6 +160,7 @@ Envs:
 - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
 - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+- `POSEUR_TABSIZE` -- indentation tab size (same as `--tabsize` option in CLI)
 
 Returns:
 

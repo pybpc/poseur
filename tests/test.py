@@ -138,7 +138,7 @@ class TestPoseur(unittest.TestCase):
         src = 'async def func(param, /): pass'
         dst = 'async def func(param): pass'
         dst = "%s@_poseur_decorator(\'param\')\nasync def func(param): pass" % (
-            POSEUR_LINESEP.join(_decorator) % '_poseur_decorator').lstrip()
+            POSEUR_LINESEP.join(_decorator) % dict(decorator='_poseur_decorator', tabsize='\t'.expandtabs(4))).lstrip()
         self._check_convert(src, dst)
 
     def test_lambdef(self):
@@ -150,7 +150,7 @@ class TestPoseur(unittest.TestCase):
         # basic poseur
         src = 'lambda param, /: param'
         dst = "%s_poseur_decorator('param')(lambda param: param)" % (
-            POSEUR_LINESEP.join(_decorator) % '_poseur_decorator').lstrip()
+            POSEUR_LINESEP.join(_decorator) % dict(decorator='_poseur_decorator', tabsize='\t'.expandtabs(4))).lstrip()
         self._check_convert(src, dst)
 
         # no poseur in default value
@@ -161,19 +161,19 @@ class TestPoseur(unittest.TestCase):
         # poseur in default value
         src = 'lambda param=lambda p, /: p: param'
         dst = "%slambda param=_poseur_decorator('p')(lambda p: p): param" % (
-            POSEUR_LINESEP.join(_decorator) % '_poseur_decorator').lstrip()
+            POSEUR_LINESEP.join(_decorator) % dict(decorator='_poseur_decorator', tabsize='\t'.expandtabs(4))).lstrip()
         self._check_convert(src, dst)
 
         # poseur in lambda suite
         src = 'lambda param: lambda p, /: p'
         dst = "%slambda param: _poseur_decorator('p')(lambda p: p)" % (
-            POSEUR_LINESEP.join(_decorator) % '_poseur_decorator').lstrip()
+            POSEUR_LINESEP.join(_decorator) % dict(decorator='_poseur_decorator', tabsize='\t'.expandtabs(4))).lstrip()
         self._check_convert(src, dst)
 
         # hybrid poseur
         src = 'lambda param: param\nlambda param, /: param'
         dst = "lambda param: param\n%s_poseur_decorator('param')(lambda param: param)" % (
-            POSEUR_LINESEP.join(_decorator) % '_poseur_decorator')
+            POSEUR_LINESEP.join(_decorator) % dict(decorator='_poseur_decorator', tabsize='\t'.expandtabs(4)))
         self._check_convert(src, dst)
 
     def test_funcdef(self):
@@ -185,13 +185,13 @@ class TestPoseur(unittest.TestCase):
         # simple poseur
         src = 'def func(a, /, b): pass'
         dst = "%s@_poseur_decorator(\'a\')\ndef func(a, b): pass" % (
-            POSEUR_LINESEP.join(_decorator) % '_poseur_decorator').lstrip()
+            POSEUR_LINESEP.join(_decorator) % dict(decorator='_poseur_decorator', tabsize='\t'.expandtabs(4))).lstrip()
         self._check_convert(src, dst)
 
         # poseur in function suite
         src = 'def func(): lambda param, /: param'
         dst = "%sdef func(): _poseur_decorator('param')(lambda param: param)" % (
-            POSEUR_LINESEP.join(_decorator) % '_poseur_decorator').lstrip()
+            POSEUR_LINESEP.join(_decorator) % dict(decorator='_poseur_decorator', tabsize='\t'.expandtabs(4))).lstrip()
         self._check_convert(src, dst)
 
         # keyword arguments
@@ -202,7 +202,7 @@ class TestPoseur(unittest.TestCase):
         # poseur in default value
         src = 'def func(a=lambda param, /: param): pass'
         dst = "%sdef func(a=_poseur_decorator('param')(lambda param: param)): pass" % (
-            POSEUR_LINESEP.join(_decorator) % '_poseur_decorator').lstrip()
+            POSEUR_LINESEP.join(_decorator) % dict(decorator='_poseur_decorator', tabsize='\t'.expandtabs(4))).lstrip()
         self._check_convert(src, dst)
 
 

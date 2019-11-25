@@ -6,8 +6,8 @@ poseur
 back-port compiler for Python 3.8 positional-only parameter syntax
 ------------------------------------------------------------------
 
-:Version: v0.4.0
-:Date: November 09, 2019
+:Version: v0.4.1
+:Date: November 25, 2019
 :Manual section: 1
 :Author:
     Jarry Shaw, a newbie programmer, is the author, owner and maintainer
@@ -76,6 +76,9 @@ compatibility configuration for none-unicode files
 -r *VAR*, --decorator *VAR*
                       name of decorator for runtime checks (${DECORATOR})
 
+-t *INDENT*, --tabsize *INDENT*
+                      indentation tab size
+
 ENVIRONMENT
 ===========
 
@@ -88,6 +91,7 @@ ENVIRONMENT
 :POSEUR_DISMISS:      dismiss runtime checks for positional-only arguments
 :POSEUR_LINTING:      lint converted codes
 :POSEUR_DECORATOR:    name of decorator for runtime checks
+:POSEUR_TABSIZE:      indentation tab size
 
 SEE ALSO
 ========
