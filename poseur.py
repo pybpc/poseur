@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Back-port compiler for Python 3.8 positional-only parameter syntax."""
 
 import argparse
 import glob
@@ -31,7 +32,7 @@ finally:    # alias and aftermath
     del multiprocessing
 
 # version string
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 # from configparser
 BOOLEAN_STATES = {'1': True, '0': False,

@@ -170,11 +170,16 @@ Raises:
 
 - `ConvertError `-- when `parso.ParserSyntaxError` raised
 
-#### `ConvertError` -- `poseur` internal exception
+#### Internal exceptions
 
 ```python
 class ConvertError(SyntaxError):
-    pass
+    """Parso syntax error."""
+```
+
+```python
+class EnvironError(EnvironmentError):
+    """Invalid environment."""
 ```
 
 ## Test
