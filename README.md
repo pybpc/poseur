@@ -10,7 +10,7 @@
 ![License](https://img.shields.io/github/license/jarryshaw/poseur.svg)
 [![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 
- > Write *positional-only parameters* in Python 3.8 flavour, and let `poseur` worry about back-port issues :beer:
+> Write *positional-only parameters* in Python 3.8 flavour, and let `poseur` worry about back-port issues :beer:
 
 &emsp; Since [PEP 570](https://www.python.org/dev/peps/pep-0570/), Python introduced *positional-only parameters*
 syntax in version __3.8__. For those who wish to use *positional-only parameters* in their code, `poseur` provides an
@@ -53,7 +53,7 @@ git pull
 
 &emsp; It is fairly straightforward to use `poseur`:
 
- > context in `${...}` changes dynamically according to runtime environment
+> context in `${...}` changes dynamically according to runtime environment
 
 ```man
 usage: poseur [options] <python source files and folders...>
@@ -140,7 +140,7 @@ Envs:
 
 Raises:
 
-- `ConvertError `-- when `parso.ParserSyntaxError` raised
+- `ConvertError` -- when `parso.ParserSyntaxError` raised
 
 #### `convert` -- the main conversion process
 
@@ -155,7 +155,7 @@ Args:
 
 Envs:
 
-- `POSEUR_VERSION`-- convert against Python version (same as `--python` option in CLI)
+- `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
 - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
 - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
 - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
@@ -168,7 +168,7 @@ Returns:
 
 Raises:
 
-- `ConvertError `-- when `parso.ParserSyntaxError` raised
+- `ConvertError` -- when `parso.ParserSyntaxError` raised
 
 #### Internal exceptions
 
@@ -184,7 +184,7 @@ class EnvironError(EnvironmentError):
 
 ## Test
 
-&emsp; See [`test.py`](https://github.com/JarryShaw/poseur/blob/master/scripts/test.py).
+&emsp; See [`test.py`](https://github.com/JarryShaw/poseur/blob/master/tests/test.py).
 
 ## Contribution
 
