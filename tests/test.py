@@ -61,7 +61,7 @@ class TestPoseur(unittest.TestCase):
     def _check_output(self, path):
         output = subprocess.check_output(
             [sys.executable, path],
-            encoding='utf-8'
+            universal_newlines=True
         )
         self.assertEqual(output, TEXT)
 
