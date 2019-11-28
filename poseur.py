@@ -2,6 +2,7 @@
 """Back-port compiler for Python 3.8 positional-only parameter syntax."""
 
 import argparse
+import contextlib
 import glob
 import locale
 import os
@@ -131,13 +132,12 @@ exec(os.linesep.join(_decorator) % dict(decorator='decorator', tabsize='\t'.expa
 # Main convertion implementation
 
 
-def parse(string, source, error_recovery=False):
+def parse(string, source):
     """Parse source string.
 
     Args:
      - `string` -- `str`, context to be converted
      - `source` -- `str`, source of the context
-     - `error_recovery` -- `bool`, see `parso.Grammar.parse`
 
     Envs:
      - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
@@ -146,16 +146,24 @@ def parse(string, source, error_recovery=False):
      - `parso.python.tree.Module` -- parso AST
 
     Raises:
-     - `ConvertError` -- when `parso.ParserSyntaxError` raised
+     - `ConvertError` -- when source code contains syntax errors
 
     """
-    try:
-        return parso.parse(string, error_recovery=error_recovery,
-                           version=os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1]))
-    except parso.ParserSyntaxError as error:
-        message = '%s: <%s: %r> from %s' % (error.message, error.error_leaf.token_type,
-                                            error.error_leaf.value, source)
-        raise ConvertError(message).with_traceback(error.__traceback__) from None
+    grammar = parso.load_grammar(version=os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1]))
+    module = grammar.parse(string, error_recovery=True)
+
+    # suppress parso debug outputs
+    # see https://github.com/davidhalter/parso/commit/ee2995c1108028cd8c6d56df3a00170c93dc9ce6
+    # TODO: remove this redirect after a new version of parso is released
+    with open(os.devnull, 'w') as nul_file:
+        with contextlib.redirect_stdout(nul_file):
+            errors = grammar.iter_errors(module)
+
+    if errors:
+        error_messages = '\n'.join('[L%dC%d] %s' % (*error.start_pos, error.message) for error in errors)
+        raise ConvertError('source file %r contains following syntax errors:\n' % source + error_messages)
+
+    return module
 
 
 def decorate_lambdef(parameters, lambdef):
