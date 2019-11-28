@@ -58,7 +58,9 @@ pipenv-update:
 	    pip \
 	    setuptools \
 	    wheel
-	pipenv update
+	while true; do \
+            pipenv update && break ; \
+        done
 	pipenv install --dev
 	pipenv clean
 	$(MAKE) ln-post
