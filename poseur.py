@@ -853,28 +853,28 @@ def get_parser():
     archive_group.add_argument('-na', '--no-archive', action='store_false', dest='archive',
                                help='do not archive original files')
     archive_group.add_argument('-p', '--archive-path', action='store', default=__archive__, metavar='PATH',
-                               help='path to archive original files (%s)' % __archive__)
+                               help='path to archive original files (%(default)s)')
 
     convert_group = parser.add_argument_group(title='convert options',
-                                              description='compatibility configuration for none-unicode files')
+                                              description='compatibility configuration for non-unicode files')
     convert_group.add_argument('-c', '--encoding', action='store', default=__poseur_encoding__, metavar='CODING',
-                               help='encoding to open source files (%s)' % __poseur_encoding__)
+                               help='encoding to open source files (%(default)s)')
     convert_group.add_argument('-v', '--python', action='store', metavar='VERSION',
                                default=__poseur_version__, choices=POSEUR_VERSION,
-                               help='convert against Python version (%s)' % __poseur_version__)
+                               help='convert against Python version (%(default)s)')
     convert_group.add_argument('-s', '--linesep', action='store', default=__poseur_linesep__, metavar='SEP',
-                               help='line separator to process source files (%r)' % __poseur_linesep__)
+                               help='line separator to process source files (%(default)r)')
     convert_group.add_argument('-d', '--dismiss', action='store_true',
                                help='dismiss runtime checks for positional-only parameters')
     convert_group.add_argument('-nl', '--no-linting', action='store_false', dest='linting',
                                help='do not lint converted codes')
     convert_group.add_argument('-r', '--decorator', action='store', default=__poseur_decorator__, metavar='VAR',
-                               help='name of decorator for runtime checks (`%s`)' % __poseur_decorator__)
+                               help='name of decorator for runtime checks (`%(default)s`)')
     convert_group.add_argument('-t', '--tabsize', action='store', default=__poseur_tabsize__, metavar='INDENT',
-                               help='indentation tab size (%s)' % __poseur_tabsize__, type=int)
+                               help='indentation tab size (%(default)s)', type=int)
 
     parser.add_argument('file', nargs='+', metavar='SOURCE', default=__cwd__,
-                        help='python source files and folders to be converted (%s)' % __cwd__)
+                        help='python source files and folders to be converted (%(default)s)')
 
     return parser
 
