@@ -23,7 +23,7 @@ setup(
     version=__version__,
     author='Jarry Shaw',
     author_email='jarryshaw@icloud.com',
-    url='https://github.com/JarryShaw/poseur',
+    url='https://github.com/pybpc/poseur',
     license='MIT License',
     keywords=['positional-only parameters', 'back-port compiler'],
     description='Back-port compiler for Python 3.8 positional-only parameter syntax.',

@@ -623,7 +623,7 @@ def guess_linesep(node):
         return '\n'
     if env in ['\r', '\r\n', '\n']:
         return env
-    raise EnvironError('invlid line separator %r' % env)
+    raise EnvironError('invalid line separator %r' % env)
 
 
 def process_module(node):

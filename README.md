@@ -40,7 +40,7 @@ pip install poseur
 &emsp; Or install the latest version from the git repository:
 
 ```sh
-git clone https://github.com/JarryShaw/poseur.git
+git clone https://github.com/pybpc/poseur.git
 cd poseur
 pip install -e .
 # and to update at any time

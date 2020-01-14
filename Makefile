@@ -128,7 +128,7 @@ git-after:
 
 git-release:
 	go run github.com/aktau/github-release release \
-	    --user JarryShaw \
+	    --user pybpc \
 	    --repo poseur \
 	    --tag "v$(version)" \
 	    --name "poseur v$(version)" \
