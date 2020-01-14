@@ -8,12 +8,13 @@ import sys
 import tempfile
 import unittest
 
+# root path
+ROOT = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.abspath(os.path.join(ROOT, '..')))
 from poseur import ConvertError, _decorator, convert, decorator, get_parser  # pylint: disable=no-name-in-module
 from poseur import main as main_func
 from poseur import poseur as core_func
-
-# root path
-ROOT = os.path.dirname(os.path.realpath(__file__))
+sys.path.pop(0)
 
 # macros
 with open(os.path.join(ROOT, 'sample.py')) as file:
@@ -118,7 +119,7 @@ class TestPoseur(unittest.TestCase):
             with open(os.devnull, 'w') as devnull:
                 with contextlib.redirect_stdout(devnull):
                     os.environ['POSEUR_QUIET'] = 'false'
-                    main_func([path])
+                    main_func([path, '-na'])
                 os.environ['POSEUR_QUIET'] = 'true'
             self._check_output(path)
 
