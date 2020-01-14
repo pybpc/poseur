@@ -5,9 +5,9 @@
 [![PyPI - Format](https://img.shields.io/pypi/format/poseur.svg)](https://pypi.org/project/poseur)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/poseur.svg)](https://pypi.org/project/poseur)
 
-[![Travis CI - Status](https://travis-ci.com/JarryShaw/poseur.svg)](https://travis-ci.org/JarryShaw/poseur)
-[![Codecov - Coverage](https://codecov.io/gh/JarryShaw/poseur/branch/master/graph/badge.svg)](https://codecov.io/gh/JarryShaw/poseur)
-![License](https://img.shields.io/github/license/jarryshaw/poseur.svg)
+[![Travis CI - Status](https://travis-ci.com/pybpc/poseur.svg)](https://travis-ci.org/pybpc/poseur)
+[![Codecov - Coverage](https://codecov.io/gh/pybpc/poseur/branch/master/graph/badge.svg)](https://codecov.io/gh/pybpc/poseur)
+![License](https://img.shields.io/github/license/pybpc/poseur.svg)
 [![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 
 > Write *positional-only parameters* in Python 3.8 flavour, and let `poseur` worry about back-port issues :beer:
@@ -184,7 +184,7 @@ class EnvironError(EnvironmentError):
 
 ## Test
 
-&emsp; See [`test.py`](https://github.com/JarryShaw/poseur/blob/master/tests/test.py).
+&emsp; See [`test.py`](https://github.com/pybpc/poseur/blob/master/tests/test.py).
 
 ## Contribution
 
@@ -193,7 +193,7 @@ Note that code must remain valid and reasonable.
 
 ## See Also
 
-- [`babel`](https://github.com/jarryshaw/babel)
-- [`f2format`](https://github.com/jarryshaw/f2format)
-- [`walrus`](https://github.com/jarryshaw/walrus)
+- [`pybpc`](https://github.com/pybpc/bpc) (formerly known as `python-babel`)
+- [`f2format`](https://github.com/pybpc/f2format)
+- [`walrus`](https://github.com/pybpc/walrus)
 - [`vermin`](https://github.com/netromdk/vermin)
