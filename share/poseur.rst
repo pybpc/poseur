@@ -96,4 +96,4 @@ ENVIRONMENT
 SEE ALSO
 ========
 
-babel(1), f2format(1), walrus(1), vermin(1)
+pybpc(1), f2format(1), walrus(1), vermin(1)
