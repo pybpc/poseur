@@ -119,7 +119,7 @@ class TestPoseur(unittest.TestCase):
             with open(os.devnull, 'w') as devnull:
                 with contextlib.redirect_stdout(devnull):
                     os.environ['POSEUR_QUIET'] = 'false'
-                    main_func([path, '-na'])
+                    main_func(['-na', path])
                 os.environ['POSEUR_QUIET'] = 'true'
             self._check_output(path)
 
