@@ -1,3 +1,8 @@
+### August 8th, 2020
+
+- [ ] refactcor `poseur`
+- [x] cleanup repo
+
 ### July 15th, 2019
 
 - [x] review README
