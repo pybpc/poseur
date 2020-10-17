@@ -34,6 +34,7 @@ setup(
     install_requires=[
         'parso>=0.6.0',     # universal AST support
         'tbtrim>=0.2.1',    # traceback trim support
+        'bpc-f2format',     # f-string compat
         'bpc-utils',        # utility library
     ],
     py_modules=['poseur'],
@@ -65,4 +66,3 @@ setup(
         'Topic :: Utilities',
     ]
 )
-
