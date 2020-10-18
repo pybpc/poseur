@@ -294,10 +294,8 @@ class Context(BaseContext):
         ``raw`` should be :data:`True` only if the ``node`` is in the clause of another *context*,
         where the converted wrapper functions should be inserted.
 
-        However, this parameter is currently not in use.
-
     For the :class:`Context` class of :mod:`poseur` module,
-    it will  process nodes with following methods:
+    it will process nodes with following methods:
 
     * :token:`suite`
 
@@ -310,6 +308,14 @@ class Context(BaseContext):
     * :token:`lambdef`
 
       - :meth:`Context._process_lambdef`
+
+    * :token:`async_funcdef`
+
+      - :meth:`Context._process_async_funcdef`
+
+    * :token:`async_stmt`
+
+      - :meth:`Context._process_async_stmt`
 
     * :token:`classdef`
 
@@ -449,6 +455,46 @@ class Context(BaseContext):
 
         # SUITE
         self._process_suite_node(node.children[-1])
+
+    def _process_async_stmt(self, node):
+        """Process ``async`` statement (:token:`async_stmt`).
+
+        Args:
+            node (parso.python.tree.PythonNode): ``async`` statement node
+
+        This method processes an ``async`` statement node. If such statement is an
+        *async* :term:`function`, then it will pass on the processing to
+        :meth:`self._process_funcdef <Context._process_funcdef>`.
+
+        """
+        child_1st = node.children[0]
+        child_2nd = node.children[1]
+
+        flag_1st = child_1st.type == 'keyword' and child_1st.value == 'async'
+        flag_2nd = child_2nd.type == 'funcdef'
+
+        if flag_1st and flag_2nd:
+            self._process_funcdef(child_2nd, async_ctx=child_1st)
+            return
+
+        self._process(child_1st)
+        self._process(child_2nd)
+
+    def _process_async_funcdef(self, node):
+        """Process ``async`` function definition (:token:`async_funcdef`).
+
+        Args:
+            node (parso.python.tree.PythonNode): ``async`` function node
+
+        This method processes an ``async`` function node. It will extract
+        the ``async`` keyword node (:class:`parso.python.tree.Keyword`)
+        and the :term:`function` node (:class:`parso.python.tree.Function`)
+        then pass on the processing to
+        :meth:`self._process_funcdef <Context._process_funcdef>`.
+
+        """
+        async_ctx, funcdef = node.children
+        self._process_funcdef(funcdef, async_ctx=async_ctx)
 
     def _process_lambdef(self, node):
         """Process lambda definition (:token:`lambdef`).
@@ -862,7 +908,7 @@ class Context(BaseContext):
             node (parso.tree.NodeOrLeaf): parso AST
 
         Returns:
-            bool: if ``node`` has positional argument
+            bool: if ``node`` has positional-only parameters
 
         """
         if node.type == 'funcdef':
@@ -1014,7 +1060,9 @@ def convert(code, filename=None, *, source_version=None, linesep=None,
     return result
 
 
-def poseur(filename, *, source_version=None, linesep=None, indentation=None, pep8=None, quiet=None, dry_run=False):
+# TODO: add misc functions required for ``dismiss`` and ``decorator`` (or equivalence)
+def poseur(filename, *, source_version=None, linesep=None, indentation=None, pep8=None,
+           dismiss=None, decorator=None, quiet=None, dry_run=False):
     """Convert the given Python source code file. The file will be overwritten.
 
     Args:
