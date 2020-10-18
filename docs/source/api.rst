@@ -17,15 +17,21 @@ Public Interface
 
 .. autofunction:: poseur.main
 
+Exported Decorator
+------------------
+
+As you may wish to provide runtime positional-only parameter checks for
+your own code, ``poseur`` exposed the decorator function for developers
+to use by themselves.
+
+.. autofunction:: poseur.decorator
+
 Conversion Implementation
 -------------------------
 
 The main logic of the ``poseur`` conversion is to
 
 For conversion algorithms and details, please refer to :doc:`algorithms`.
-
-Data Structures
-~~~~~~~~~~~~~~~
 
 Conversion Templates
 ~~~~~~~~~~~~~~~~~~~~

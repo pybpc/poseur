@@ -21,7 +21,7 @@ def func_a(para_a, para_b, /, para_c, para_d, *, para_e, para_f):
     return para_a, para_b, para_c, para_d, para_e, para_f
 
 
-def func_d(p_a, p_b, *,p_c):
+def func_d(p_a, p_b, *, p_c):
     var_b = lambda p_a, p_b=1, /, p_c=2: (p_a, p_b, p_c)
     print('var_b:', var_b('a'))
 

@@ -2,878 +2,1253 @@
 """Back-port compiler for Python 3.8 positional-only parameter syntax."""
 
 import argparse
-import glob
 import os
+import pathlib
 import re
 import sys
+import traceback
 
-import parso
+import f2format
 import tbtrim
-from bpc_utils import BOOLEAN_STATES, CPU_CNT, LOCALE_ENCODING, archive_files, detect_files, mp
+from bpc_utils import (BaseContext, BPCSyntaxError, Config, TaskLock, archive_files,
+                       detect_encoding, detect_files, detect_indentation, detect_linesep,
+                       first_non_none, get_parso_grammar_versions, map_tasks, parse_boolean_state,
+                       parse_indentation, parse_linesep, parse_positive_integer, parso_parse,
+                       recover_files)
 
-__all__ = ['poseur', 'convert', 'decorator']  # pylint: disable=undefined-all-variable
+__all__ = ['main', 'poseur', 'convert', 'decorator']  # pylint: disable=undefined-all-variable
 
 # version string
 __version__ = '0.4.3'
 
-# macros
-grammar_regex = re.compile(r"grammar(\d)(\d)\.txt")
-POSEUR_VERSION = sorted(filter(lambda version: version >= '3.8',  # when Python starts to have positional-only arguments
-                               map(lambda path: '%s.%s' % grammar_regex.match(os.path.split(path)[1]).groups(),
-                                   glob.glob(os.path.join(parso.__path__[0], 'python', 'grammar??.txt')))))
-del grammar_regex
+##############################################################################
+# Auxiliaries
+
+#: Get supported source versions.
+#:
+#: .. seealso:: :func:`bpc_utils.get_parso_grammar_versions`
+POSEUR_SOURCE_VERSIONS = get_parso_grammar_versions(minimum='3.8')
+
+# option default values
+#: Default value for the ``quiet`` option.
+_default_quiet = False
+#: Default value for the ``concurrency`` option.
+_default_concurrency = None  # auto detect
+#: Default value for the ``do_archive`` option.
+_default_do_archive = True
+#: Default value for the ``archive_path`` option.
+_default_archive_path = 'archive'
+#: Default value for the ``source_version`` option.
+_default_source_version = POSEUR_SOURCE_VERSIONS[-1]
+#: Default value for the ``linesep`` option.
+_default_linesep = None  # auto detect
+#: Default value for the ``indentation`` option.
+_default_indentation = None  # auto detect
+#: Default value for the ``pep8`` option.
+_default_pep8 = True
+
+# option getter utility functions
+# option value precedence is: explicit value (CLI/API arguments) > environment variable > default value
 
 
-class ConvertError(SyntaxError):
-    """Parso syntax error."""
+def _get_quiet_option(explicit=None):
+    """Get the value for the ``quiet`` option.
+
+    Args:
+        explicit (Optional[bool]): the value explicitly specified by user,
+            :data:`None` if not specified
+
+    Returns:
+        bool: the value for the ``quiet`` option
+
+    :Environment Variables:
+        :envvar:`POSEUR_QUIET` -- the value in environment variable
+
+    See Also:
+        :data:`_default_quiet`
+
+    """
+    # We need lazy evaluation, so first_non_none(a, b, c) does not work here
+    # with PEP 505 we can simply write a ?? b ?? c
+    def _option_layers():
+        yield explicit
+        yield parse_boolean_state(os.getenv('POSEUR_QUIET'))
+        yield _default_quiet
+    return first_non_none(_option_layers())
 
 
-class EnvironError(EnvironmentError):
-    """Invalid environment."""
+def _get_concurrency_option(explicit=None):
+    """Get the value for the ``concurrency`` option.
+
+    Args:
+        explicit (Optional[int]): the value explicitly specified by user,
+            :data:`None` if not specified
+
+    Returns:
+        Optional[int]: the value for the ``concurrency`` option;
+        :data:`None` means *auto detection* at runtime
+
+    :Environment Variables:
+        :envvar:`POSEUR_CONCURRENCY` -- the value in environment variable
+
+    See Also:
+        :data:`_default_concurrency`
+
+    """
+    return parse_positive_integer(explicit or os.getenv('POSEUR_CONCURRENCY') or _default_concurrency)
+
+
+def _get_do_archive_option(explicit=None):
+    """Get the value for the ``do_archive`` option.
+
+    Args:
+        explicit (Optional[bool]): the value explicitly specified by user,
+            :data:`None` if not specified
+
+    Returns:
+        bool: the value for the ``do_archive`` option
+
+    :Environment Variables:
+        :envvar:`POSEUR_DO_ARCHIVE` -- the value in environment variable
+
+    See Also:
+        :data:`_default_do_archive`
+
+    """
+    def _option_layers():
+        yield explicit
+        yield parse_boolean_state(os.getenv('POSEUR_DO_ARCHIVE'))
+        yield _default_do_archive
+    return first_non_none(_option_layers())
+
+
+def _get_archive_path_option(explicit=None):
+    """Get the value for the ``archive_path`` option.
+
+    Args:
+        explicit (Optional[str]): the value explicitly specified by user,
+            :data:`None` if not specified
+
+    Returns:
+        str: the value for the ``archive_path`` option
+
+    :Environment Variables:
+        :envvar:`POSEUR_ARCHIVE_PATH` -- the value in environment variable
+
+    See Also:
+        :data:`_default_archive_path`
+
+    """
+    return explicit or os.getenv('POSEUR_ARCHIVE_PATH') or _default_archive_path
+
+
+def _get_source_version_option(explicit=None):
+    """Get the value for the ``source_version`` option.
+
+    Args:
+        explicit (Optional[str]): the value explicitly specified by user,
+            :data:`None` if not specified
+
+    Returns:
+        str: the value for the ``source_version`` option
+
+    :Environment Variables:
+        :envvar:`POSEUR_SOURCE_VERSION` -- the value in environment variable
+
+    See Also:
+        :data:`_default_source_version`
+
+    """
+    return explicit or os.getenv('POSEUR_SOURCE_VERSION') or _default_source_version
+
+
+def _get_linesep_option(explicit=None):
+    r"""Get the value for the ``linesep`` option.
+
+    Args:
+        explicit (Optional[str]): the value explicitly specified by user,
+            :data:`None` if not specified
+
+    Returns:
+        Optional[Literal['\\n', '\\r\\n', '\\r']]: the value for the ``linesep`` option;
+        :data:`None` means *auto detection* at runtime
+
+    :Environment Variables:
+        :envvar:`POSEUR_LINESEP` -- the value in environment variable
+
+    See Also:
+        :data:`_default_linesep`
+
+    """
+    return parse_linesep(explicit or os.getenv('POSEUR_LINESEP') or _default_linesep)
+
+
+def _get_indentation_option(explicit=None):
+    """Get the value for the ``indentation`` option.
+
+    Args:
+        explicit (Optional[Union[str, int]]): the value explicitly specified by user,
+            :data:`None` if not specified
+
+    Returns:
+        Optional[str]: the value for the ``indentation`` option;
+        :data:`None` means *auto detection* at runtime
+
+    :Environment Variables:
+        :envvar:`POSEUR_INDENTATION` -- the value in environment variable
+
+    See Also:
+        :data:`_default_indentation`
+
+    """
+    return parse_indentation(explicit or os.getenv('POSEUR_INDENTATION') or _default_indentation)
+
+
+def _get_pep8_option(explicit=None):
+    """Get the value for the ``pep8`` option.
+
+    Args:
+        explicit (Optional[bool]): the value explicitly specified by user,
+            :data:`None` if not specified
+
+    Returns:
+        bool: the value for the ``pep8`` option
+
+    :Environment Variables:
+        :envvar:`POSEUR_PEP8` -- the value in environment variable
+
+    See Also:
+        :data:`_default_pep8`
+
+    """
+    def _option_layers():
+        yield explicit
+        yield parse_boolean_state(os.getenv('POSEUR_PEP8'))
+        yield _default_pep8
+    return first_non_none(_option_layers())
 
 
 ###############################################################################
-# Traceback trim (tbtrim)
+# Traceback Trimming (tbtrim)
 
 # root path
-ROOT = os.path.dirname(os.path.realpath(__file__))
+ROOT = pathlib.Path(__file__).resolve().parent
 
 
-def predicate(filename):  # pragma: no cover
-    if os.path.basename(filename) == 'poseur.py':
-        return True
-    return ROOT in os.path.realpath(filename)
+def predicate(filename):
+    return pathlib.Path(filename).parent == ROOT
 
 
-tbtrim.set_trim_rule(predicate, strict=True, target=(ConvertError, EnvironError))
+tbtrim.set_trim_rule(predicate, strict=True, target=BPCSyntaxError)
 
 ###############################################################################
 # Positional-only decorator
 
 # cf. https://mail.python.org/pipermail/python-ideas/2017-February/044888.html
-_decorator = '''\
+DECORATOR_TEMPLATE = '''\
 def %(decorator)s(*poseur):
-%(tabsize)s"""Positional-only arguments runtime checker."""
-%(tabsize)simport functools
-%(tabsize)sdef caller(func):
-%(tabsize)s%(tabsize)s@functools.wraps(func)
-%(tabsize)s%(tabsize)sdef wrapper(*args, **kwargs):
-%(tabsize)s%(tabsize)s%(tabsize)sposeur_args = set(poseur).intersection(kwargs)
-%(tabsize)s%(tabsize)s%(tabsize)sif poseur_args:
-%(tabsize)s%(tabsize)s%(tabsize)s%(tabsize)sraise TypeError('%%s() got some positional-only arguments passed as keyword arguments: %%r' %% (func.__name__, ', '.join(poseur_args)))
-%(tabsize)s%(tabsize)s%(tabsize)sreturn func(*args, **kwargs)
-%(tabsize)s%(tabsize)sreturn wrapper
-%(tabsize)sreturn caller
+%(indentation)s"""Positional-only parameters runtime checker.
+%(indentation)s
+%(indentation)s    Args:
+%(indentation)s        *poseur: Name list of positional-only parameters.
+%(indentation)s
+%(indentation)s    Raises:
+%(indentation)s        TypeError: If any position-only parameters were passed as
+%(indentation)s            keyword parameters.
+%(indentation)s
+%(indentation)s    The decorator function may decorate regular :term:`function` and/or
+%(indentation)s    :term:`lambda` function to provide runtime checks on the original
+%(indentation)s    positional-only parameters.
+%(indentation)s
+%(indentation)s"""
+%(indentation)simport functools
+%(indentation)sdef caller(func):
+%(indentation)s%(indentation)s@functools.wraps(func)
+%(indentation)s%(indentation)sdef wrapper(*args, **kwargs):
+%(indentation)s%(indentation)s%(indentation)sposeur_args = set(poseur).intersection(kwargs)
+%(indentation)s%(indentation)s%(indentation)sif poseur_args:
+%(indentation)s%(indentation)s%(indentation)s%(indentation)sraise TypeError('%%s() got some positional-only parameters passed as keyword arguments: %%r' %% (func.__name__, ', '.join(poseur_args)))
+%(indentation)s%(indentation)s%(indentation)sreturn func(*args, **kwargs)
+%(indentation)s%(indentation)sreturn wrapper
+%(indentation)sreturn caller
 '''.splitlines()  # `str.splitlines` will remove trailing newline
 
-exec(os.linesep.join(_decorator) % dict(decorator='decorator', tabsize='\t'.expandtabs(4)))
+exec(os.linesep.join(DECORATOR_TEMPLATE) % dict(decorator='decorator', indentation='    '))  # nosec: B102; pylint: disable=exec-used
 
 ###############################################################################
 # Main convertion implementation
 
 
-def parse(string, source):
-    """Parse source string.
+class Context(BaseContext):
+    """General conversion context.
 
     Args:
-     - `string` -- `str`, context to be converted
-     - `source` -- `str`, source of the context
+        node (parso.tree.NodeOrLeaf): parso AST
+        config (Config): conversion configurations
 
-    Envs:
-     - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
+    Keyword Args:
+        indent_level (int): current indentation level
+        raw (bool): raw processing flag
 
-    Returns:
-     - `parso.python.tree.Module` -- parso AST
+    Important:
+        ``raw`` should be :data:`True` only if the ``node`` is in the clause of another *context*,
+        where the converted wrapper functions should be inserted.
 
-    Raises:
-     - `ConvertError` -- when source code contains syntax errors
+        However, this parameter is currently not in use.
 
-    """
-    grammar = parso.load_grammar(version=os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1]))
-    module = grammar.parse(string, error_recovery=True)
-    errors = grammar.iter_errors(module)
+    For the :class:`Context` class of :mod:`poseur` module,
+    it will  process nodes with following methods:
 
-    if errors:
-        error_messages = '\n'.join('[L%dC%d] %s' % (*error.start_pos, error.message) for error in errors)
-        raise ConvertError('source file %r contains following syntax errors:\n' % source + error_messages)
+    * :token:`suite`
 
-    return module
+      - :meth:`Context._process_suite_node`
 
+    * :token:`funcdef`
 
-def decorate_lambdef(parameters, lambdef):
-    """Append poseur decorator to lambda definition.
+      - :meth:`Context._process_funcdef`
 
-    Args:
-     - `parameters` -- `List[parso.python.tree.Param]`, extracted positional-only arguments
-     - `lambdef` -- `str`, converted lambda string
+    * :token:`lambdef`
 
-    Envs:
-     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+      - :meth:`Context._process_lambdef`
 
-    Returns:
-     - `str` -- decorated lambda definition
+    * :token:`classdef`
 
-    """
-    POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
+      - :meth:`Context._process_classdef`
 
-    match_prefix = re.match(r'^(?P<prefix>\s*).*?', lambdef, re.DOTALL | re.MULTILINE)
-    prefix = '' if match_prefix is None else match_prefix.group('prefix')
+    * :token:`if_stmt`
 
-    match_suffix = re.match(r'.*?(?P<suffix>\s*)$', lambdef, re.DOTALL | re.MULTILINE)
-    suffix = '' if match_suffix is None else match_suffix.group('suffix')
+      - :meth:`Context._process_if_stmt`
 
-    return '%s%s(%s)(%s)%s' % (prefix,
-                               POSEUR_DECORATOR,
-                               ', '.join(map(lambda param: repr(param.name.value), parameters)),
-                               lambdef.strip(),
-                               suffix)
+    * :token:`while_stmt`
 
+      - :meth:`Context._process_while_stmt`
 
-def dismiss_lambdef(node):
-    """Dismiss positional-only arguments syntax.
+    * :token:`for_stmt`
 
-    Args:
-     - `node` -- `parso.python.tree.Lambda`, AST of lambda parameters
+      - :meth:`Context._process_for_stmt`
 
-    Envs:
-     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
+    * :token:`with_stmt`
 
-    Returns:
-     - `str` -- converted lambda definition
+      - :meth:`Context._process_with_stmt`
+
+    * :token:`try_stmt`
+
+      - :meth:`Context._process_try_stmt`
+
+    * :token:`stringliteral`
+
+      * :meth:`Context._process_strings`
+      * :meth:`Context._process_string_context`
+
+    * :token:`f_string`
+
+      * :meth:`Context._process_fstring`
 
     """
-    params = ''
-    prefix = ''
-    suffix = ''
+    #: re.Pattern: Pattern to find the function definition line.
+    pattern_funcdef = re.compile(r'^\s*(async\s+)?def\s', re.ASCII)
 
-    flag_param = False
-    flag_suite = False
-    for child in node.children:
-        # <Param: ...>
-        if child.type == 'param':
-            flag_param = True
-            if child.default is None:
-                params += child.get_code()
-            else:
-                params += walk(child)
-        # lambda parameters
-        elif flag_param:
-            # <Operator: />
-            if child.type == 'operator' and child.value == '/':
-                params += child.get_code().replace('/', '')
-            # <Operator: :>
-            elif child.type == 'operator' and child.value == ':':
-                flag_param = False
-                flag_suite = True
-                suffix += child.get_code()
-            # <Operator: *> / <Operator: ,> / <Param: ...>
-            else:
-                params += child.get_code()
-        # lambda suite
-        elif flag_suite:
-            suffix += walk(child)
-        # lambda declration
+    @property
+    def decorator(self):
+        """Name of the ``poseur`` decorator.
+
+        :rtype: str
+        """
+        return self._decorator
+
+    def __init__(self, node, config, *, indent_level=0, raw=False):
+        #: bool: Dismiss runtime checks for positional-only parameters.
+        self._dismiss = config.dismiss
+        #: str: Decorator name.
+        self._decorator = config.decorator
+
+        super().__init__(node, config, indent_level=indent_level, raw=raw)
+
+    def _process_funcdef(self, node, *, async_ctx=None):
+        """Process function definition (:token:`funcdef`).
+
+        Args:
+            node (parso.python.tree.Function): function node
+
+        Keyword Args:
+            async_ctx (parso.python.tree.Keyword): ``async`` keyword AST node
+
+        """
+        if not self.has_expr(node):
+            self += node.get_code()
+            return
+
+        posonly = list()  # positional-only parameters
+        funcdef = '' if async_ctx is None else async_ctx.get_code()
+
+        # 'def' NAME '(' PARAM ')' [ '->' NAME ] ':' SUITE
+        for child in node.children[:-1]:
+            if child.type == 'parameters':
+                # <Operator: (>
+                funcdef += child.children[0].get_code()
+
+                parameters = ''
+                param_list = list()
+                for grandchild in child.children[1:-1]:
+                    # <Operator: />
+                    if grandchild.type == 'operator' and grandchild.value == '/':
+                        parameters += grandchild.get_code().replace('/', '')
+                        posonly.extend(param_list)
+                        continue
+
+                    # <Param: ...>
+                    if grandchild.type == 'param':
+                        param_list.append(grandchild)
+
+                        if grandchild.default is not None:
+                            # initiate new context
+                            ctx = Context(grandchild, self.config, raw=True,
+                                          indent_level=self._indent_level)
+                            parameters += ctx.string
+                            continue
+
+                    # <Param: ...> / <Operator: *> / <Operator: ,>
+                    parameters += grandchild.get_code()
+
+                if self._pep8:
+                    funcdef += ', '.join(filter(None, map(lambda s: s.strip(), parameters.split(','))))
+                else:
+                    funcdef += ','.join(filter(lambda s: s.strip(), parameters.split(',')))
+
+                # <Operator: )>
+                funcdef += child.children[-1].get_code()
+                continue
+
+            funcdef += child.get_code()
+
+        # decorate the function
+        if not self._dismiss and posonly:
+            prefix = ''
+            suffix = ''
+            deflag = False  # function definition line
+
+            for line in funcdef.splitlines(True):
+                if self.pattern_funcdef.match(line) is not None:
+                    deflag = True
+                if deflag:
+                    suffix += line
+                else:
+                    prefix += line
+
+            posonly_args = ', '.join(map(lambda param: repr(param.name.value), posonly))
+            indentation = self._indentation * self._indent_level
+            self += ('%(prefix)s'
+                     '%(indentation)s@%(decorator)s(%(posonly)s)%(linesep)s'
+                     '%(suffix)s') % dict(
+                         prefix=prefix, suffix=suffix,
+                         linesep=self._linesep, indentation=indentation,
+                         decorator=self._decorator, posonly=posonly_args,
+                     )
         else:
-            prefix += child.get_code()
+            self += funcdef
 
-    POSEUR_LINTING = BOOLEAN_STATES.get(os.getenv('POSEUR_LINTING', '0').casefold(), False)
-    if POSEUR_LINTING:
-        params = ' ' + ', '.join(filter(None, map(lambda s: s.strip(), params.split(','))))
-    else:
-        params = ','.join(filter(lambda s: s.strip(), params.split(',')))
+        # SUITE
+        self._process_suite_node(node.children[-1])
 
-    return prefix + params + suffix
+    def _process_lambdef(self, node):
+        """Process lambda definition (:token:`lambdef`).
 
+        Args:
+            node (parso.python.tree.Lambda): lambda node
 
-def extract_lambdef(node):
-    """Extract positional-only arguments from lambda definition.
+        """
+        if not self.has_expr(node):
+            self += node.get_code()
+            return
 
-    Args:
-     - `node` -- `parso.python.tree.Lambda`, AST of lambda definition
+        pos_only = list()
+        children = iter(node.children)
 
-    Returns:
-     - `List[parso.python.tree.Param]` -- extracted positional-only arguments
+        # string buffers
+        params = ''
+        prefix = ''
+        suffix = ''
 
-    """
-    pos_only = list()
+        # <Keyword: lambda>
+        prefix += next(children).get_code()
 
-    pos_temp = list()
-    for child in node.children:
-        if child.type == 'param':
-            pos_temp.append(child)
-        elif child.type == 'operator' and child.value == '/':
-            pos_only.extend(pos_temp)
-            break
+        # vararglist
+        param_list = list()
+        for child in children:
+            if child.type == 'operator':
+                # <Operator: />
+                if child.value == '/':
+                    params += child.get_code().replace('/', '')
+                    pos_only.extend(param_list)
+                    continue
 
-    return pos_only
+                # <Operator: :>
+                if child.value == ':':
+                    suffix += child.get_code()
+                    break
 
+            # <Param: ...>
+            if child.type == 'param':
+                param_list.append(child)
 
-def process_lambdef(node, flag):
-    """Process lambda definition.
+                if child.default is not None:
+                    # initialize new context
+                    ctx = Context(node=child, config=self.config,
+                                  indent_level=self._indent_level, raw=True)
+                    params += ctx.string
+                    continue
 
-    Args:
-     - `node` -- `parso.python.tree.Lambda`, lambda AST
-     - `flag` -- `bool`, dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-
-    Envs:
-     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
-
-    Returns:
-     - `str` -- processed source string
-
-    """
-    # string buffer
-    string = ''
-
-    parameters = extract_lambdef(node)
-    if parameters:
-        lambdef = dismiss_lambdef(node)
-        if not flag:
-            lambdef = decorate_lambdef(parameters, lambdef)
-        string += lambdef
-    else:
-        string += dismiss_lambdef(node)
-    return string
-
-
-def decorate_funcdef(parameters, column, funcdef):
-    """Append poseur decorator to function definition.
-
-    Args:
-     - `parameters` -- `List[parso.python.tree.Param]`, extracted positional-only arguments
-     - `column` -- `int`, indentation of function definition
-     - `funcdef` -- `str`, converted function string
-
-    Envs:
-     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
-     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
-
-    Returns:
-     - `str` -- decorated function definition
-
-    """
-    POSEUR_LINESEP = guess_linesep(parameters[0])
-    POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
-
-    prefix = ''
-    suffix = ''
-    deflag = False
-
-    for line in funcdef.splitlines(True):
-        if re.match(r'^\s*(async\s+)?def\s', line) is not None:
-            deflag = True
-        if deflag:
-            suffix += line
-        else:
-            prefix += line
-
-    return '%s%s@%s(%s)%s%s' % (prefix,
-                                '\t'.expandtabs(column),
-                                POSEUR_DECORATOR,
-                                ', '.join(map(lambda param: repr(param.name.value), parameters)),
-                                POSEUR_LINESEP,
-                                suffix)
-
-
-def dismiss_funcdef(node):
-    """Dismiss positional-only arguments syntax.
-
-    Args:
-     - `node` -- `parso.python.tree.PythonNode`, AST of function parameters
-
-    Envs:
-     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
-
-    Returns:
-     - `str` -- converted parameters string
-
-    """
-    # <Operator: (>
-    string = node.children[0].get_code()
-
-    params = ''
-    for child in node.children[1:-1]:
-        # <Operator: />
-        if child.type == 'operator' and child.value == '/':
-            params += child.get_code().replace('/', '')
-        elif child.type == 'param':
-            if child.default is None:
-                params += child.get_code()
-            else:
-                params += walk(child)
-        # <Operator: *> / <Operator: ,>
-        else:
+            # <Param: ...> / <Operator: *> / <Operator: ,>
             params += child.get_code()
 
-    POSEUR_LINTING = BOOLEAN_STATES.get(os.getenv('POSEUR_LINTING', '0').casefold(), False)
-    if POSEUR_LINTING:
-        string += ', '.join(filter(None, map(lambda s: s.strip(), params.split(','))))
-    else:
-        string += ','.join(filter(lambda s: s.strip(), params.split(',')))
+        # test_nocond | test
+        ctx = Context(node=next(children), config=self.config,
+                      indent_level=self._indent_level, raw=True)
+        suffix += ctx.string
 
-    # <Operator: )>
-    string += node.children[-1].get_code()
-
-    return string
-
-
-def extract_funcdef(node):
-    """Extract positional-only arguments from function parameters.
-
-    Args:
-     - `node` -- `parso.python.tree.PythonNode`, AST of function parameters
-
-    Returns:
-     - `List[parso.python.tree.Param]` -- extracted positional-only arguments
-
-    """
-    pos_only = list()
-
-    pos_temp = list()
-    for child in node.children[1:-1]:
-        if child.type == 'param':
-            pos_temp.append(child)
-        elif child.type == 'operator' and child.value == '/':
-            pos_only.extend(pos_temp)
-            break
-
-    return pos_only
-
-
-def process_funcdef(node, flag, *, async_ctx=None):
-    """Process function definition.
-
-    Args:
-     - `node` -- `parso.python.tree.Function`, function AST
-     - `flag` -- `bool`, dismiss runtime checks for positional-only arguments
-
-    Kwds:
-     - `async_ctx` -- `parso.python.tree.Keyword`, `async` keyword AST node
-
-    Envs:
-     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
-
-    Returns:
-     - `str` -- processed source string
-
-    """
-    # string buffer
-    string = ''
-
-    if async_ctx is None:
-        funcdef = ''
-    else:
-        funcdef = async_ctx.get_code()
-
-    for child in node.children:
-        if child.type == 'parameters':
-            parameters = extract_funcdef(child)
-            funcdef += dismiss_funcdef(child)
-        else:  # suite / ...
-            funcdef += walk(child)
-    if parameters and (not flag):
-        if async_ctx is None:
-            column = node.get_first_leaf().column
+        whitespace_prefix, whitespace_suffix = self.extract_whitespaces(params)
+        if self._pep8:
+            params = ', '.join(filter(None, map(lambda s: s.strip(), params.split(','))))
         else:
-            column = async_ctx.column
-        string += decorate_funcdef(parameters, column, funcdef)
-    else:
-        string += funcdef
-    return string
+            params = ','.join(filter(lambda s: s.strip(), params.split(',')))
+        lambdef = prefix + whitespace_prefix + params.strip() + whitespace_suffix + suffix
 
+        if self._dismiss or not pos_only:
+            self += lambdef
+            return
 
-def check_lambdef(node):
-    """Check if lambda definition contains positional-only arguments.
+        # decorate lambda definition
+        whitespace_prefix, whitespace_suffix = self.extract_whitespaces(lambdef)
+        posonly_args = ', '.join(map(lambda param: repr(param.name.value), pos_only))
+        self += ('%(prefix)s'
+                 '%(decorator)s(%(posonly)s)'
+                 '(%(lambdef)s)'
+                 '%(suffix)s') % dict(
+                     prefix=whitespace_prefix, suffix=whitespace_suffix,
+                     lambdef=lambdef.strip(),
+                     decorator=self._decorator, posonly=posonly_args,
+                 )
 
-    Args:
-     - `node` -- `parso.python.tree.Lambda`, lambda definition
+    def _process_suite_node(self, node):
+        """Process indented suite (:token:`suite` or others).
 
-    Returns:
-     - `bool` -- if lambda definition contains positional-only arguments
+        Args:
+            node (parso.tree.NodeOrLeaf): suite node
 
-    """
-    param = False
-    suite = False
-    for child in node.children:
-        if child.type == 'param':
-            if child.default is not None:
-                if has_poseur(child.default):
-                    return True
-            param = True
-        elif child.type == 'operator' and child.value == ':':
-            param = False
-            suite = True
-        elif param and child.type == 'operator' and child.value == '/':
-            return True
-        elif suite and has_poseur(child):
-            return True
-    return False
+        This method first checks if ``node`` contains positional-only parameters.
+        If not, it will not perform any processing, rather just append the
+        original source code to context buffer.
 
+        If ``node`` contains positional-only parameters, then it will initiate
+        another Context` instance to perform the conversion process on such
+        ``node``.
 
-def check_funcdef(node):
-    """Check if function definition contains positional-only arguments.
+        """
+        if not self.has_expr(node):
+            self += node.get_code()
+            return
 
-    Args:
-     - `node` -- `parso.python.tree.Function`, function definition
+        indent = self._indent_level + 1
+        self += self._linesep + self._indentation * indent
 
-    Returns:
-     - `bool` -- if function definition contains positional-only arguments
+        # initialize new context
+        ctx = Context(node=node, config=self.config,
+                      indent_level=indent, raw=True)
+        self += ctx.string.lstrip()
 
-    """
-    for child in node.children:
-        if child.type == 'parameters':
-            for param in child.children[1:-1]:
-                if param.type == 'operator':
-                    if param.value == '/':
-                        return True
-                    continue
-                if param.default is not None and has_poseur(param.default):
-                    return True
-        elif has_poseur(child):  # suite / ...
-            return True
-    return False
+    def _process_string_context(self, node):
+        """Process string contexts (:token:`stringliteral`).
 
+        Args:
+            node (parso.python.tree.PythonNode): string literals node
 
-def has_poseur(node):
-    """Check if node has function/lambda definitions.
+        This method first checks if ``node`` contains position-only parameters.
+        If not, it will not perform any processing, rather just append the
+        original source code to context buffer. Later it will check if
+        ``node`` contains *debug f-string*. If not, it will process the
+        *regular* processing on each child of such ``node``.
 
-    Args:
-     - `node` -- `Union[parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`, node to search
+        See Also:
+            The method calls :meth:`f2format.Context.has_debug_fstring`
+            to detect *debug f-strings*.
 
-    Return:
-     - `bool` -- if node has function/lambda definitions
+        Otherwise, it will initiate a new :class:`StringContext` instance
+        to perform the conversion process on such ``node``, which will first
+        use :mod:`f2format` to convert those formatted string literals.
 
-    """
-    if node.type == 'funcdef':
-        return check_funcdef(node)
-    if node.type == 'lambdef':
-        return check_lambdef(node)
-    if not hasattr(node, 'children'):
-        return False
-    return any(map(has_poseur, node.children))
+        Important:
+            When initialisation, ``raw`` parameter **must** be set to :data:`True`;
+            as the converted wrapper functions should be inserted in the *outer*
+            context, rather than the new :class:`StringContext` instance.
 
+        """
+        if not self.has_expr(node):
+            self += node.get_code()
+            return
 
-def find_poseur(node, root=0):
-    """Find node to insert poseur decorator.
+        # TODO: reconstruct f2format and implement such method for the case
+        # if not f2format.Context.has_debug_fstring(node):
+        if True:  # pylint: disable=using-constant-test
+            for child in node.children:
+                self._process(child)
+            return
 
-    Args:
-     - `node` -- `parso.python.tree.Module`, parso AST
-     - `root` -- `int`, index for insertion (based on `node`)
+        # initiate new context
+        ctx = StringContext(node=node, config=self.config,
+                            indent_level=self._indent_level, raw=True)
+        self += ctx.string
 
-    Returns:
-     - `int` -- index for insertion (based on `node`)
+    def _process_classdef(self, node):
+        """Process class definition (:token:`classdef`).
 
-    """
-    for index, child in enumerate(node.children, start=1):
-        if has_poseur(child):
-            return root
-        if child.get_first_leaf().column == 0:
-            root = index
-    return -1
+        Args:
+            node (parso.python.tree.Class): class node
 
+        This method converts the whole class suite context with
+        :meth:`~Context._process_suite_node` through :class:`Context`
+        respectively.
 
-def check_suffix(string):
-    """Strip comments from string.
+        """
+        # <Keyword: class>
+        # <Name: ...>
+        # [<Operator: (>, PythonNode(arglist, [...]]), <Operator: )>]
+        # <Operator: :>
+        for child in node.children[:-1]:
+            self._process(child)
 
-    Args:
-     - `string` -- `str`, buffer string
+        # PythonNode(suite, [...]) / PythonNode(simple_stmt, [...])
+        suite = node.children[-1]
+        self._process_suite_node(suite)
 
-    Returns:
-     - `str` -- prefix comments
-     - `str` -- suffix strings
+    def _process_if_stmt(self, node):
+        """Process if statement (:token:`if_stmt`).
 
-    """
-    prefix = ''
-    suffix = ''
+        Args:
+            node (parso.python.tree.IfStmt): if node
 
-    lines = iter(string.splitlines(True))
-    for line in lines:
-        if line.strip().startswith('#'):
-            prefix += line
-            continue
-        suffix += line
-        break
+        This method processes each indented suite under the *if*, *elif*,
+        and *else* statements.
 
-    for line in lines:
-        suffix += line
-    return prefix, suffix
+        """
+        children = iter(node.children)
 
+        # <Keyword: if>
+        self._process(next(children))
+        # namedexpr_test
+        self._process(next(children))
+        # <Operator: :>
+        self._process(next(children))
+        # suite
+        self._process_suite_node(next(children))
 
-def guess_tabsize(node):
-    """Check indentation tab size.
+        while True:
+            try:
+                # <Keyword: elif | else>
+                key = next(children)
+            except StopIteration:
+                break
+            self._process(key)
 
-    Args:
-        - `node` -- `Union[parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`, parso AST
+            if key.value == 'elif':
+                # namedexpr_test
+                self._process(next(children))
+                # <Operator: :>
+                self._process(next(children))
+                # suite
+                self._process_suite_node(next(children))
+                continue
+            if key.value == 'else':
+                # <Operator: :>
+                self._process(next(children))
+                # suite
+                self._process_suite_node(next(children))
+                continue
 
-    Env:
-        - `POSEUR_TABSIZE` -- indentation tab size (same as `--tabsize` option in CLI)
+    def _process_while_stmt(self, node):
+        """Process while statement (:token:`while_stmt`).
 
-    Returns:
-        - `int` -- indentation tab size
+        Args:
+            node (parso.python.tree.WhileStmt): while node
 
-    """
-    for child in node.children:
-        if child.type != 'suite':
-            if hasattr(child, 'children'):
-                return guess_tabsize(child)
-            continue
-        return child.children[1].get_first_leaf().column
-    return int(os.getenv('POSEUR_TABSIZE', __poseur_tabsize__))
+        This method processes the indented suite under the *while* and optional
+        *else* statements.
 
+        """
+        children = iter(node.children)
 
-def guess_linesep(node):
-    """Guess line separator based on source code.
+        # <Keyword: while>
+        self._process(next(children))
+        # namedexpr_test
+        self._process(next(children))
+        # <Operator: :>
+        self._process(next(children))
+        # suite
+        self._process_suite_node(next(children))
 
-    Args:
-        - `node` -- `Union[parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`, parso AST
+        try:
+            key = next(children)
+        except StopIteration:
+            return
 
-    Envs:
-        - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
+        # <Keyword: else>
+        self._process(key)
+        # <Operator: :>
+        self._process(next(children))
+        # suite
+        self._process_suite_node(next(children))
 
-    Returns:
-        - `str` -- line separator
+    def _process_for_stmt(self, node):
+        """Process for statement (:token:`for_stmt`).
 
-    """
-    root = node.get_root_node()
-    code = root.get_code()
+        Args:
+            node (parso.python.tree.ForStmt): for node
 
-    pool = {
-        '\r': 0,
-        '\r\n': 0,
-        '\n': 0,
-    }
-    for line in code.splitlines(True):
-        if line.endswith('\r'):
-            pool['\r'] += 1
-        elif line.endswith('\r\n'):
-            pool['\r\n'] += 1
-        else:
-            pool['\n'] += 1
+        This method processes the indented suite under the *for* and optional
+        *else* statements.
 
-    sort = sorted(pool, key=lambda k: pool[k])
-    if pool[sort[0]] > pool[sort[1]]:
-        return sort[0]
+        """
+        children = iter(node.children)
 
-    env = os.getenv('POSEUR_LINESEP', os.linesep)
-    env_name = env.upper()
-    if env_name == 'CR':
-        return '\r'
-    if env_name == 'CRLF':
-        return '\r\n'
-    if env_name == 'LF':
-        return '\n'
-    if env in ['\r', '\r\n', '\n']:
-        return env
-    raise EnvironError('invalid line separator %r' % env)
+        # <Keyword: for>
+        self._process(next(children))
+        # exprlist
+        self._process(next(children))
+        # <Keyword: in>
+        self._process(next(children))
+        # testlist
+        self._process(next(children))
+        # <Operator: :>
+        self._process(next(children))
+        # suite
+        self._process_suite_node(next(children))
 
+        try:
+            key = next(children)
+        except StopIteration:
+            return
 
-def process_module(node):
-    """Walk top nodes of the AST module.
+        # <Keyword: else>
+        self._process(key)
+        # <Operator: :>
+        self._process(next(children))
+        # suite
+        self._process_suite_node(next(children))
 
-    Args:
-     - `node` -- `parso.python.tree.Module`, parso AST
+    def _process_with_stmt(self, node):
+        """Process with statement (:token:`with_stmt`).
 
-    Envs:
-     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
-     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
-     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
-     - `POSEUR_TABSIZE` -- indentation tab size (same as `--tabsize` option in CLI)
+        Args:
+            node (parso.python.tree.WithStmt): with node
 
-    Returns:
-     - `str` -- processed source string
+        This method processes the indented suite under the *with* statement.
 
-    """
-    prefix = ''
-    suffix = ''
+        """
+        children = iter(node.children)
 
-    postmt = find_poseur(node)
-    for index, child in enumerate(node.children):
-        if index < postmt:
-            prefix += walk(child)
-        else:
-            bufpre, bufsuf = check_suffix(walk(child))
-            prefix += bufpre
-            suffix += bufsuf
+        # <Keyword: with>
+        self._process(next(children))
 
-    if postmt >= 0:
-        POSEUR_TABSIZE = guess_tabsize(node)
-        POSEUR_LINESEP = guess_linesep(node)
-        POSEUR_DECORATOR = os.getenv('POSEUR_DECORATOR', __poseur_decorator__)
+        while True:
+            # with_item | <Operator: ,>
+            item = next(children)
+            self._process(item)
 
-        middle = POSEUR_LINESEP.join(_decorator) % dict(
-            decorator=POSEUR_DECORATOR,
-            tabsize='\t'.expandtabs(POSEUR_TABSIZE),
-        )
-        if not prefix:
-            middle = middle.lstrip()
-        if not suffix:
-            middle = middle.rstrip()
+            # <Operator: :>
+            if item.type == 'operator' and item.value == ':':
+                break
 
-        POSEUR_LINTING = BOOLEAN_STATES.get(os.getenv('POSEUR_LINTING', '0').casefold(), False)
-        if POSEUR_LINTING:
-            if prefix:
-                if prefix.endswith(POSEUR_LINESEP * 2):
-                    pass
-                elif prefix.endswith(POSEUR_LINESEP):
-                    middle = POSEUR_LINESEP + middle
-                else:
-                    middle = POSEUR_LINESEP * 2 + middle
+        # suite
+        self._process_suite_node(next(children))
 
-            if suffix:
-                if suffix.startswith(POSEUR_LINESEP * 2):
-                    pass
-                elif suffix.startswith(POSEUR_LINESEP):
-                    middle += POSEUR_LINESEP
-                else:
-                    middle += POSEUR_LINESEP * 2
+    def _process_try_stmt(self, node):
+        """Process try statement (:token:`try_stmt`).
 
-        poflag = False
-        string = prefix
-        for line in suffix.splitlines(True):
-            stripped = line.strip()
-            if poflag:
-                string += line
-            elif (not stripped) or stripped.startswith('#'):
-                string += line
+        Args:
+            node (parso.python.tree.TryStmt): try node
+
+        This method processes the indented suite under the *try*, *except*,
+        *else*, and *finally* statements.
+
+        """
+        children = iter(node.children)
+
+        while True:
+            try:
+                key = next(children)
+            except StopIteration:
+                break
+
+            # <Keyword: try | else | finally> | PythonNode(except_clause, [...]
+            self._process(key)
+            # <Operator: :>
+            self._process(next(children))
+            # suite
+            self._process_suite_node(next(children))
+
+    def _process_strings(self, node):
+        """Process concatenable strings (:token:`stringliteral`).
+
+        Args:
+            node (parso.python.tree.PythonNode): concatentable strings node
+
+        As in Python, adjacent string literals can be concatenated in certain
+        cases, as described in the `documentation`_. Such concatenable strings
+        may contain formatted string literals (:term:`f-string`) within its scope.
+
+        _documentation: https://docs.python.org/3/reference/lexical_analysis.html#string-literal-concatenation
+
+        """
+        self._process_string_context(node)
+
+    def _process_fstring(self, node):
+        """Process formatted strings (:token:`f_string`).
+
+        Args:
+            node (parso.python.tree.PythonNode): formatted strings node
+
+        """
+        self._process_string_context(node)
+
+    def _concat(self):
+        """Concatenate final string.
+
+        This method tries to inserted the runtime check decorator function
+        at the very location where starts to contain positional-only parameters, i.e.
+        between the converted code as :attr:`self._prefix <Context._prefix>` and
+        :attr:`self._suffix <Context._suffix>`.
+
+        The inserted code is rendered from :data:`DECORATOR_TEMPLATE`. If
+        :attr:`self._pep8 <Context._pep8>` is :data:`True`, it will insert the code
+        in compliance with :pep:`8`.
+
+        """
+        if self._dismiss:
+            self._buffer += self._prefix + self._suffix
+            return
+
+        # strip suffix comments
+        prefix, suffix = self.split_comments(self._suffix, self._linesep)
+        suffix_linesep = re.match(rf'^(?P<linesep>({self._linesep})*)', suffix, flags=re.ASCII).group('linesep')
+
+        # first, the prefix code
+        self._buffer += self._prefix + prefix + suffix_linesep
+        if self._pep8 and self._buffer:
+            if (self._node_before_expr is not None
+                    and self._node_before_expr.type in ('funcdef', 'classdef')
+                    and self._indent_level == 0):
+                blank = 2
             else:
-                poflag = True
-                string += middle + line
-        return string
-    return prefix + suffix
+                blank = 1
+            self._buffer += self._linesep * self.missing_newlines(prefix=self._buffer, suffix='',
+                                                                  expected=blank, linesep=self._linesep)
+
+        # then, the decorator function
+        self._buffer += self._linesep.join(DECORATOR_TEMPLATE) % dict(
+            decorator=self._decorator,
+            indentation=self._indentation,
+        ) + self._linesep
+
+        # finally, the suffix code
+        if self._pep8:
+            self._buffer += self._linesep * self.missing_newlines(prefix=self._buffer, suffix='',
+                                                                  expected=2, linesep=self._linesep)
+        self._buffer += suffix.lstrip(self._linesep)
+
+    @classmethod
+    def has_expr(cls, node):
+        """Check if node has positional-only parameters.
+
+        Args:
+            node (parso.tree.NodeOrLeaf): parso AST
+
+        Returns:
+            bool: if ``node`` has positional argument
+
+        """
+        if node.type == 'funcdef':
+            return cls._check_funcdef(node)
+        if node.type == 'lambdef':
+            return cls._check_lambdef(node)
+        if not hasattr(node, 'children'):
+            return False
+        return any(map(cls.has_expr, node.children))
+
+    # backward compatibility and auxiliary alias
+    has_poseur = has_expr
+
+    @classmethod
+    def _check_funcdef(cls, node):
+        """Check if :term:`function` definition contains positional-only parameters.
+
+        Args:
+            node (parso.tree.Function): function definition
+
+        Returns:
+            bool: if :term:`function` definition contains positional-only parameters
+
+        """
+        for child in node.children:
+            if child.type == 'parameters':
+                for param in child.children[1:-1]:
+                    if param.type == 'operator':
+                        if param.value == '/':
+                            return True
+                        continue
+                    if param.default is not None and cls.has_expr(param.default):
+                        return True
+            elif cls.has_expr(child):  # suite / ...
+                return True
+        return False
+
+    @classmethod
+    def _check_lambdef(cls, node):
+        """Check if :term:`lambda` definition contains positional-only parameters.
+
+        Args:
+            node (parso.tree.Lambda): lambda definition
+
+        Returns:
+            bool: if :term:`lambda` definition contains positional-only parameters
+
+        """
+        param = False
+        suite = False
+        for child in node.children:
+            if child.type == 'param':
+                if child.default is not None:
+                    if cls.has_expr(child.default):
+                        return True
+                param = True
+            elif child.type == 'operator' and child.value == ':':
+                param = False
+                suite = True
+            elif param and child.type == 'operator' and child.value == '/':
+                return True
+            elif suite and cls.has_expr(child):
+                return True
+        return False
 
 
-def walk(node):
-    """Walk parso AST.
+class StringContext(Context):
+    """String (f-string) conversion context.
+
+    This class is mainly used for converting **formatted strings**.
 
     Args:
-     - `node` -- `Union[parso.python.tree.Module, parso.python.tree.PythonNode, parso.python.tree.PythonLeaf]`,
-                 parso AST
+        node (parso.python.tree.PythonNode): parso AST
+        config (Config): conversion configurations
 
-    Envs:
-     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
-     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
-     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+    Keyword Args:
+        indent_level (int): current indentation level
+        raw (Literal[True]): raw processing flag
 
-    Returns:
-     - `str` -- converted string
+    Note:
+        * ``raw`` should always be :data:`True`.
+
+    As the conversion in :class:`Context` changes the original expression,
+    which may change the content of *debug f-string*.
 
     """
-    POSEUR_DISMISS = BOOLEAN_STATES.get(os.getenv('POSEUR_DISMISS', '0').casefold(), False)
-    if isinstance(node, parso.python.tree.Module) and (not POSEUR_DISMISS):
-        return process_module(node)
 
-    # string buffer
-    string = ''
+    def __init__(self, node, config, *, indent_level=0, raw=False):
+        # convert using f2format first
+        prefix, suffix = self.extract_whitespaces(node.get_code())
+        code = f2format.convert(node.get_code().strip())
+        node = parso_parse(code, filename=config.filename, version=config.source_version)
 
-    if node.type == 'funcdef':
-        return process_funcdef(node, flag=POSEUR_DISMISS)
-
-    if node.type == 'async_stmt':
-        child_1st = node.children[0]
-        child_2nd = node.children[1]
-
-        flag_1st = child_1st.type == 'keyword' and child_1st.value == 'async'
-        flag_2nd = child_2nd.type == 'funcdef'
-
-        if flag_1st and flag_2nd:  # pragma: no cover
-            return process_funcdef(child_2nd, flag=POSEUR_DISMISS, async_ctx=child_1st)
-
-    if node.type == 'lambdef':
-        return process_lambdef(node, flag=POSEUR_DISMISS)
-
-    if isinstance(node, parso.python.tree.PythonLeaf):
-        string += node.get_code()
-
-    if hasattr(node, 'children'):
-        for child in node.children:
-            string += walk(child)
-
-    return string
+        # call super init
+        super().__init__(node=node, config=config,
+                         indent_level=indent_level, raw=raw)
+        self._buffer = prefix + self._buffer + suffix
 
 
-def convert(string, source='<unknown>'):
-    """The main conversion process.
+# TODO: add misc functions required for ``dismiss`` and ``decorator`` (or equivalence)
+def convert(code, filename=None, *, source_version=None, linesep=None,
+            indentation=None, pep8=None, dismiss=None, decorator=None):
+    """Convert the given Python source code string.
 
     Args:
-     - `string` -- `str`, context to be converted
-     - `source` -- `str`, source of the context
+        code (Union[str, bytes]): the source code to be converted
+        filename (Optional[str]): an optional source file name to provide a context in case of error
 
-    Envs:
-     - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
-     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
-     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
-     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+    Keyword Args:
+        source_version (Optional[str]): parse the code as this Python version (uses the latest version by default)
+        linesep (Optional[str]): line separator of code (``LF``, ``CRLF``, ``CR``) (auto detect by default)
+        indentation (Optional[Union[int, str]]): code indentation style, specify an integer for the number of spaces,
+            or ``'t'``/``'tab'`` for tabs (auto detect by default)
+        pep8 (Optional[bool]): whether to make code insertion :pep:`8` compliant
+
+    :Environment Variables:
+     - :envvar:`POSEUR_SOURCE_VERSION` -- same as the ``source_version`` argument and the ``--source-version`` option
+        in CLI
+     - :envvar:`POSEUR_LINESEP` -- same as the `linesep` `argument` and the ``--linesep`` option in CLI
+     - :envvar:`POSEUR_INDENTATION` -- same as the ``indentation`` argument and the ``--indentation`` option in CLI
+     - :envvar:`POSEUR_PEP8` -- same as the ``pep8`` argument and the ``--no-pep8`` option in CLI (logical negation)
 
     Returns:
-     - `str` -- converted string
+        str: converted source code
 
     """
     # parse source string
-    module = parse(string, source)
+    source_version = _get_source_version_option(source_version)
+    module = parso_parse(code, filename=filename, version=source_version)
+
+    # get linesep, indentation and pep8 options
+    linesep = _get_linesep_option(linesep)
+    indentation = _get_indentation_option(indentation)
+    if linesep is None:
+        linesep = detect_linesep(code)
+    if indentation is None:
+        indentation = detect_indentation(code)
+    pep8 = _get_pep8_option(pep8)
+
+    # pack conversion configuration
+    config = Config(linesep=linesep, indentation=indentation, pep8=pep8,
+                    filename=filename, source_version=source_version,
+                    dismiss=dismiss, decorator=decorator)
 
     # convert source string
-    string = walk(module)
+    result = Context(module, config).string
 
-    # return converted string
-    return string
+    # return conversion result
+    return result
 
 
-def poseur(filename):
-    """Wrapper works for conversion.
+def poseur(filename, *, source_version=None, linesep=None, indentation=None, pep8=None, quiet=None, dry_run=False):
+    """Convert the given Python source code file. The file will be overwritten.
 
     Args:
-     - `filename` -- `str`, file to be converted
+        filename (str): the file to convert
 
-    Envs:
-     - `POSEUR_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
-     - `POSEUR_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
-     - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
-     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
-     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
-     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
+    Keyword Args:
+        source_version (Optional[str]): parse the code as this Python version (uses the latest version by default)
+        linesep (Optional[str]): line separator of code (``LF``, ``CRLF``, ``CR``) (auto detect by default)
+        indentation (Optional[Union[int, str]]): code indentation style, specify an integer for the number of spaces,
+            or ``'t'``/``'tab'`` for tabs (auto detect by default)
+        pep8 (Optional[bool]): whether to make code insertion :pep:`8` compliant
+        quiet (Optional[bool]): whether to run in quiet mode
+        dry_run (bool): if :data:`True`, only print the name of the file to convert but do not perform any conversion
+
+    :Environment Variables:
+     - :envvar:`POSEUR_SOURCE_VERSION` -- same as the ``source-version`` argument and the ``--source-version`` option
+        in CLI
+     - :envvar:`POSEUR_LINESEP` -- same as the ``linesep`` argument and the ``--linesep`` option in CLI
+     - :envvar:`POSEUR_INDENTATION` -- same as the ``indentation`` argument and the ``--indentation`` option in CLI
+     - :envvar:`POSEUR_PEP8` -- same as the ``pep8`` argument and the ``--no-pep8`` option in CLI (logical negation)
+     - :envvar:`POSEUR_QUIET` -- same as the ``quiet`` argument and the ``--quiet`` option in CLI
 
     """
-    POSEUR_QUIET = BOOLEAN_STATES.get(os.getenv('POSEUR_QUIET', '0').casefold(), False)
-    if not POSEUR_QUIET:  # pragma: no cover
-        print('Now converting %r...' % filename)
+    quiet = _get_quiet_option(quiet)
+    if not quiet:
+        with TaskLock():
+            print('Now converting: %r' % filename, file=sys.stderr)
+    if dry_run:
+        return
 
-    # fetch encoding
-    encoding = os.getenv('POSEUR_ENCODING', LOCALE_ENCODING)
+    # read file content
+    with open(filename, 'rb') as file:
+        content = file.read()
 
-    # file content
-    with open(filename, 'r', encoding=encoding, newline='') as file:
-        text = file.read()
+    # detect source code encoding
+    encoding = detect_encoding(content)
+
+    # get linesep and indentation
+    linesep = _get_linesep_option(linesep)
+    indentation = _get_indentation_option(indentation)
+    if linesep is None or indentation is None:
+        with open(filename, 'r', encoding=encoding) as file:
+            if linesep is None:
+                linesep = detect_linesep(file)
+            if indentation is None:
+                indentation = detect_indentation(file)
 
     # do the dirty things
-    text = convert(text, filename)
+    result = convert(content, filename=filename, source_version=source_version,
+                     linesep=linesep, indentation=indentation, pep8=pep8)
 
-    # dump back to the file
+    # overwrite the file with conversion result
     with open(filename, 'w', encoding=encoding, newline='') as file:
-        file.write(text)
+        file.write(result)
 
 
 ###############################################################################
-# CLI & entry point
+# CLI & Entry Point
 
-# default values
+# option values display
+# these values are only intended for argparse help messages
+# this shows default values by default, environment variables may override them
 __cwd__ = os.getcwd()
-__archive__ = os.path.join(__cwd__, 'archive')
-__poseur_version__ = os.getenv('POSEUR_VERSION', POSEUR_VERSION[-1])
-__poseur_encoding__ = os.getenv('POSEUR_ENCODING', LOCALE_ENCODING)
-__poseur_linesep__ = os.getenv('POSEUR_LINESEP', os.linesep)
-__poseur_decorator__ = os.getenv('POSEUR_DECORATOR', '__poseur_decorator')
-__poseur_tabsize__ = os.getenv('POSEUR_TABSIZE', '4')
+__poseur_quiet__ = 'quiet mode' if _get_quiet_option() else 'non-quiet mode'
+__poseur_concurrency__ = _get_concurrency_option() or 'auto detect'
+__poseur_do_archive__ = 'will do archive' if _get_do_archive_option() else 'will not do archive'
+__poseur_archive_path__ = os.path.join(__cwd__, _get_archive_path_option())
+__poseur_source_version__ = _get_source_version_option()
+__poseur_linesep__ = {
+    '\n': 'LF',
+    '\r\n': 'CRLF',
+    '\r': 'CR',
+    None: 'auto detect'
+}[_get_linesep_option()]
+__poseur_indentation__ = _get_indentation_option()
+if __poseur_indentation__ is None:
+    __poseur_indentation__ = 'auto detect'
+elif __poseur_indentation__ == '\t':
+    __poseur_indentation__ = 'tab'
+else:
+    __poseur_indentation__ = '%d spaces' % len(__poseur_indentation__)
+__poseur_pep8__ = 'will conform to PEP 8' if _get_pep8_option() else 'will not conform to PEP 8'
 
 
 def get_parser():
     """Generate CLI parser.
 
     Returns:
-     - `argparse.ArgumentParser` -- CLI parser for poseur
+        argparse.ArgumentParser: CLI parser for poseur
 
     """
     parser = argparse.ArgumentParser(prog='poseur',
-                                     usage='poseur [options] <python source files and folders...>',
-                                     description='Back-port compiler for Python 3.8 positional-only parameters.')
+                                     usage='poseur [options] <Python source files and directories...>',
+                                     description='Back-port compiler for Python 3.8 position-only parameters.')
     parser.add_argument('-V', '--version', action='version', version=__version__)
-    parser.add_argument('-q', '--quiet', action='store_true', help='run in quiet mode')
+    parser.add_argument('-q', '--quiet', action='store_true', default=None,
+                        help='run in quiet mode (current: %s)' % __poseur_quiet__)
+    parser.add_argument('-C', '--concurrency', action='store', type=int, metavar='N',
+                        help='the number of concurrent processes for conversion (current: %s)' % __poseur_concurrency__)
+    parser.add_argument('--dry-run', action='store_true',
+                        help='list the files to be converted without actually performing conversion and archiving')
+    parser.add_argument('-s', '--simple', action='store', nargs='?', dest='simple_args', const='', metavar='FILE',
+                        help='this option tells the program to operate in "simple mode"; '
+                             'if a file name is provided, the program will convert the file but print conversion '
+                             'result to standard output instead of overwriting the file; '
+                             'if no file names are provided, read code for conversion from standard input and print '
+                             'conversion result to standard output; '
+                             'in "simple mode", no file names shall be provided via positional arguments')
 
     archive_group = parser.add_argument_group(title='archive options',
-                                              description="duplicate original files in case there's any issue")
-    archive_group.add_argument('-na', '--no-archive', action='store_false', dest='archive',
-                               help='do not archive original files')
-    archive_group.add_argument('-p', '--archive-path', action='store', default=__archive__, metavar='PATH',
-                               help='path to archive original files (%(default)s)')
+                                              description="backup original files in case there're any issues")
+    archive_group.add_argument('-na', '--no-archive', action='store_false', dest='do_archive', default=None,
+                               help='do not archive original files (current: %s)' % __poseur_do_archive__)
+    archive_group.add_argument('-k', '--archive-path', action='store', default=__poseur_archive_path__, metavar='PATH',
+                               help='path to archive original files (current: %(default)s)')
+    archive_group.add_argument('-r', '--recover', action='store', dest='recover_file', metavar='ARCHIVE_FILE',
+                               help='recover files from a given archive file')
+    archive_group.add_argument('-r2', action='store_true', help='remove the archive file after recovery')
+    archive_group.add_argument('-r3', action='store_true', help='remove the archive file after recovery, '
+                                                                'and remove the archive directory if it becomes empty')
 
-    convert_group = parser.add_argument_group(title='convert options',
-                                              description='compatibility configuration for non-unicode files')
-    convert_group.add_argument('-c', '--encoding', action='store', default=__poseur_encoding__, metavar='CODING',
-                               help='encoding to open source files (%(default)s)')
-    convert_group.add_argument('-v', '--python', action='store', metavar='VERSION',
-                               default=__poseur_version__, choices=POSEUR_VERSION,
-                               help='convert against Python version (%(default)s)')
-    convert_group.add_argument('-s', '--linesep', action='store', default=__poseur_linesep__, metavar='SEP',
-                               help='line separator to process source files (%(default)r)')
-    convert_group.add_argument('-d', '--dismiss', action='store_true',
-                               help='dismiss runtime checks for positional-only parameters')
-    convert_group.add_argument('-nl', '--no-linting', action='store_false', dest='linting',
-                               help='do not lint converted codes')
-    convert_group.add_argument('-r', '--decorator', action='store', default=__poseur_decorator__, metavar='VAR',
-                               help='name of decorator for runtime checks (`%(default)s`)')
-    convert_group.add_argument('-t', '--tabsize', action='store', default=__poseur_tabsize__, metavar='INDENT',
-                               help='indentation tab size (%(default)s)', type=int)
+    # TODO: put back ``--dismiss`` & ``--decorator`` option (or equivalent)
+    convert_group = parser.add_argument_group(title='convert options', description='conversion configuration')
+    convert_group.add_argument('-vs', '-vf', '--source-version', '--from-version', action='store', metavar='VERSION',
+                               default=__poseur_source_version__, choices=POSEUR_SOURCE_VERSIONS,
+                               help='parse source code as this Python version (current: %(default)s)')
+    convert_group.add_argument('-l', '--linesep', action='store',
+                               help='line separator (LF, CRLF, CR) to read '
+                                    'source files (current: %s)' % __poseur_linesep__)
+    convert_group.add_argument('-t', '--indentation', action='store', metavar='INDENT',
+                               help='code indentation style, specify an integer for the number of spaces, '
+                                    "or 't'/'tab' for tabs (current: %s)" % __poseur_indentation__)
+    convert_group.add_argument('-n8', '--no-pep8', action='store_false', dest='pep8', default=None,
+                               help='do not make code insertion PEP 8 compliant (current: %s)' % __poseur_pep8__)
 
-    parser.add_argument('file', nargs='+', metavar='SOURCE', default=__cwd__,
-                        help='python source files and folders to be converted (%(default)s)')
+    parser.add_argument('files', action='store', nargs='*', metavar='<Python source files and directories...>',
+                        help='Python source files and directories to be converted')
 
     return parser
+
+
+def do_poseur(filename, **kwargs):
+    """Wrapper function to catch exceptions."""
+    try:
+        poseur(filename, **kwargs)
+    except Exception:  # pylint: disable=broad-except
+        with TaskLock():
+            print('Failed to convert file: %r' % filename, file=sys.stderr)
+            traceback.print_exc()
 
 
 def main(argv=None):
     """Entry point for poseur.
 
     Args:
-     - `argv` -- `List[str]`, CLI arguments (default: None)
+        argv (Optional[List[str]]): CLI arguments
 
-    Envs:
-     - `POSEUR_QUIET` -- run in quiet mode (same as `--quiet` option in CLI)
-     - `POSEUR_ENCODING` -- encoding to open source files (same as `--encoding` option in CLI)
-     - `POSEUR_VERSION` -- convert against Python version (same as `--python` option in CLI)
-     - `POSEUR_LINESEP` -- line separator to process source files (same as `--linesep` option in CLI)
-     - `POSEUR_DISMISS` -- dismiss runtime checks for positional-only arguments (same as `--dismiss` option in CLI)
-     - `POSEUR_LINTING` -- lint converted codes (same as `--linting` option in CLI)
-     - `POSEUR_DECORATOR` -- name of decorator for runtime checks (same as `--decorator` option in CLI)
-     - `POSEUR_TABSIZE` -- indentation tab size (same as `--tabsize` option in CLI)
+    :Environment Variables:
+     - :envvar:`POSEUR_QUIET` -- same as the ``--quiet`` option in CLI
+     - :envvar:`POSEUR_CONCURRENCY` -- same as the ``--concurrency`` option in CLI
+     - :envvar:`POSEUR_DO_ARCHIVE` -- same as the ``--no-archive`` option in CLI (logical negation)
+     - :envvar:`POSEUR_ARCHIVE_PATH` -- same as the ``--archive-path`` option in CLI
+     - :envvar:`POSEUR_SOURCE_VERSION` -- same as the ``--source-version`` option in CLI
+     - :envvar:`POSEUR_LINESEP` -- same as the ``--linesep`` option in CLI
+     - :envvar:`POSEUR_INDENTATION` -- same as the ``--indentation`` option in CLI
+     - :envvar:`POSEUR_PEP8` -- same as the ``--no-pep8`` option in CLI (logical negation)
 
     """
     parser = get_parser()
     args = parser.parse_args(argv)
 
-    # set up variables
-    ARCHIVE = args.archive_path
-    os.environ['POSEUR_VERSION'] = args.python
-    os.environ['POSEUR_ENCODING'] = args.encoding
-    os.environ['POSEUR_DECORATOR'] = args.decorator
-    os.environ['POSEUR_TABSIZE'] = str(args.tabsize)
-    POSEUR_QUIET = os.getenv('POSEUR_QUIET')
-    os.environ['POSEUR_QUIET'] = '1' if args.quiet else ('0' if POSEUR_QUIET is None else POSEUR_QUIET)
-    POSEUR_DISMISS = os.getenv('POSEUR_DISMISS')
-    os.environ['POSEUR_DISMISS'] = '1' if args.dismiss else ('0' if POSEUR_DISMISS is None else POSEUR_DISMISS)
-    POSEUR_LINTING = os.getenv('POSEUR_LINTING')
-    os.environ['POSEUR_LINTING'] = '1' if args.linting else ('0' if POSEUR_LINTING is None else POSEUR_LINTING)
+    options = {
+        'source_version': args.source_version,
+        'linesep': args.linesep,
+        'indentation': args.indentation,
+        'pep8': args.pep8,
+    }
 
-    linesep = args.linesep.upper()
-    if linesep == 'CR':
-        os.environ['POSEUR_LINESEP'] = '\r'
-    elif linesep == 'CRLF':
-        os.environ['POSEUR_LINESEP'] = '\r\n'
-    elif linesep == 'LF':
-        os.environ['POSEUR_LINESEP'] = '\n'
-    elif args.linesep in ['\r', '\r\n', '\n']:
-        os.environ['POSEUR_LINESEP'] = args.linesep
-    else:
-        raise EnvironError('invalid line separator %r' % args.linesep)
+    # check if running in simple mode
+    if args.simple_args is not None:
+        if args.files:
+            parser.error('no Python source files or directories shall be given as positional arguments in simple mode')
+        if not args.simple_args:  # read from stdin
+            code = sys.stdin.read()
+        else:  # read from file
+            filename = args.simple_args
+            options['filename'] = filename
+            with open(filename, 'rb') as file:
+                code = file.read()
+        sys.stdout.write(convert(code, **options))  # print conversion result to stdout
+        return
+
+    # get options
+    quiet = _get_quiet_option(args.quiet)
+    processes = _get_concurrency_option(args.concurrency)
+    do_archive = _get_do_archive_option(args.do_archive)
+    archive_path = _get_archive_path_option(args.archive_path)
+
+    # check if doing recovery
+    if args.recover_file:
+        recover_files(args.recover_file)
+        if not args.quiet:
+            print('Recovered files from archive: %r' % args.recover_file, file=sys.stderr)
+        # TODO: maybe implement deletion in bpc-utils?
+        if args.r2 or args.r3:
+            os.remove(args.recover_file)
+            if args.r3:
+                archive_dir = os.path.dirname(os.path.realpath(args.recover_file))
+                if not os.listdir(archive_dir):
+                    os.rmdir(archive_dir)
+        return
 
     # fetch file list
-    filelist = sorted(detect_files(args.file))
+    if not args.files:
+        parser.error('no Python source files or directories are given')
+    filelist = sorted(detect_files(args.files))
 
-    # if no file supplied
-    if not filelist:  # pragma: no cover
-        parser.error('no valid source file found')
+    # terminate if no valid Python source files detected
+    if not filelist:
+        if not args.quiet:
+            # TODO: maybe use parser.error?
+            print('Warning: no valid Python source files found in %r' % args.files, file=sys.stderr)
+        return
 
     # make archive
-    if args.archive:
-        archive_files(filelist, ARCHIVE)
+    if do_archive and not args.dry_run:
+        archive_files(filelist, archive_path)
 
     # process files
-    if mp is None or CPU_CNT <= 1:
-        [poseur(filename) for filename in filelist]  # pylint: disable=expression-not-assigned # pragma: no cover
-    else:
-        with mp.Pool(processes=CPU_CNT) as pool:
-            pool.map(poseur, filelist)
+    options.update({
+        'quiet': quiet,
+        'dry_run': args.dry_run,
+    })
+    map_tasks(do_poseur, filelist, kwargs=options, processes=processes)
 
 
 if __name__ == '__main__':

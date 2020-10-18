@@ -1,6 +1,13 @@
+### October 18th, 2020
+
+- [ ] draft and revise documentations
+- [ ] reconstruct `f2format` and export APIs respectively
+- [ ] determine the integration of `dismiss` and `decorator` options
+- [ ] revise the test suite
+
 ### August 8th, 2020
 
-- [ ] refactcor `poseur`
+- [x] refactcor `poseur`
 - [x] cleanup repo
 
 ### July 15th, 2019
