@@ -1,7 +1,7 @@
 ### October 18th, 2020
 
 - [ ] draft and revise documentations
-- [ ] reconstruct `f2format` and export APIs respectively
+- [x] reconstruct `f2format` and export APIs respectively
 - [ ] determine the integration of `dismiss` and `decorator` options
 - [ ] revise the test suite
 

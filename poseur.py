@@ -287,6 +287,7 @@ class Context(BaseContext):
         config (Config): conversion configurations
 
     Keyword Args:
+        clx_ctx (Optional[str]): class context name
         indent_level (int): current indentation level
         raw (bool): raw processing flag
 
@@ -362,13 +363,50 @@ class Context(BaseContext):
         """
         return self._decorator
 
-    def __init__(self, node, config, *, indent_level=0, raw=False):
+    def __init__(self, node, config, *, clx_ctx=None, indent_level=0, raw=False):
         #: bool: Dismiss runtime checks for positional-only parameters.
         self._dismiss = config.dismiss
         #: str: Decorator name.
         self._decorator = config.decorator
+        #: Optional[str]: Class context name. This is rather useful as
+        #: we might need to *mangle* and/or *normalize* variable names
+        #: in certain scenario.
+        self._cls_ctx = clx_ctx
 
         super().__init__(node, config, indent_level=indent_level, raw=raw)
+
+    def _process_suite_node(self, node, *, cls_ctx=None):
+        """Process indented suite (:token:`suite` or others).
+
+        Args:
+            node (parso.tree.NodeOrLeaf): suite node
+
+        Keyword Args:
+            cls_ctx (Optional[str]): class context name
+
+        This method first checks if ``node`` contains positional-only parameters.
+        If not, it will not perform any processing, rather just append the
+        original source code to context buffer.
+
+        If ``node`` contains positional-only parameters, then it will initiate
+        another Context` instance to perform the conversion process on such
+        ``node``.
+
+        """
+        if not self.has_expr(node):
+            self += node.get_code()
+            return
+
+        indent = self._indent_level + 1
+        self += self._linesep + self._indentation * indent
+
+        if cls_ctx is None:
+            cls_ctx = self._cls_ctx
+
+        # initialize new context
+        ctx = Context(node=node, config=self.config, clx_ctx=cls_ctx,
+                      indent_level=indent, raw=True)
+        self += ctx.string.lstrip()
 
     def _process_funcdef(self, node, *, async_ctx=None):
         """Process function definition (:token:`funcdef`).
@@ -441,7 +479,7 @@ class Context(BaseContext):
                 else:
                     prefix += line
 
-            posonly_args = ', '.join(map(lambda param: repr(param.name.value), posonly))
+            posonly_args = ', '.join(map(lambda param: repr(self.normalizer(param.name.value)), posonly))
             indentation = self._indentation * self._indent_level
             self += ('%(prefix)s'
                      '%(indentation)s@%(decorator)s(%(posonly)s)%(linesep)s'
@@ -565,7 +603,7 @@ class Context(BaseContext):
 
         # decorate lambda definition
         whitespace_prefix, whitespace_suffix = self.extract_whitespaces(lambdef)
-        posonly_args = ', '.join(map(lambda param: repr(param.name.value), pos_only))
+        posonly_args = ', '.join(map(lambda param: repr(self.normalizer(param.name.value)), pos_only))
         self += ('%(prefix)s'
                  '%(decorator)s(%(posonly)s)'
                  '(%(lambdef)s)'
@@ -574,33 +612,6 @@ class Context(BaseContext):
                      lambdef=lambdef.strip(),
                      decorator=self._decorator, posonly=posonly_args,
                  )
-
-    def _process_suite_node(self, node):
-        """Process indented suite (:token:`suite` or others).
-
-        Args:
-            node (parso.tree.NodeOrLeaf): suite node
-
-        This method first checks if ``node`` contains positional-only parameters.
-        If not, it will not perform any processing, rather just append the
-        original source code to context buffer.
-
-        If ``node`` contains positional-only parameters, then it will initiate
-        another Context` instance to perform the conversion process on such
-        ``node``.
-
-        """
-        if not self.has_expr(node):
-            self += node.get_code()
-            return
-
-        indent = self._indent_level + 1
-        self += self._linesep + self._indentation * indent
-
-        # initialize new context
-        ctx = Context(node=node, config=self.config,
-                      indent_level=indent, raw=True)
-        self += ctx.string.lstrip()
 
     def _process_string_context(self, node):
         """Process string contexts (:token:`stringliteral`).
@@ -632,9 +643,7 @@ class Context(BaseContext):
             self += node.get_code()
             return
 
-        # TODO: reconstruct f2format and implement such method for the case
-        # if not f2format.Context.has_debug_fstring(node):
-        if True:  # pylint: disable=using-constant-test
+        if not f2format.Context.has_debug_fstring(node):
             for child in node.children:
                 self._process(child)
             return
@@ -655,6 +664,9 @@ class Context(BaseContext):
         respectively.
 
         """
+        # <Name: ...>
+        name = node.name
+
         # <Keyword: class>
         # <Name: ...>
         # [<Operator: (>, PythonNode(arglist, [...]]), <Operator: )>]
@@ -664,7 +676,7 @@ class Context(BaseContext):
 
         # PythonNode(suite, [...]) / PythonNode(simple_stmt, [...])
         suite = node.children[-1]
-        self._process_suite_node(suite)
+        self._process_suite_node(suite, cls_ctx=name.name)
 
     def _process_if_stmt(self, node):
         """Process if statement (:token:`if_stmt`).
@@ -974,6 +986,25 @@ class Context(BaseContext):
                 return True
         return False
 
+    def normalizer(self, name):
+        """Variable name normalizer.
+
+        If :attr:`self._cls_ctx <poseur.Context._cls_ctx>` is :data:`None`,
+        the methold will simply class :meth:`~bpc_utils.context.BaseContext.normalize`
+        on the variable name; otherwise, it will call
+        :meth:`~bpc_utils.context.BaseContext.mangle` on the variable name.
+
+        Args:
+            name (str): variable name
+
+        Returns:
+            str: *normalized* variable name
+
+        """
+        if self._cls_ctx is None:
+            return self.normalize(name)
+        return self.mangle(self._cls_ctx, name)
+
 
 class StringContext(Context):
     """String (f-string) conversion context.
@@ -985,6 +1016,7 @@ class StringContext(Context):
         config (Config): conversion configurations
 
     Keyword Args:
+        clx_ctx (Optional[str]): class context name
         indent_level (int): current indentation level
         raw (Literal[True]): raw processing flag
 
@@ -996,14 +1028,14 @@ class StringContext(Context):
 
     """
 
-    def __init__(self, node, config, *, indent_level=0, raw=False):
+    def __init__(self, node, config, *, clx_ctx=None, indent_level=0, raw=False):
         # convert using f2format first
         prefix, suffix = self.extract_whitespaces(node.get_code())
         code = f2format.convert(node.get_code().strip())
         node = parso_parse(code, filename=config.filename, version=config.source_version)
 
         # call super init
-        super().__init__(node=node, config=config,
+        super().__init__(node=node, config=config, clx_ctx=clx_ctx,
                          indent_level=indent_level, raw=raw)
         self._buffer = prefix + self._buffer + suffix
 
@@ -1112,7 +1144,8 @@ def poseur(filename, *, source_version=None, linesep=None, indentation=None, pep
 
     # do the dirty things
     result = convert(content, filename=filename, source_version=source_version,
-                     linesep=linesep, indentation=indentation, pep8=pep8)
+                     linesep=linesep, indentation=indentation, pep8=pep8,
+                     dismiss=dismiss, decorator=decorator)
 
     # overwrite the file with conversion result
     with open(filename, 'w', encoding=encoding, newline='') as file:
