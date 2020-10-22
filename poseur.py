@@ -267,7 +267,7 @@ def %(decorator)s(*poseur):
 %(indentation)s%(indentation)sdef wrapper(*args, **kwargs):
 %(indentation)s%(indentation)s%(indentation)sposeur_args = set(poseur).intersection(kwargs)
 %(indentation)s%(indentation)s%(indentation)sif poseur_args:
-%(indentation)s%(indentation)s%(indentation)s%(indentation)sraise TypeError('%%s() got some positional-only parameters passed as keyword arguments: %%r' %% (func.__name__, ', '.join(poseur_args)))
+%(indentation)s%(indentation)s%(indentation)s%(indentation)sraise TypeError('%%s() got some positional-only arguments passed as keyword arguments: %%r' %% (func.__name__, ', '.join(poseur_args)))
 %(indentation)s%(indentation)s%(indentation)sreturn func(*args, **kwargs)
 %(indentation)s%(indentation)sreturn wrapper
 %(indentation)sreturn caller
