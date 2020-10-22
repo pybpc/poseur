@@ -17,27 +17,122 @@ Public Interface
 
 .. autofunction:: poseur.main
 
-Exported Decorator
-------------------
+Runtime Decorator
+-----------------
 
 As you may wish to provide runtime positional-only parameter checks for
-your own code, ``poseur`` exposed the decorator function for developers
-to use by themselves.
+your own code, ``poseur`` exposed the :term:`decorator` function for
+developers to use by themselves.
 
 .. autofunction:: poseur.decorator
 
 Conversion Implementation
 -------------------------
 
-The main logic of the ``poseur`` conversion is to
+The main logic of the ``poseur`` conversion is to extract all *positional-only
+parameters* and add a **:term:`decorator`** for the :term:`function` and/or :term:`lambda`
+definition to provide runtime checks with the extracted parameters.
 
 For conversion algorithms and details, please refer to :doc:`algorithms`.
+
+Data Structures
+~~~~~~~~~~~~~~~
+
+During conversion, we utilised :class:`bpc_utils.Config` to store and deliver the
+configurations over the conversion :class:`~poseur.Context` instances, which should
+be as following:
+
+.. class:: Config
+
+   Configuration object shared over the conversion process of a single source file.
+
+   .. attribute:: indentation
+      :type: str
+
+      Indentation sequence.
+
+   .. attribute:: linesep
+      :type: Literal[\'\\n\', \'\\r\\n\', \'\\r\']
+
+      Line separator.
+
+   .. attribute:: pep8
+      :type: bool
+
+      :pep:`8` compliant conversion flag.
+
+   .. attribute:: filename
+      :type: Optional[str]
+
+      An optional source file name to provide a context in case of error.
+
+   .. attribute:: source_version
+      :type: Optional[str]
+
+      Parse the code as this Python version (uses the latest version by default).
+
+   .. attribute:: decorator
+      :type: str
+
+      Name of the :term:`decorator` function for runtime checks on original
+      *positional-only parameters*.
+
+   .. attribute:: dismiss
+      :type: bool
+
+      Flag if integrate runtime checks, i.e. the :term:`decorator` function,
+      on original *positional-only parameters*.
 
 Conversion Templates
 ~~~~~~~~~~~~~~~~~~~~
 
-For general conversion scenarios, the converted wrapper functions will be
+For general conversion scenarios, the :term:`decorator` function will be
 rendered based on the following templates.
+
+.. data:: DECORATOR_TEMPLATE
+   :type: List[str]
+
+   .. code-block:: python
+
+      ['def %(decorator)s(*poseur):',
+       '%(indentation)s"""Positional-only parameters runtime checker.',
+       '%(indentation)s',
+       '%(indentation)s    Args:',
+       '%(indentation)s        *poseur: Name list of positional-only parameters.',
+       '%(indentation)s',
+       '%(indentation)s    Raises:',
+       '%(indentation)s        TypeError: If any position-only parameters were passed as',
+       '%(indentation)s            keyword parameters.',
+       '%(indentation)s',
+       '%(indentation)s    The decorator function may decorate regular :term:`function` and/or',
+       '%(indentation)s    :term:`lambda` function to provide runtime checks on the original',
+       '%(indentation)s    positional-only parameters.',
+       '%(indentation)s',
+       '%(indentation)s"""',
+       '%(indentation)simport functools',
+       '%(indentation)sdef caller(func):',
+       '%(indentation)s%(indentation)s@functools.wraps(func)',
+       '%(indentation)s%(indentation)sdef wrapper(*args, **kwargs):',
+       '%(indentation)s%(indentation)s%(indentation)sposeur_args = set(poseur).intersection(kwargs)',
+       '%(indentation)s%(indentation)s%(indentation)sif poseur_args:',
+       "%(indentation)s%(indentation)s%(indentation)s%(indentation)sraise TypeError('%%s() got some positional-only arguments passed as keyword arguments: %%r' %% (func.__name__, ', '.join(poseur_args)))",
+       '%(indentation)s%(indentation)s%(indentation)sreturn func(*args, **kwargs)',
+       '%(indentation)s%(indentation)sreturn wrapper',
+       '%(indentation)sreturn caller']
+
+   Decorator function to provide runtime checks on the original
+   *positional-only parameters*.
+
+   :Variables:
+      * **decorator** -- :term:`decorator` function name as defined in
+        :attr:`Config.decorator <poseur.Config.decorator>`
+      * **indentation** -- indentation sequence as defined in
+        :attr:`Config.indentation <poseur.Config.indentation>`
+
+   .. important::
+
+      Actually, the :func:`poseur.decorator` function is rendered and
+      evaluated at runtime using this template.
 
 Conversion Contexts
 ~~~~~~~~~~~~~~~~~~~
