@@ -12,3 +12,6 @@ pylint
 requests
 sphinx
 ipython
+
+# temporary solution for f2format dependency
+git+https://github.com/pybpc/f2format.git
