@@ -65,6 +65,10 @@ _default_linesep = None  # auto detect
 _default_indentation = None  # auto detect
 #: Default value for the ``pep8`` option.
 _default_pep8 = True
+#: Default value for the ``dismiss-runtime`` option.
+_default_dismiss = False
+#: Default value for the ``decorator-name`` option.
+_default_decorator = '__poseur_decorator'
 
 # option getter utility functions
 # option value precedence is: explicit value (CLI/API arguments) > environment variable > default value
@@ -247,6 +251,50 @@ def _get_pep8_option(explicit: Optional[bool] = None) -> Optional[bool]:
     return first_non_none(_option_layers())
 
 
+def _get_dismiss_option(explicit: Optional[bool] = None) -> Optional[bool]:
+    """Get the value for the ``dismiss-runtime`` option.
+
+    Args:
+        explicit (Optional[bool]): the value explicitly specified by user,
+            :data:`None` if not specified
+
+    Returns:
+        bool: the value for the ``dismiss-runtime`` option
+
+    :Environment Variables:
+        :envvar:`POSEUR_DISMISS` -- the value in environment variable
+
+    See Also:
+        :data:`_default_dismiss`
+
+    """
+    def _option_layers() -> Generator[Optional[bool], None, None]:
+        yield explicit
+        yield parse_boolean_state(os.getenv('POSEUR_DISMISS'))
+        yield _default_dismiss
+    return first_non_none(_option_layers())
+
+
+def _get_decorator_option(explicit: Optional[str] = None) -> Optional[str]:
+    """Get the value for the ``decorator`` option.
+
+    Args:
+        explicit (Optional[str]): the value explicitly specified by user,
+            :data:`None` if not specified
+
+    Returns:
+        str: the value for the ``decorator`` option
+
+    :Environment Variables:
+        :envvar:`POSEUR_DECORATOR` -- the value in environment variable
+
+    See Also:
+        :data:`_default_decorator`
+
+    """
+    return explicit or os.getenv('POSEUR_DECORATOR') or _default_decorator
+
+
 ###############################################################################
 # Traceback Trimming (tbtrim)
 
@@ -261,7 +309,7 @@ def predicate(filename: str) -> bool:
 tbtrim.set_trim_rule(predicate, strict=True, target=BPCSyntaxError)
 
 ###############################################################################
-# Positional-only decorator
+# Main convertion implementations
 
 # cf. https://mail.python.org/pipermail/python-ideas/2017-February/044888.html
 DECORATOR_TEMPLATE = '''\
@@ -291,11 +339,6 @@ def %(decorator)s(*poseur):
 %(indentation)s%(indentation)sreturn wrapper
 %(indentation)sreturn caller
 '''.splitlines()  # `str.splitlines` will remove trailing newline
-
-exec(os.linesep.join(DECORATOR_TEMPLATE) % dict(decorator='decorator', indentation='    '))  # nosec: B102; pylint: disable=exec-used
-
-###############################################################################
-# Main convertion implementation
 
 
 class Context(BaseContext):
@@ -617,7 +660,7 @@ class Context(BaseContext):
             params = ', '.join(filter(None, map(lambda s: s.strip(), params.split(','))))
         else:
             params = ','.join(filter(lambda s: s.strip(), params.split(',')))
-        lambdef = prefix + whitespace_prefix + params.strip() + whitespace_suffix + suffix
+        lambdef = prefix + whitespace_prefix + params.strip() + suffix.lstrip()
 
         if self._dismiss or not pos_only:
             self += lambdef
@@ -625,7 +668,7 @@ class Context(BaseContext):
 
         # decorate lambda definition
         whitespace_prefix, whitespace_suffix = self.extract_whitespaces(lambdef)
-        posonly_args = ', '.join(map(lambda param: repr(self.normalizer(param.name.value)), pos_only))
+        posonly_args = ', '.join(map(lambda param: repr(self.normalizer(param.name.value).strip()), pos_only))
         self += ('%(prefix)s'
                  '%(decorator)s(%(posonly)s)'
                  '(%(lambdef)s)'
@@ -902,7 +945,7 @@ class Context(BaseContext):
         in compliance with :pep:`8`.
 
         """
-        if self._dismiss:
+        if self._dismiss or not self.has_expr(self._root):
             self._buffer += self._prefix + self._suffix
             return
 
@@ -1068,7 +1111,12 @@ class StringContext(Context):
         self._buffer = prefix + self._buffer + suffix
 
 
-# TODO: add misc functions required for ``dismiss`` and ``decorator`` (or equivalence)
+###############################################################################
+# Public Interface
+
+exec(os.linesep.join(DECORATOR_TEMPLATE) % dict(decorator='decorator', indentation='    '))  # nosec: B102; pylint: disable=exec-used
+
+
 def convert(code: Union[str, bytes], filename: Optional[str] = None, *,
             source_version: Optional[str] = None, linesep: Optional[Linesep] = None,
             indentation: Optional[Union[int, str]] = None, pep8: Optional[bool] = None,
@@ -1092,6 +1140,8 @@ def convert(code: Union[str, bytes], filename: Optional[str] = None, *,
      - :envvar:`POSEUR_LINESEP` -- same as the `linesep` `argument` and the ``--linesep`` option in CLI
      - :envvar:`POSEUR_INDENTATION` -- same as the ``indentation`` argument and the ``--indentation`` option in CLI
      - :envvar:`POSEUR_PEP8` -- same as the ``pep8`` argument and the ``--no-pep8`` option in CLI (logical negation)
+     - :envvar:`POSEUR_DISMISS` -- same as the ``--dismiss-runtime`` option in CLI
+     - :envvar:`POSEUR_DECORATOR` -- same as the ``--decorator-name`` option in CLI
 
     Returns:
         str: converted source code
@@ -1109,6 +1159,8 @@ def convert(code: Union[str, bytes], filename: Optional[str] = None, *,
     if indentation is None:
         indentation = detect_indentation(code)
     pep8 = _get_pep8_option(pep8)
+    dismiss = _get_dismiss_option(dismiss)
+    decorator = _get_decorator_option(decorator)
 
     # pack conversion configuration
     config = Config(linesep=linesep, indentation=indentation, pep8=pep8,
@@ -1122,7 +1174,6 @@ def convert(code: Union[str, bytes], filename: Optional[str] = None, *,
     return result
 
 
-# TODO: add misc functions required for ``dismiss`` and ``decorator`` (or equivalence)
 def poseur(filename: str, *, source_version: Optional[str] = None, linesep: Optional[Linesep] = None,
            indentation: Optional[Union[int, str]] = None, pep8: Optional[bool] = None,
            dismiss: Optional[bool] = None, decorator: Optional[str] = None,
@@ -1148,6 +1199,8 @@ def poseur(filename: str, *, source_version: Optional[str] = None, linesep: Opti
      - :envvar:`POSEUR_INDENTATION` -- same as the ``indentation`` argument and the ``--indentation`` option in CLI
      - :envvar:`POSEUR_PEP8` -- same as the ``pep8`` argument and the ``--no-pep8`` option in CLI (logical negation)
      - :envvar:`POSEUR_QUIET` -- same as the ``quiet`` argument and the ``--quiet`` option in CLI
+     - :envvar:`POSEUR_DISMISS` -- same as the ``--dismiss-runtime`` option in CLI
+     - :envvar:`POSEUR_DECORATOR` -- same as the ``--decorator-name`` option in CLI
 
     """
     quiet = _get_quiet_option(quiet)
@@ -1210,6 +1263,8 @@ elif __poseur_indentation__ == '\t':
 else:
     __poseur_indentation__ = '%d spaces' % len(__poseur_indentation__)
 __poseur_pep8__ = 'will conform to PEP 8' if _get_pep8_option() else 'will not conform to PEP 8'
+__poseur_dismiss__ = 'will dismiss runtime checks' if _get_dismiss_option() else 'will not dismiss runtime checks'
+__poseur_decorator__ = _get_decorator_option() or '__poseur_decorator'
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -1249,7 +1304,7 @@ def get_parser() -> argparse.ArgumentParser:
     archive_group.add_argument('-r3', action='store_true', help='remove the archive file after recovery, '
                                                                 'and remove the archive directory if it becomes empty')
 
-    # TODO: put back ``--dismiss`` & ``--decorator`` option (or equivalent)
+    # TODO: revise ``--dismiss-runtime`` & ``--decorator-name`` options
     convert_group = parser.add_argument_group(title='convert options', description='conversion configuration')
     convert_group.add_argument('-vs', '-vf', '--source-version', '--from-version', action='store', metavar='VERSION',
                                default=__poseur_source_version__, choices=POSEUR_SOURCE_VERSIONS,
@@ -1262,6 +1317,10 @@ def get_parser() -> argparse.ArgumentParser:
                                     "or 't'/'tab' for tabs (current: %s)" % __poseur_indentation__)
     convert_group.add_argument('-n8', '--no-pep8', action='store_false', dest='pep8', default=None,
                                help='do not make code insertion PEP 8 compliant (current: %s)' % __poseur_pep8__)
+    convert_group.add_argument('-nr', '--dismiss-runtime', action='store_true', dest='dismiss', default=None,
+                               help='dismiss runtime checks for positional-only parameters (current: %s)' % __poseur_dismiss__)  # pylint: disable=line-too-long
+    convert_group.add_argument('-d', '--decorator-name', action='store', dest='decorator', metavar='NAME',
+                               default=__poseur_decorator__, help='name of decorator for runtime checks (current: %s)' % __poseur_decorator__)  # pylint: disable=line-too-long
 
     parser.add_argument('files', action='store', nargs='*', metavar='<Python source files and directories...>',
                         help='Python source files and directories to be converted')
@@ -1294,6 +1353,8 @@ def main(argv: Optional[List[str]] = None) -> int:
      - :envvar:`POSEUR_LINESEP` -- same as the ``--linesep`` option in CLI
      - :envvar:`POSEUR_INDENTATION` -- same as the ``--indentation`` option in CLI
      - :envvar:`POSEUR_PEP8` -- same as the ``--no-pep8`` option in CLI (logical negation)
+     - :envvar:`POSEUR_DISMISS` -- same as the ``--dismiss-runtime`` option in CLI
+     - :envvar:`POSEUR_DECORATOR` -- same as the ``--decorator-name`` option in CLI
 
     """
     parser = get_parser()
@@ -1304,6 +1365,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         'linesep': args.linesep,
         'indentation': args.indentation,
         'pep8': args.pep8,
+        'dismiss': args.dismiss,
+        'decorator': args.decorator,
     }
 
     # check if running in simple mode
