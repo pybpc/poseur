@@ -7,19 +7,38 @@ import pathlib
 import re
 import sys
 import traceback
+from typing import Generator, List, Optional, Union
 
 import f2format
+import parso.python.tree
+import parso.tree
 import tbtrim
 from bpc_utils import (BaseContext, BPCSyntaxError, Config, TaskLock, archive_files,
                        detect_encoding, detect_files, detect_indentation, detect_linesep,
                        first_non_none, get_parso_grammar_versions, map_tasks, parse_boolean_state,
                        parse_indentation, parse_linesep, parse_positive_integer, parso_parse,
                        recover_files)
+from bpc_utils.typing import Linesep
+from typing_extensions import Literal, final
 
 __all__ = ['main', 'poseur', 'convert', 'decorator']  # pylint: disable=undefined-all-variable
 
 # version string
 __version__ = '0.4.3'
+
+###############################################################################
+# Typings
+
+
+class PoseurConfig(Config):
+    indentation = ''  # type: str
+    linesep = '\n'  # type: Literal[Linesep]
+    pep8 = True  # type: bool
+    filename = None  # Optional[str]
+    source_version = None  # Optional[str]
+    decorator = 'decorator'  # type: str
+    dismiss = False  # type: bool
+
 
 ##############################################################################
 # Auxiliaries
@@ -51,7 +70,7 @@ _default_pep8 = True
 # option value precedence is: explicit value (CLI/API arguments) > environment variable > default value
 
 
-def _get_quiet_option(explicit=None):
+def _get_quiet_option(explicit: Optional[bool] = None) -> Optional[bool]:
     """Get the value for the ``quiet`` option.
 
     Args:
@@ -70,14 +89,14 @@ def _get_quiet_option(explicit=None):
     """
     # We need lazy evaluation, so first_non_none(a, b, c) does not work here
     # with PEP 505 we can simply write a ?? b ?? c
-    def _option_layers():
+    def _option_layers() -> Generator[Optional[bool], None, None]:
         yield explicit
         yield parse_boolean_state(os.getenv('POSEUR_QUIET'))
         yield _default_quiet
     return first_non_none(_option_layers())
 
 
-def _get_concurrency_option(explicit=None):
+def _get_concurrency_option(explicit: Optional[int] = None) -> Optional[int]:
     """Get the value for the ``concurrency`` option.
 
     Args:
@@ -98,7 +117,7 @@ def _get_concurrency_option(explicit=None):
     return parse_positive_integer(explicit or os.getenv('POSEUR_CONCURRENCY') or _default_concurrency)
 
 
-def _get_do_archive_option(explicit=None):
+def _get_do_archive_option(explicit: Optional[bool] = None) -> Optional[bool]:
     """Get the value for the ``do_archive`` option.
 
     Args:
@@ -115,14 +134,14 @@ def _get_do_archive_option(explicit=None):
         :data:`_default_do_archive`
 
     """
-    def _option_layers():
+    def _option_layers() -> Generator[Optional[bool], None, None]:
         yield explicit
         yield parse_boolean_state(os.getenv('POSEUR_DO_ARCHIVE'))
         yield _default_do_archive
     return first_non_none(_option_layers())
 
 
-def _get_archive_path_option(explicit=None):
+def _get_archive_path_option(explicit: Optional[str] = None) -> str:
     """Get the value for the ``archive_path`` option.
 
     Args:
@@ -142,7 +161,7 @@ def _get_archive_path_option(explicit=None):
     return explicit or os.getenv('POSEUR_ARCHIVE_PATH') or _default_archive_path
 
 
-def _get_source_version_option(explicit=None):
+def _get_source_version_option(explicit: Optional[str] = None) -> Optional[str]:
     """Get the value for the ``source_version`` option.
 
     Args:
@@ -162,7 +181,7 @@ def _get_source_version_option(explicit=None):
     return explicit or os.getenv('POSEUR_SOURCE_VERSION') or _default_source_version
 
 
-def _get_linesep_option(explicit=None):
+def _get_linesep_option(explicit: Optional[str] = None) -> Optional[Linesep]:
     r"""Get the value for the ``linesep`` option.
 
     Args:
@@ -183,7 +202,7 @@ def _get_linesep_option(explicit=None):
     return parse_linesep(explicit or os.getenv('POSEUR_LINESEP') or _default_linesep)
 
 
-def _get_indentation_option(explicit=None):
+def _get_indentation_option(explicit: Optional[Union[str, int]] = None) -> Optional[str]:
     """Get the value for the ``indentation`` option.
 
     Args:
@@ -204,7 +223,7 @@ def _get_indentation_option(explicit=None):
     return parse_indentation(explicit or os.getenv('POSEUR_INDENTATION') or _default_indentation)
 
 
-def _get_pep8_option(explicit=None):
+def _get_pep8_option(explicit: Optional[bool] = None) -> Optional[bool]:
     """Get the value for the ``pep8`` option.
 
     Args:
@@ -221,7 +240,7 @@ def _get_pep8_option(explicit=None):
         :data:`_default_pep8`
 
     """
-    def _option_layers():
+    def _option_layers() -> Generator[Optional[bool], None, None]:
         yield explicit
         yield parse_boolean_state(os.getenv('POSEUR_PEP8'))
         yield _default_pep8
@@ -235,7 +254,7 @@ def _get_pep8_option(explicit=None):
 ROOT = pathlib.Path(__file__).resolve().parent
 
 
-def predicate(filename):
+def predicate(filename: str) -> bool:
     return pathlib.Path(filename).parent == ROOT
 
 
@@ -355,27 +374,29 @@ class Context(BaseContext):
     #: re.Pattern: Pattern to find the function definition line.
     pattern_funcdef = re.compile(r'^\s*(async\s+)?def\s', re.ASCII)
 
+    @final
     @property
-    def decorator(self):
+    def decorator(self) -> str:
         """Name of the ``poseur`` decorator.
 
         :rtype: str
         """
         return self._decorator
 
-    def __init__(self, node, config, *, clx_ctx=None, indent_level=0, raw=False):
+    def __init__(self, node: parso.tree.NodeOrLeaf, config: PoseurConfig, *,
+                 clx_ctx: Optional[str] = None, indent_level: int = 0, raw: bool = False):
         #: bool: Dismiss runtime checks for positional-only parameters.
-        self._dismiss = config.dismiss
+        self._dismiss = config.dismiss  # type: bool
         #: str: Decorator name.
-        self._decorator = config.decorator
+        self._decorator = config.decorator  # type: str
         #: Optional[str]: Class context name. This is rather useful as
         #: we might need to *mangle* and/or *normalize* variable names
         #: in certain scenario.
-        self._cls_ctx = clx_ctx
+        self._cls_ctx = clx_ctx  # type: Optional[str]
 
         super().__init__(node, config, indent_level=indent_level, raw=raw)
 
-    def _process_suite_node(self, node, *, cls_ctx=None):
+    def _process_suite_node(self, node: parso.tree.NodeOrLeaf, *, cls_ctx: Optional[str] = None) -> None:
         """Process indented suite (:token:`suite` or others).
 
         Args:
@@ -404,18 +425,19 @@ class Context(BaseContext):
             cls_ctx = self._cls_ctx
 
         # initialize new context
-        ctx = Context(node=node, config=self.config, clx_ctx=cls_ctx,
+        ctx = Context(node=node, config=self.config, clx_ctx=cls_ctx,  # type: ignore[arg-type]
                       indent_level=indent, raw=True)
         self += ctx.string.lstrip()
 
-    def _process_funcdef(self, node, *, async_ctx=None):
+    def _process_funcdef(self, node: parso.python.tree.Function, *,
+                         async_ctx: Optional[parso.python.tree.Keyword] = None) -> None:
         """Process function definition (:token:`funcdef`).
 
         Args:
             node (parso.python.tree.Function): function node
 
         Keyword Args:
-            async_ctx (parso.python.tree.Keyword): ``async`` keyword AST node
+            async_ctx (Optional[parso.python.tree.Keyword]): ``async`` keyword AST node
 
         """
         if not self.has_expr(node):
@@ -432,7 +454,7 @@ class Context(BaseContext):
                 funcdef += child.children[0].get_code()
 
                 parameters = ''
-                param_list = list()
+                param_list = list()  # type: List[parso.python.tree.Param]
                 for grandchild in child.children[1:-1]:
                     # <Operator: />
                     if grandchild.type == 'operator' and grandchild.value == '/':
@@ -446,7 +468,7 @@ class Context(BaseContext):
 
                         if grandchild.default is not None:
                             # initiate new context
-                            ctx = Context(grandchild, self.config, raw=True,
+                            ctx = Context(grandchild, self.config, raw=True,  # type: ignore[arg-type]
                                           indent_level=self._indent_level)
                             parameters += ctx.string
                             continue
@@ -494,7 +516,7 @@ class Context(BaseContext):
         # SUITE
         self._process_suite_node(node.children[-1])
 
-    def _process_async_stmt(self, node):
+    def _process_async_stmt(self, node: parso.python.tree.PythonNode) -> None:
         """Process ``async`` statement (:token:`async_stmt`).
 
         Args:
@@ -518,7 +540,7 @@ class Context(BaseContext):
         self._process(child_1st)
         self._process(child_2nd)
 
-    def _process_async_funcdef(self, node):
+    def _process_async_funcdef(self, node: parso.python.tree.PythonNode) -> None:
         """Process ``async`` function definition (:token:`async_funcdef`).
 
         Args:
@@ -534,7 +556,7 @@ class Context(BaseContext):
         async_ctx, funcdef = node.children
         self._process_funcdef(funcdef, async_ctx=async_ctx)
 
-    def _process_lambdef(self, node):
+    def _process_lambdef(self, node: parso.python.tree.Lambda) -> None:
         """Process lambda definition (:token:`lambdef`).
 
         Args:
@@ -557,7 +579,7 @@ class Context(BaseContext):
         prefix += next(children).get_code()
 
         # vararglist
-        param_list = list()
+        param_list = list()  # type: List[parso.python.tree.Param]
         for child in children:
             if child.type == 'operator':
                 # <Operator: />
@@ -577,7 +599,7 @@ class Context(BaseContext):
 
                 if child.default is not None:
                     # initialize new context
-                    ctx = Context(node=child, config=self.config,
+                    ctx = Context(node=child, config=self.config,  # type: ignore[arg-type]
                                   indent_level=self._indent_level, raw=True)
                     params += ctx.string
                     continue
@@ -586,7 +608,7 @@ class Context(BaseContext):
             params += child.get_code()
 
         # test_nocond | test
-        ctx = Context(node=next(children), config=self.config,
+        ctx = Context(node=next(children), config=self.config,  # type: ignore[arg-type]
                       indent_level=self._indent_level, raw=True)
         suffix += ctx.string
 
@@ -613,7 +635,7 @@ class Context(BaseContext):
                      decorator=self._decorator, posonly=posonly_args,
                  )
 
-    def _process_string_context(self, node):
+    def _process_string_context(self, node: parso.python.tree.PythonNode) -> None:
         """Process string contexts (:token:`stringliteral`).
 
         Args:
@@ -649,11 +671,11 @@ class Context(BaseContext):
             return
 
         # initiate new context
-        ctx = StringContext(node=node, config=self.config,
+        ctx = StringContext(node=node, config=self.config,  # type: ignore[arg-type]
                             indent_level=self._indent_level, raw=True)
         self += ctx.string
 
-    def _process_classdef(self, node):
+    def _process_classdef(self, node: parso.python.tree.Class) -> None:
         """Process class definition (:token:`classdef`).
 
         Args:
@@ -678,7 +700,7 @@ class Context(BaseContext):
         suite = node.children[-1]
         self._process_suite_node(suite, cls_ctx=name.name)
 
-    def _process_if_stmt(self, node):
+    def _process_if_stmt(self, node: parso.python.tree.IfStmt) -> None:
         """Process if statement (:token:`if_stmt`).
 
         Args:
@@ -722,7 +744,7 @@ class Context(BaseContext):
                 self._process_suite_node(next(children))
                 continue
 
-    def _process_while_stmt(self, node):
+    def _process_while_stmt(self, node: parso.python.tree.WhileStmt) -> None:
         """Process while statement (:token:`while_stmt`).
 
         Args:
@@ -755,7 +777,7 @@ class Context(BaseContext):
         # suite
         self._process_suite_node(next(children))
 
-    def _process_for_stmt(self, node):
+    def _process_for_stmt(self, node: parso.python.tree.ForStmt) -> None:
         """Process for statement (:token:`for_stmt`).
 
         Args:
@@ -792,7 +814,7 @@ class Context(BaseContext):
         # suite
         self._process_suite_node(next(children))
 
-    def _process_with_stmt(self, node):
+    def _process_with_stmt(self, node: parso.python.tree.WithStmt) -> None:
         """Process with statement (:token:`with_stmt`).
 
         Args:
@@ -818,7 +840,7 @@ class Context(BaseContext):
         # suite
         self._process_suite_node(next(children))
 
-    def _process_try_stmt(self, node):
+    def _process_try_stmt(self, node: parso.python.tree.TryStmt) -> None:
         """Process try statement (:token:`try_stmt`).
 
         Args:
@@ -843,7 +865,7 @@ class Context(BaseContext):
             # suite
             self._process_suite_node(next(children))
 
-    def _process_strings(self, node):
+    def _process_strings(self, node: parso.python.tree.PythonNode) -> None:
         """Process concatenable strings (:token:`stringliteral`).
 
         Args:
@@ -858,7 +880,7 @@ class Context(BaseContext):
         """
         self._process_string_context(node)
 
-    def _process_fstring(self, node):
+    def _process_fstring(self, node: parso.python.tree.PythonNode) -> None:
         """Process formatted strings (:token:`f_string`).
 
         Args:
@@ -867,7 +889,7 @@ class Context(BaseContext):
         """
         self._process_string_context(node)
 
-    def _concat(self):
+    def _concat(self) -> None:
         """Concatenate final string.
 
         This method tries to inserted the runtime check decorator function
@@ -886,7 +908,8 @@ class Context(BaseContext):
 
         # strip suffix comments
         prefix, suffix = self.split_comments(self._suffix, self._linesep)
-        suffix_linesep = re.match(rf'^(?P<linesep>({self._linesep})*)', suffix, flags=re.ASCII).group('linesep')
+        match = re.match(r'^(?P<linesep>(%s)*)' % self._linesep, suffix, flags=re.ASCII)
+        suffix_linesep = match.group('linesep') if match is not None else ''
 
         # first, the prefix code
         self._buffer += self._prefix + prefix + suffix_linesep
@@ -912,8 +935,9 @@ class Context(BaseContext):
                                                                   expected=2, linesep=self._linesep)
         self._buffer += suffix.lstrip(self._linesep)
 
+    @final
     @classmethod
-    def has_expr(cls, node):
+    def has_expr(cls, node: parso.tree.NodeOrLeaf) -> bool:
         """Check if node has positional-only parameters.
 
         Args:
@@ -924,22 +948,23 @@ class Context(BaseContext):
 
         """
         if node.type == 'funcdef':
-            return cls._check_funcdef(node)
+            return cls._check_funcdef(node)  # type: ignore[arg-type]
         if node.type == 'lambdef':
-            return cls._check_lambdef(node)
-        if not hasattr(node, 'children'):
-            return False
-        return any(map(cls.has_expr, node.children))
+            return cls._check_lambdef(node)  # type: ignore[arg-type]
+        if hasattr(node, 'children'):
+            return any(map(cls.has_expr, node.children))  # type: ignore[attr-defined]
+        return False
 
     # backward compatibility and auxiliary alias
     has_poseur = has_expr
 
+    @final
     @classmethod
-    def _check_funcdef(cls, node):
+    def _check_funcdef(cls, node: parso.python.tree.Function) -> bool:
         """Check if :term:`function` definition contains positional-only parameters.
 
         Args:
-            node (parso.tree.Function): function definition
+            node (parso.python.tree.Function): function definition
 
         Returns:
             bool: if :term:`function` definition contains positional-only parameters
@@ -958,12 +983,13 @@ class Context(BaseContext):
                 return True
         return False
 
+    @final
     @classmethod
-    def _check_lambdef(cls, node):
+    def _check_lambdef(cls, node: parso.python.tree.Lambda) -> bool:
         """Check if :term:`lambda` definition contains positional-only parameters.
 
         Args:
-            node (parso.tree.Lambda): lambda definition
+            node (parso.python.tree.Lambda): lambda definition
 
         Returns:
             bool: if :term:`lambda` definition contains positional-only parameters
@@ -986,7 +1012,8 @@ class Context(BaseContext):
                 return True
         return False
 
-    def normalizer(self, name):
+    @final
+    def normalizer(self, name: str) -> str:
         """Variable name normalizer.
 
         If :attr:`self._cls_ctx <poseur.Context._cls_ctx>` is :data:`None`,
@@ -1028,7 +1055,8 @@ class StringContext(Context):
 
     """
 
-    def __init__(self, node, config, *, clx_ctx=None, indent_level=0, raw=False):
+    def __init__(self, node: parso.python.tree.PythonNode, config: PoseurConfig, *,
+                 clx_ctx: Optional[str] = None, indent_level: int = 0, raw: Literal[True] = True):
         # convert using f2format first
         prefix, suffix = self.extract_whitespaces(node.get_code())
         code = f2format.convert(node.get_code().strip())
@@ -1041,8 +1069,10 @@ class StringContext(Context):
 
 
 # TODO: add misc functions required for ``dismiss`` and ``decorator`` (or equivalence)
-def convert(code, filename=None, *, source_version=None, linesep=None,
-            indentation=None, pep8=None, dismiss=None, decorator=None):
+def convert(code: Union[str, bytes], filename: Optional[str] = None, *,
+            source_version: Optional[str] = None, linesep: Optional[Linesep] = None,
+            indentation: Optional[Union[int, str]] = None, pep8: Optional[bool] = None,
+            dismiss: Optional[bool] = None, decorator: Optional[str] = None) -> str:
     """Convert the given Python source code string.
 
     Args:
@@ -1086,15 +1116,17 @@ def convert(code, filename=None, *, source_version=None, linesep=None,
                     dismiss=dismiss, decorator=decorator)
 
     # convert source string
-    result = Context(module, config).string
+    result = Context(module, config).string  # type: ignore[arg-type]
 
     # return conversion result
     return result
 
 
 # TODO: add misc functions required for ``dismiss`` and ``decorator`` (or equivalence)
-def poseur(filename, *, source_version=None, linesep=None, indentation=None, pep8=None,
-           dismiss=None, decorator=None, quiet=None, dry_run=False):
+def poseur(filename: str, *, source_version: Optional[str] = None, linesep: Optional[Linesep] = None,
+           indentation: Optional[Union[int, str]] = None, pep8: Optional[bool] = None,
+           dismiss: Optional[bool] = None, decorator: Optional[str] = None,
+           quiet: Optional[bool] = None, dry_run: bool = False) -> None:
     """Convert the given Python source code file. The file will be overwritten.
 
     Args:
@@ -1180,7 +1212,7 @@ else:
 __poseur_pep8__ = 'will conform to PEP 8' if _get_pep8_option() else 'will not conform to PEP 8'
 
 
-def get_parser():
+def get_parser() -> argparse.ArgumentParser:
     """Generate CLI parser.
 
     Returns:
@@ -1237,17 +1269,17 @@ def get_parser():
     return parser
 
 
-def do_poseur(filename, **kwargs):
+def do_poseur(filename: str, **kwargs: object) -> None:
     """Wrapper function to catch exceptions."""
     try:
-        poseur(filename, **kwargs)
+        poseur(filename, **kwargs)  # type: ignore[arg-type]
     except Exception:  # pylint: disable=broad-except
         with TaskLock():
             print('Failed to convert file: %r' % filename, file=sys.stderr)
             traceback.print_exc()
 
 
-def main(argv=None):
+def main(argv: Optional[List[str]] = None) -> int:
     """Entry point for poseur.
 
     Args:
@@ -1286,7 +1318,7 @@ def main(argv=None):
             with open(filename, 'rb') as file:
                 code = file.read()
         sys.stdout.write(convert(code, **options))  # print conversion result to stdout
-        return
+        return 0
 
     # get options
     quiet = _get_quiet_option(args.quiet)
@@ -1306,7 +1338,7 @@ def main(argv=None):
                 archive_dir = os.path.dirname(os.path.realpath(args.recover_file))
                 if not os.listdir(archive_dir):
                     os.rmdir(archive_dir)
-        return
+        return 0
 
     # fetch file list
     if not args.files:
@@ -1318,7 +1350,7 @@ def main(argv=None):
         if not args.quiet:
             # TODO: maybe use parser.error?
             print('Warning: no valid Python source files found in %r' % args.files, file=sys.stderr)
-        return
+        return 1
 
     # make archive
     if do_archive and not args.dry_run:
@@ -1330,6 +1362,8 @@ def main(argv=None):
         'dry_run': args.dry_run,
     })
     map_tasks(do_poseur, filelist, kwargs=options, processes=processes)
+
+    return 0
 
 
 if __name__ == '__main__':

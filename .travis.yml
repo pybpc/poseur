@@ -2,6 +2,7 @@
 dist: xenial
 language: python
 python:
+  - "3.4"
   - "3.5"
   - "3.6"
   - "3.7"
@@ -13,8 +14,6 @@ git:
 
 # command to install dependencies
 install:
-  - rm -f setup.py
-  - cp -f scripts/setup.pypi.py setup.py
   - pip install -r requirements-ci.txt
 
 # command to run tests
