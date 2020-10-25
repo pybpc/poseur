@@ -3,15 +3,8 @@ tbtrim
 parso>=0.6.0
 bpc-utils
 -e .
-autopep8
 codecov
 coverage
-doc8
-homebrew-pypi-poet
-pylint
-requests
-sphinx
-ipython
 
 # temporary solution for f2format dependency
 git+https://github.com/pybpc/f2format.git
