@@ -444,7 +444,7 @@ class Context(BaseContext):
             self += node.get_code()
             return
 
-        posonly = list()  # positional-only parameters
+        posonly = []  # positional-only parameters
         funcdef = '' if async_ctx is None else async_ctx.get_code()
 
         # 'def' NAME '(' PARAM ')' [ '->' NAME ] ':' SUITE
@@ -454,7 +454,7 @@ class Context(BaseContext):
                 funcdef += child.children[0].get_code()
 
                 parameters = ''
-                param_list = list()  # type: List[parso.python.tree.Param]
+                param_list = []  # type: List[parso.python.tree.Param]
                 for grandchild in child.children[1:-1]:
                     # <Operator: />
                     if grandchild.type == 'operator' and grandchild.value == '/':
@@ -567,7 +567,7 @@ class Context(BaseContext):
             self += node.get_code()
             return
 
-        pos_only = list()
+        pos_only = []
         children = iter(node.children)
 
         # string buffers
@@ -579,7 +579,7 @@ class Context(BaseContext):
         prefix += next(children).get_code()
 
         # vararglist
-        param_list = list()  # type: List[parso.python.tree.Param]
+        param_list = []  # type: List[parso.python.tree.Param]
         for child in children:
             if child.type == 'operator':
                 # <Operator: />
