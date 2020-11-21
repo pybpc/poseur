@@ -1,3 +1,7 @@
+# NB: f2format is currently under reconstruction. It is highly recommended to directly install from the git repo or the pre-release distributions.
+
+---
+
 # poseur
 
 [![PyPI - Downloads](https://pepy.tech/badge/python-poseur)](https://pepy.tech/count/python-poseur)
