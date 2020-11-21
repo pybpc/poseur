@@ -24,6 +24,11 @@ you to always write *positional-only parameters* in Python 3.8 flavour then comp
 Installation
 ------------
 
+.. warning::
+
+   ``poseur`` is currently under reconstruction. It is highly recommended to directly install from the git repo or 
+   the pre-release distributions.
+
 .. note::
 
    ``poseur`` only supports Python versions **since 3.4** |:snake:|
