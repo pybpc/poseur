@@ -1,4 +1,4 @@
-# NB: f2format is currently under reconstruction. It is highly recommended to directly install from the git repo or the pre-release distributions.
+# NB: poseur is currently under reconstruction. It is highly recommended to directly install from the git repo or the pre-release distributions.
 
 ---
 
