@@ -155,7 +155,7 @@ Internal Auxiliaries
 Options & Defaults
 ~~~~~~~~~~~~~~~~~~
 
-.. autodata:: poseur.poseur_SOURCE_VERSIONS
+.. autodata:: poseur.POSEUR_SOURCE_VERSIONS
 
 Below are option getter utility functions. Option value precedence is::
 
