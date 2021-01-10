@@ -1,0 +1,1542 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>poseur &#8212; poseur 0.4.3 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for poseur</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Back-port compiler for Python 3.8 positional-only parameter syntax.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">f2format</span>
+<span class="kn">import</span> <span class="nn">parso.python.tree</span>
+<span class="kn">import</span> <span class="nn">parso.tree</span>
+<span class="kn">import</span> <span class="nn">tbtrim</span>
+<span class="kn">from</span> <span class="nn">bpc_utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">BaseContext</span><span class="p">,</span> <span class="n">BPCSyntaxError</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">TaskLock</span><span class="p">,</span> <span class="n">archive_files</span><span class="p">,</span>
+                       <span class="n">detect_encoding</span><span class="p">,</span> <span class="n">detect_files</span><span class="p">,</span> <span class="n">detect_indentation</span><span class="p">,</span> <span class="n">detect_linesep</span><span class="p">,</span>
+                       <span class="n">first_non_none</span><span class="p">,</span> <span class="n">get_parso_grammar_versions</span><span class="p">,</span> <span class="n">map_tasks</span><span class="p">,</span> <span class="n">parse_boolean_state</span><span class="p">,</span>
+                       <span class="n">parse_indentation</span><span class="p">,</span> <span class="n">parse_linesep</span><span class="p">,</span> <span class="n">parse_positive_integer</span><span class="p">,</span> <span class="n">parso_parse</span><span class="p">,</span>
+                       <span class="n">recover_files</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">bpc_utils.typing</span> <span class="kn">import</span> <span class="n">Linesep</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">final</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">,</span> <span class="s1">&#39;poseur&#39;</span><span class="p">,</span> <span class="s1">&#39;convert&#39;</span><span class="p">,</span> <span class="s1">&#39;decorator&#39;</span><span class="p">]</span>  <span class="c1"># pylint: disable=undefined-all-variable</span>
+
+<span class="c1"># version string</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.4.3&#39;</span>
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># Typings</span>
+
+
+<span class="k">class</span> <span class="nc">PoseurConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
+    <span class="n">indentation</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>  <span class="c1"># type: str</span>
+    <span class="n">linesep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>  <span class="c1"># type: Literal[Linesep]</span>
+    <span class="n">pep8</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># type: bool</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Optional[str]</span>
+    <span class="n">source_version</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Optional[str]</span>
+    <span class="n">decorator</span> <span class="o">=</span> <span class="s1">&#39;decorator&#39;</span>  <span class="c1"># type: str</span>
+    <span class="n">dismiss</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># type: bool</span>
+
+
+<span class="c1">##############################################################################</span>
+<span class="c1"># Auxiliaries</span>
+
+<span class="c1">#: Get supported source versions.</span>
+<span class="c1">#:</span>
+<span class="c1">#: .. seealso:: :func:`bpc_utils.get_parso_grammar_versions`</span>
+<span class="n">POSEUR_SOURCE_VERSIONS</span> <span class="o">=</span> <span class="n">get_parso_grammar_versions</span><span class="p">(</span><span class="n">minimum</span><span class="o">=</span><span class="s1">&#39;3.8&#39;</span><span class="p">)</span>
+
+<span class="c1"># option default values</span>
+<span class="c1">#: Default value for the ``quiet`` option.</span>
+<span class="n">_default_quiet</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="c1">#: Default value for the ``concurrency`` option.</span>
+<span class="n">_default_concurrency</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># auto detect</span>
+<span class="c1">#: Default value for the ``do_archive`` option.</span>
+<span class="n">_default_do_archive</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="c1">#: Default value for the ``archive_path`` option.</span>
+<span class="n">_default_archive_path</span> <span class="o">=</span> <span class="s1">&#39;archive&#39;</span>
+<span class="c1">#: Default value for the ``source_version`` option.</span>
+<span class="n">_default_source_version</span> <span class="o">=</span> <span class="n">POSEUR_SOURCE_VERSIONS</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="c1">#: Default value for the ``linesep`` option.</span>
+<span class="n">_default_linesep</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># auto detect</span>
+<span class="c1">#: Default value for the ``indentation`` option.</span>
+<span class="n">_default_indentation</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># auto detect</span>
+<span class="c1">#: Default value for the ``pep8`` option.</span>
+<span class="n">_default_pep8</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="c1">#: Default value for the ``dismiss-runtime`` option.</span>
+<span class="n">_default_dismiss</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="c1">#: Default value for the ``decorator-name`` option.</span>
+<span class="n">_default_decorator</span> <span class="o">=</span> <span class="s1">&#39;__poseur_decorator&#39;</span>
+
+<span class="c1"># option getter utility functions</span>
+<span class="c1"># option value precedence is: explicit value (CLI/API arguments) &gt; environment variable &gt; default value</span>
+
+
+<div class="viewcode-block" id="_get_quiet_option"><a class="viewcode-back" href="../api.html#poseur._get_quiet_option">[docs]</a><span class="k">def</span> <span class="nf">_get_quiet_option</span><span class="p">(</span><span class="n">explicit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get the value for the ``quiet`` option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        explicit (Optional[bool]): the value explicitly specified by user,</span>
+<span class="sd">            :data:`None` if not specified</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: the value for the ``quiet`` option</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">        :envvar:`POSEUR_QUIET` -- the value in environment variable</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        :data:`_default_quiet`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># We need lazy evaluation, so first_non_none(a, b, c) does not work here</span>
+    <span class="c1"># with PEP 505 we can simply write a ?? b ?? c</span>
+    <span class="k">def</span> <span class="nf">_option_layers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">yield</span> <span class="n">explicit</span>
+        <span class="k">yield</span> <span class="n">parse_boolean_state</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSEUR_QUIET&#39;</span><span class="p">))</span>
+        <span class="k">yield</span> <span class="n">_default_quiet</span>
+    <span class="k">return</span> <span class="n">first_non_none</span><span class="p">(</span><span class="n">_option_layers</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="_get_concurrency_option"><a class="viewcode-back" href="../api.html#poseur._get_concurrency_option">[docs]</a><span class="k">def</span> <span class="nf">_get_concurrency_option</span><span class="p">(</span><span class="n">explicit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get the value for the ``concurrency`` option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        explicit (Optional[int]): the value explicitly specified by user,</span>
+<span class="sd">            :data:`None` if not specified</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Optional[int]: the value for the ``concurrency`` option;</span>
+<span class="sd">        :data:`None` means *auto detection* at runtime</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">        :envvar:`POSEUR_CONCURRENCY` -- the value in environment variable</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        :data:`_default_concurrency`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">parse_positive_integer</span><span class="p">(</span><span class="n">explicit</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSEUR_CONCURRENCY&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_default_concurrency</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_get_do_archive_option"><a class="viewcode-back" href="../api.html#poseur._get_do_archive_option">[docs]</a><span class="k">def</span> <span class="nf">_get_do_archive_option</span><span class="p">(</span><span class="n">explicit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get the value for the ``do_archive`` option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        explicit (Optional[bool]): the value explicitly specified by user,</span>
+<span class="sd">            :data:`None` if not specified</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: the value for the ``do_archive`` option</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">        :envvar:`POSEUR_DO_ARCHIVE` -- the value in environment variable</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        :data:`_default_do_archive`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_option_layers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">yield</span> <span class="n">explicit</span>
+        <span class="k">yield</span> <span class="n">parse_boolean_state</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSEUR_DO_ARCHIVE&#39;</span><span class="p">))</span>
+        <span class="k">yield</span> <span class="n">_default_do_archive</span>
+    <span class="k">return</span> <span class="n">first_non_none</span><span class="p">(</span><span class="n">_option_layers</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="_get_archive_path_option"><a class="viewcode-back" href="../api.html#poseur._get_archive_path_option">[docs]</a><span class="k">def</span> <span class="nf">_get_archive_path_option</span><span class="p">(</span><span class="n">explicit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get the value for the ``archive_path`` option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        explicit (Optional[str]): the value explicitly specified by user,</span>
+<span class="sd">            :data:`None` if not specified</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: the value for the ``archive_path`` option</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">        :envvar:`POSEUR_ARCHIVE_PATH` -- the value in environment variable</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        :data:`_default_archive_path`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">explicit</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSEUR_ARCHIVE_PATH&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_default_archive_path</span></div>
+
+
+<div class="viewcode-block" id="_get_source_version_option"><a class="viewcode-back" href="../api.html#poseur._get_source_version_option">[docs]</a><span class="k">def</span> <span class="nf">_get_source_version_option</span><span class="p">(</span><span class="n">explicit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get the value for the ``source_version`` option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        explicit (Optional[str]): the value explicitly specified by user,</span>
+<span class="sd">            :data:`None` if not specified</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: the value for the ``source_version`` option</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">        :envvar:`POSEUR_SOURCE_VERSION` -- the value in environment variable</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        :data:`_default_source_version`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">explicit</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSEUR_SOURCE_VERSION&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_default_source_version</span></div>
+
+
+<div class="viewcode-block" id="_get_linesep_option"><a class="viewcode-back" href="../api.html#poseur._get_linesep_option">[docs]</a><span class="k">def</span> <span class="nf">_get_linesep_option</span><span class="p">(</span><span class="n">explicit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Linesep</span><span class="p">]:</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get the value for the ``linesep`` option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        explicit (Optional[str]): the value explicitly specified by user,</span>
+<span class="sd">            :data:`None` if not specified</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Optional[Literal[&#39;\\n&#39;, &#39;\\r\\n&#39;, &#39;\\r&#39;]]: the value for the ``linesep`` option;</span>
+<span class="sd">        :data:`None` means *auto detection* at runtime</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">        :envvar:`POSEUR_LINESEP` -- the value in environment variable</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        :data:`_default_linesep`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">parse_linesep</span><span class="p">(</span><span class="n">explicit</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSEUR_LINESEP&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_default_linesep</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_get_indentation_option"><a class="viewcode-back" href="../api.html#poseur._get_indentation_option">[docs]</a><span class="k">def</span> <span class="nf">_get_indentation_option</span><span class="p">(</span><span class="n">explicit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get the value for the ``indentation`` option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        explicit (Optional[Union[str, int]]): the value explicitly specified by user,</span>
+<span class="sd">            :data:`None` if not specified</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Optional[str]: the value for the ``indentation`` option;</span>
+<span class="sd">        :data:`None` means *auto detection* at runtime</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">        :envvar:`POSEUR_INDENTATION` -- the value in environment variable</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        :data:`_default_indentation`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">parse_indentation</span><span class="p">(</span><span class="n">explicit</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSEUR_INDENTATION&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_default_indentation</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_get_pep8_option"><a class="viewcode-back" href="../api.html#poseur._get_pep8_option">[docs]</a><span class="k">def</span> <span class="nf">_get_pep8_option</span><span class="p">(</span><span class="n">explicit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get the value for the ``pep8`` option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        explicit (Optional[bool]): the value explicitly specified by user,</span>
+<span class="sd">            :data:`None` if not specified</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: the value for the ``pep8`` option</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">        :envvar:`POSEUR_PEP8` -- the value in environment variable</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        :data:`_default_pep8`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_option_layers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">yield</span> <span class="n">explicit</span>
+        <span class="k">yield</span> <span class="n">parse_boolean_state</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSEUR_PEP8&#39;</span><span class="p">))</span>
+        <span class="k">yield</span> <span class="n">_default_pep8</span>
+    <span class="k">return</span> <span class="n">first_non_none</span><span class="p">(</span><span class="n">_option_layers</span><span class="p">())</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_dismiss_option</span><span class="p">(</span><span class="n">explicit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get the value for the ``dismiss-runtime`` option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        explicit (Optional[bool]): the value explicitly specified by user,</span>
+<span class="sd">            :data:`None` if not specified</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: the value for the ``dismiss-runtime`` option</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">        :envvar:`POSEUR_DISMISS` -- the value in environment variable</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        :data:`_default_dismiss`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_option_layers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">yield</span> <span class="n">explicit</span>
+        <span class="k">yield</span> <span class="n">parse_boolean_state</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSEUR_DISMISS&#39;</span><span class="p">))</span>
+        <span class="k">yield</span> <span class="n">_default_dismiss</span>
+    <span class="k">return</span> <span class="n">first_non_none</span><span class="p">(</span><span class="n">_option_layers</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">_get_decorator_option</span><span class="p">(</span><span class="n">explicit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get the value for the ``decorator`` option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        explicit (Optional[str]): the value explicitly specified by user,</span>
+<span class="sd">            :data:`None` if not specified</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: the value for the ``decorator`` option</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">        :envvar:`POSEUR_DECORATOR` -- the value in environment variable</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        :data:`_default_decorator`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">explicit</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSEUR_DECORATOR&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_default_decorator</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># Traceback Trimming (tbtrim)</span>
+
+<span class="c1"># root path</span>
+<span class="n">ROOT</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
+
+
+<span class="k">def</span> <span class="nf">predicate</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">==</span> <span class="n">ROOT</span>
+
+
+<span class="n">tbtrim</span><span class="o">.</span><span class="n">set_trim_rule</span><span class="p">(</span><span class="n">predicate</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">BPCSyntaxError</span><span class="p">)</span>
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># Main convertion implementations</span>
+
+<span class="c1"># cf. https://mail.python.org/pipermail/python-ideas/2017-February/044888.html</span>
+<span class="n">DECORATOR_TEMPLATE</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span><span class="se">\</span>
+<span class="s1">def </span><span class="si">%(decorator)s</span><span class="s1">(*poseur):</span>
+<span class="si">%(indentation)s</span><span class="s1">&quot;&quot;&quot;Positional-only parameters runtime checker.</span>
+<span class="si">%(indentation)s</span><span class="s1"></span>
+<span class="si">%(indentation)s</span><span class="s1">    Args:</span>
+<span class="si">%(indentation)s</span><span class="s1">        *poseur: Name list of positional-only parameters.</span>
+<span class="si">%(indentation)s</span><span class="s1"></span>
+<span class="si">%(indentation)s</span><span class="s1">    Raises:</span>
+<span class="si">%(indentation)s</span><span class="s1">        TypeError: If any position-only parameters were passed as</span>
+<span class="si">%(indentation)s</span><span class="s1">            keyword parameters.</span>
+<span class="si">%(indentation)s</span><span class="s1"></span>
+<span class="si">%(indentation)s</span><span class="s1">    The decorator function may decorate regular :term:`function` and/or</span>
+<span class="si">%(indentation)s</span><span class="s1">    :term:`lambda` function to provide runtime checks on the original</span>
+<span class="si">%(indentation)s</span><span class="s1">    positional-only parameters.</span>
+<span class="si">%(indentation)s</span><span class="s1"></span>
+<span class="si">%(indentation)s</span><span class="s1">&quot;&quot;&quot;</span>
+<span class="si">%(indentation)s</span><span class="s1">import functools</span>
+<span class="si">%(indentation)s</span><span class="s1">def caller(func):</span>
+<span class="si">%(indentation)s%(indentation)s</span><span class="s1">@functools.wraps(func)</span>
+<span class="si">%(indentation)s%(indentation)s</span><span class="s1">def wrapper(*args, **kwargs):</span>
+<span class="si">%(indentation)s%(indentation)s%(indentation)s</span><span class="s1">poseur_args = set(poseur).intersection(kwargs)</span>
+<span class="si">%(indentation)s%(indentation)s%(indentation)s</span><span class="s1">if poseur_args:</span>
+<span class="si">%(indentation)s%(indentation)s%(indentation)s%(indentation)s</span><span class="s1">raise TypeError(&#39;</span><span class="si">%%</span><span class="s1">s() got some positional-only arguments passed as keyword arguments: </span><span class="si">%%</span><span class="s1">r&#39; </span><span class="si">%%</span><span class="s1"> (func.__name__, &#39;, &#39;.join(poseur_args)))</span>
+<span class="si">%(indentation)s%(indentation)s%(indentation)s</span><span class="s1">return func(*args, **kwargs)</span>
+<span class="si">%(indentation)s%(indentation)s</span><span class="s1">return wrapper</span>
+<span class="si">%(indentation)s</span><span class="s1">return caller</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>  <span class="c1"># `str.splitlines` will remove trailing newline</span>
+
+
+<div class="viewcode-block" id="Context"><a class="viewcode-back" href="../api.html#poseur.Context">[docs]</a><span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">BaseContext</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;General conversion context.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        node (parso.tree.NodeOrLeaf): parso AST</span>
+<span class="sd">        config (Config): conversion configurations</span>
+
+<span class="sd">    Keyword Args:</span>
+<span class="sd">        clx_ctx (Optional[str]): class context name</span>
+<span class="sd">        indent_level (int): current indentation level</span>
+<span class="sd">        raw (bool): raw processing flag</span>
+
+<span class="sd">    Important:</span>
+<span class="sd">        ``raw`` should be :data:`True` only if the ``node`` is in the clause of another *context*,</span>
+<span class="sd">        where the converted wrapper functions should be inserted.</span>
+
+<span class="sd">    For the :class:`Context` class of :mod:`poseur` module,</span>
+<span class="sd">    it will process nodes with following methods:</span>
+
+<span class="sd">    * :token:`suite`</span>
+
+<span class="sd">      - :meth:`Context._process_suite_node`</span>
+
+<span class="sd">    * :token:`funcdef`</span>
+
+<span class="sd">      - :meth:`Context._process_funcdef`</span>
+
+<span class="sd">    * :token:`lambdef`</span>
+
+<span class="sd">      - :meth:`Context._process_lambdef`</span>
+
+<span class="sd">    * :token:`async_funcdef`</span>
+
+<span class="sd">      - :meth:`Context._process_async_funcdef`</span>
+
+<span class="sd">    * :token:`async_stmt`</span>
+
+<span class="sd">      - :meth:`Context._process_async_stmt`</span>
+
+<span class="sd">    * :token:`classdef`</span>
+
+<span class="sd">      - :meth:`Context._process_classdef`</span>
+
+<span class="sd">    * :token:`if_stmt`</span>
+
+<span class="sd">      - :meth:`Context._process_if_stmt`</span>
+
+<span class="sd">    * :token:`while_stmt`</span>
+
+<span class="sd">      - :meth:`Context._process_while_stmt`</span>
+
+<span class="sd">    * :token:`for_stmt`</span>
+
+<span class="sd">      - :meth:`Context._process_for_stmt`</span>
+
+<span class="sd">    * :token:`with_stmt`</span>
+
+<span class="sd">      - :meth:`Context._process_with_stmt`</span>
+
+<span class="sd">    * :token:`try_stmt`</span>
+
+<span class="sd">      - :meth:`Context._process_try_stmt`</span>
+
+<span class="sd">    * :token:`stringliteral`</span>
+
+<span class="sd">      * :meth:`Context._process_strings`</span>
+<span class="sd">      * :meth:`Context._process_string_context`</span>
+
+<span class="sd">    * :token:`f_string`</span>
+
+<span class="sd">      * :meth:`Context._process_fstring`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#: re.Pattern: Pattern to find the function definition line.</span>
+    <span class="n">pattern_funcdef</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\s*(async\s+)?def\s&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">ASCII</span><span class="p">)</span>
+
+    <span class="nd">@final</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Name of the ``poseur`` decorator.</span>
+
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decorator</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">NodeOrLeaf</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PoseurConfig</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                 <span class="n">clx_ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indent_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="c1">#: bool: Dismiss runtime checks for positional-only parameters.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dismiss</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">dismiss</span>  <span class="c1"># type: bool</span>
+        <span class="c1">#: str: Decorator name.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decorator</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">decorator</span>  <span class="c1"># type: str</span>
+        <span class="c1">#: Optional[str]: Class context name. This is rather useful as</span>
+        <span class="c1">#: we might need to *mangle* and/or *normalize* variable names</span>
+        <span class="c1">#: in certain scenario.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cls_ctx</span> <span class="o">=</span> <span class="n">clx_ctx</span>  <span class="c1"># type: Optional[str]</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">indent_level</span><span class="o">=</span><span class="n">indent_level</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Context._process_suite_node"><a class="viewcode-back" href="../api.html#poseur.Context._process_suite_node">[docs]</a>    <span class="k">def</span> <span class="nf">_process_suite_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">NodeOrLeaf</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cls_ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process indented suite (:token:`suite` or others).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.tree.NodeOrLeaf): suite node</span>
+
+<span class="sd">        Keyword Args:</span>
+<span class="sd">            cls_ctx (Optional[str]): class context name</span>
+
+<span class="sd">        This method first checks if ``node`` contains positional-only parameters.</span>
+<span class="sd">        If not, it will not perform any processing, rather just append the</span>
+<span class="sd">        original source code to context buffer.</span>
+
+<span class="sd">        If ``node`` contains positional-only parameters, then it will initiate</span>
+<span class="sd">        another Context` instance to perform the conversion process on such</span>
+<span class="sd">        ``node``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_expr</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="bp">self</span> <span class="o">+=</span> <span class="n">node</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">indent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indent_level</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indentation</span> <span class="o">*</span> <span class="n">indent</span>
+
+        <span class="k">if</span> <span class="n">cls_ctx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cls_ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls_ctx</span>
+
+        <span class="c1"># initialize new context</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">clx_ctx</span><span class="o">=</span><span class="n">cls_ctx</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+                      <span class="n">indent_level</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span> <span class="o">+=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Context._process_funcdef"><a class="viewcode-back" href="../api.html#poseur.Context._process_funcdef">[docs]</a>    <span class="k">def</span> <span class="nf">_process_funcdef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Function</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                         <span class="n">async_ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Keyword</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process function definition (:token:`funcdef`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.Function): function node</span>
+
+<span class="sd">        Keyword Args:</span>
+<span class="sd">            async_ctx (Optional[parso.python.tree.Keyword]): ``async`` keyword AST node</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_expr</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="bp">self</span> <span class="o">+=</span> <span class="n">node</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">posonly</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># positional-only parameters</span>
+        <span class="n">funcdef</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">async_ctx</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">async_ctx</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+
+        <span class="c1"># &#39;def&#39; NAME &#39;(&#39; PARAM &#39;)&#39; [ &#39;-&gt;&#39; NAME ] &#39;:&#39; SUITE</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;parameters&#39;</span><span class="p">:</span>
+                <span class="c1"># &lt;Operator: (&gt;</span>
+                <span class="n">funcdef</span> <span class="o">+=</span> <span class="n">child</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+
+                <span class="n">parameters</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">param_list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[parso.python.tree.Param]</span>
+                <span class="k">for</span> <span class="n">grandchild</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="c1"># &lt;Operator: /&gt;</span>
+                    <span class="k">if</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;operator&#39;</span> <span class="ow">and</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
+                        <span class="n">parameters</span> <span class="o">+=</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                        <span class="n">posonly</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">param_list</span><span class="p">)</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># &lt;Param: ...&gt;</span>
+                    <span class="k">if</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;param&#39;</span><span class="p">:</span>
+                        <span class="n">param_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grandchild</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="c1"># initiate new context</span>
+                            <span class="n">ctx</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">grandchild</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+                                          <span class="n">indent_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_indent_level</span><span class="p">)</span>
+                            <span class="n">parameters</span> <span class="o">+=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">string</span>
+                            <span class="k">continue</span>
+
+                    <span class="c1"># &lt;Param: ...&gt; / &lt;Operator: *&gt; / &lt;Operator: ,&gt;</span>
+                    <span class="n">parameters</span> <span class="o">+=</span> <span class="n">grandchild</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pep8</span><span class="p">:</span>
+                    <span class="n">funcdef</span> <span class="o">+=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">parameters</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">funcdef</span> <span class="o">+=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">parameters</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
+
+                <span class="c1"># &lt;Operator: )&gt;</span>
+                <span class="n">funcdef</span> <span class="o">+=</span> <span class="n">child</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+                <span class="k">continue</span>
+
+            <span class="n">funcdef</span> <span class="o">+=</span> <span class="n">child</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+
+        <span class="c1"># decorate the function</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dismiss</span> <span class="ow">and</span> <span class="n">posonly</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">deflag</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># function definition line</span>
+
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">funcdef</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern_funcdef</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">deflag</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">deflag</span><span class="p">:</span>
+                    <span class="n">suffix</span> <span class="o">+=</span> <span class="n">line</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">prefix</span> <span class="o">+=</span> <span class="n">line</span>
+
+            <span class="n">posonly_args</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">param</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalizer</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">value</span><span class="p">)),</span> <span class="n">posonly</span><span class="p">))</span>
+            <span class="n">indentation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indentation</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indent_level</span>
+            <span class="bp">self</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%(prefix)s</span><span class="s1">&#39;</span>
+                     <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">@</span><span class="si">%(decorator)s</span><span class="s1">(</span><span class="si">%(posonly)s</span><span class="s1">)</span><span class="si">%(linesep)s</span><span class="s1">&#39;</span>
+                     <span class="s1">&#39;</span><span class="si">%(suffix)s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span>
+                         <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
+                         <span class="n">linesep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span><span class="p">,</span> <span class="n">indentation</span><span class="o">=</span><span class="n">indentation</span><span class="p">,</span>
+                         <span class="n">decorator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_decorator</span><span class="p">,</span> <span class="n">posonly</span><span class="o">=</span><span class="n">posonly_args</span><span class="p">,</span>
+                     <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span> <span class="o">+=</span> <span class="n">funcdef</span>
+
+        <span class="c1"># SUITE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Context._process_async_stmt"><a class="viewcode-back" href="../api.html#poseur.Context._process_async_stmt">[docs]</a>    <span class="k">def</span> <span class="nf">_process_async_stmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">PythonNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process ``async`` statement (:token:`async_stmt`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.PythonNode): ``async`` statement node</span>
+
+<span class="sd">        This method processes an ``async`` statement node. If such statement is an</span>
+<span class="sd">        *async* :term:`function`, then it will pass on the processing to</span>
+<span class="sd">        :meth:`self._process_funcdef &lt;Context._process_funcdef&gt;`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">child_1st</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">child_2nd</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">flag_1st</span> <span class="o">=</span> <span class="n">child_1st</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;keyword&#39;</span> <span class="ow">and</span> <span class="n">child_1st</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;async&#39;</span>
+        <span class="n">flag_2nd</span> <span class="o">=</span> <span class="n">child_2nd</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;funcdef&#39;</span>
+
+        <span class="k">if</span> <span class="n">flag_1st</span> <span class="ow">and</span> <span class="n">flag_2nd</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_funcdef</span><span class="p">(</span><span class="n">child_2nd</span><span class="p">,</span> <span class="n">async_ctx</span><span class="o">=</span><span class="n">child_1st</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">child_1st</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">child_2nd</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context._process_async_funcdef"><a class="viewcode-back" href="../api.html#poseur.Context._process_async_funcdef">[docs]</a>    <span class="k">def</span> <span class="nf">_process_async_funcdef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">PythonNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process ``async`` function definition (:token:`async_funcdef`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.PythonNode): ``async`` function node</span>
+
+<span class="sd">        This method processes an ``async`` function node. It will extract</span>
+<span class="sd">        the ``async`` keyword node (:class:`parso.python.tree.Keyword`)</span>
+<span class="sd">        and the :term:`function` node (:class:`parso.python.tree.Function`)</span>
+<span class="sd">        then pass on the processing to</span>
+<span class="sd">        :meth:`self._process_funcdef &lt;Context._process_funcdef&gt;`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">async_ctx</span><span class="p">,</span> <span class="n">funcdef</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_funcdef</span><span class="p">(</span><span class="n">funcdef</span><span class="p">,</span> <span class="n">async_ctx</span><span class="o">=</span><span class="n">async_ctx</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context._process_lambdef"><a class="viewcode-back" href="../api.html#poseur.Context._process_lambdef">[docs]</a>    <span class="k">def</span> <span class="nf">_process_lambdef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Lambda</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process lambda definition (:token:`lambdef`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.Lambda): lambda node</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_expr</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="bp">self</span> <span class="o">+=</span> <span class="n">node</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">pos_only</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+
+        <span class="c1"># string buffers</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="c1"># &lt;Keyword: lambda&gt;</span>
+        <span class="n">prefix</span> <span class="o">+=</span> <span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">)</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+
+        <span class="c1"># vararglist</span>
+        <span class="n">param_list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[parso.python.tree.Param]</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;operator&#39;</span><span class="p">:</span>
+                <span class="c1"># &lt;Operator: /&gt;</span>
+                <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
+                    <span class="n">params</span> <span class="o">+=</span> <span class="n">child</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="n">pos_only</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">param_list</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># &lt;Operator: :&gt;</span>
+                <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;:&#39;</span><span class="p">:</span>
+                    <span class="n">suffix</span> <span class="o">+=</span> <span class="n">child</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># &lt;Param: ...&gt;</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;param&#39;</span><span class="p">:</span>
+                <span class="n">param_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># initialize new context</span>
+                    <span class="n">ctx</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="n">child</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+                                  <span class="n">indent_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_indent_level</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">params</span> <span class="o">+=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">string</span>
+                    <span class="k">continue</span>
+
+            <span class="c1"># &lt;Param: ...&gt; / &lt;Operator: *&gt; / &lt;Operator: ,&gt;</span>
+            <span class="n">params</span> <span class="o">+=</span> <span class="n">child</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+
+        <span class="c1"># test_nocond | test</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">),</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+                      <span class="n">indent_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_indent_level</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">suffix</span> <span class="o">+=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">string</span>
+
+        <span class="n">whitespace_prefix</span><span class="p">,</span> <span class="n">whitespace_suffix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_whitespaces</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pep8</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">params</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">params</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
+        <span class="n">lambdef</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">whitespace_prefix</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="n">suffix</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dismiss</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">pos_only</span><span class="p">:</span>
+            <span class="bp">self</span> <span class="o">+=</span> <span class="n">lambdef</span>
+            <span class="k">return</span>
+
+        <span class="c1"># decorate lambda definition</span>
+        <span class="n">whitespace_prefix</span><span class="p">,</span> <span class="n">whitespace_suffix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_whitespaces</span><span class="p">(</span><span class="n">lambdef</span><span class="p">)</span>
+        <span class="n">posonly_args</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">param</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalizer</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()),</span> <span class="n">pos_only</span><span class="p">))</span>
+        <span class="bp">self</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%(prefix)s</span><span class="s1">&#39;</span>
+                 <span class="s1">&#39;</span><span class="si">%(decorator)s</span><span class="s1">(</span><span class="si">%(posonly)s</span><span class="s1">)&#39;</span>
+                 <span class="s1">&#39;(</span><span class="si">%(lambdef)s</span><span class="s1">)&#39;</span>
+                 <span class="s1">&#39;</span><span class="si">%(suffix)s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span>
+                     <span class="n">prefix</span><span class="o">=</span><span class="n">whitespace_prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">whitespace_suffix</span><span class="p">,</span>
+                     <span class="n">lambdef</span><span class="o">=</span><span class="n">lambdef</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                     <span class="n">decorator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_decorator</span><span class="p">,</span> <span class="n">posonly</span><span class="o">=</span><span class="n">posonly_args</span><span class="p">,</span>
+                 <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context._process_string_context"><a class="viewcode-back" href="../api.html#poseur.Context._process_string_context">[docs]</a>    <span class="k">def</span> <span class="nf">_process_string_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">PythonNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process string contexts (:token:`stringliteral`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.PythonNode): string literals node</span>
+
+<span class="sd">        This method first checks if ``node`` contains position-only parameters.</span>
+<span class="sd">        If not, it will not perform any processing, rather just append the</span>
+<span class="sd">        original source code to context buffer. Later it will check if</span>
+<span class="sd">        ``node`` contains *debug f-string*. If not, it will process the</span>
+<span class="sd">        *regular* processing on each child of such ``node``.</span>
+
+<span class="sd">        See Also:</span>
+<span class="sd">            The method calls :meth:`f2format.Context.has_debug_fstring`</span>
+<span class="sd">            to detect *debug f-strings*.</span>
+
+<span class="sd">        Otherwise, it will initiate a new :class:`StringContext` instance</span>
+<span class="sd">        to perform the conversion process on such ``node``, which will first</span>
+<span class="sd">        use :mod:`f2format` to convert those formatted string literals.</span>
+
+<span class="sd">        Important:</span>
+<span class="sd">            When initialisation, ``raw`` parameter **must** be set to :data:`True`;</span>
+<span class="sd">            as the converted wrapper functions should be inserted in the *outer*</span>
+<span class="sd">            context, rather than the new :class:`StringContext` instance.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_expr</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="bp">self</span> <span class="o">+=</span> <span class="n">node</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">f2format</span><span class="o">.</span><span class="n">Context</span><span class="o">.</span><span class="n">has_debug_fstring</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># initiate new context</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">StringContext</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+                            <span class="n">indent_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_indent_level</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span> <span class="o">+=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">string</span></div>
+
+<div class="viewcode-block" id="Context._process_classdef"><a class="viewcode-back" href="../api.html#poseur.Context._process_classdef">[docs]</a>    <span class="k">def</span> <span class="nf">_process_classdef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Class</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process class definition (:token:`classdef`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.Class): class node</span>
+
+<span class="sd">        This method converts the whole class suite context with</span>
+<span class="sd">        :meth:`~Context._process_suite_node` through :class:`Context`</span>
+<span class="sd">        respectively.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;Name: ...&gt;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="c1"># &lt;Keyword: class&gt;</span>
+        <span class="c1"># &lt;Name: ...&gt;</span>
+        <span class="c1"># [&lt;Operator: (&gt;, PythonNode(arglist, [...]]), &lt;Operator: )&gt;]</span>
+        <span class="c1"># &lt;Operator: :&gt;</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+
+        <span class="c1"># PythonNode(suite, [...]) / PythonNode(simple_stmt, [...])</span>
+        <span class="n">suite</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">cls_ctx</span><span class="o">=</span><span class="n">name</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context._process_if_stmt"><a class="viewcode-back" href="../api.html#poseur.Context._process_if_stmt">[docs]</a>    <span class="k">def</span> <span class="nf">_process_if_stmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">IfStmt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process if statement (:token:`if_stmt`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.IfStmt): if node</span>
+
+<span class="sd">        This method processes each indented suite under the *if*, *elif*,</span>
+<span class="sd">        and *else* statements.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+
+        <span class="c1"># &lt;Keyword: if&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># namedexpr_test</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># &lt;Operator: :&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># suite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># &lt;Keyword: elif | else&gt;</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;elif&#39;</span><span class="p">:</span>
+                <span class="c1"># namedexpr_test</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+                <span class="c1"># &lt;Operator: :&gt;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+                <span class="c1"># suite</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;else&#39;</span><span class="p">:</span>
+                <span class="c1"># &lt;Operator: :&gt;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+                <span class="c1"># suite</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+                <span class="k">continue</span></div>
+
+<div class="viewcode-block" id="Context._process_while_stmt"><a class="viewcode-back" href="../api.html#poseur.Context._process_while_stmt">[docs]</a>    <span class="k">def</span> <span class="nf">_process_while_stmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">WhileStmt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process while statement (:token:`while_stmt`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.WhileStmt): while node</span>
+
+<span class="sd">        This method processes the indented suite under the *while* and optional</span>
+<span class="sd">        *else* statements.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+
+        <span class="c1"># &lt;Keyword: while&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># namedexpr_test</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># &lt;Operator: :&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># suite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># &lt;Keyword: else&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="c1"># &lt;Operator: :&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># suite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Context._process_for_stmt"><a class="viewcode-back" href="../api.html#poseur.Context._process_for_stmt">[docs]</a>    <span class="k">def</span> <span class="nf">_process_for_stmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">ForStmt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process for statement (:token:`for_stmt`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.ForStmt): for node</span>
+
+<span class="sd">        This method processes the indented suite under the *for* and optional</span>
+<span class="sd">        *else* statements.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+
+        <span class="c1"># &lt;Keyword: for&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># exprlist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># &lt;Keyword: in&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># testlist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># &lt;Operator: :&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># suite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># &lt;Keyword: else&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="c1"># &lt;Operator: :&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+        <span class="c1"># suite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Context._process_with_stmt"><a class="viewcode-back" href="../api.html#poseur.Context._process_with_stmt">[docs]</a>    <span class="k">def</span> <span class="nf">_process_with_stmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">WithStmt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process with statement (:token:`with_stmt`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.WithStmt): with node</span>
+
+<span class="sd">        This method processes the indented suite under the *with* statement.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+
+        <span class="c1"># &lt;Keyword: with&gt;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># with_item | &lt;Operator: ,&gt;</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+            <span class="c1"># &lt;Operator: :&gt;</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;operator&#39;</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;:&#39;</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="c1"># suite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Context._process_try_stmt"><a class="viewcode-back" href="../api.html#poseur.Context._process_try_stmt">[docs]</a>    <span class="k">def</span> <span class="nf">_process_try_stmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">TryStmt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process try statement (:token:`try_stmt`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.TryStmt): try node</span>
+
+<span class="sd">        This method processes the indented suite under the *try*, *except*,</span>
+<span class="sd">        *else*, and *finally* statements.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c1"># &lt;Keyword: try | else | finally&gt; | PythonNode(except_clause, [...]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="c1"># &lt;Operator: :&gt;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
+            <span class="c1"># suite</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_suite_node</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">children</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Context._process_strings"><a class="viewcode-back" href="../api.html#poseur.Context._process_strings">[docs]</a>    <span class="k">def</span> <span class="nf">_process_strings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">PythonNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process concatenable strings (:token:`stringliteral`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.PythonNode): concatentable strings node</span>
+
+<span class="sd">        As in Python, adjacent string literals can be concatenated in certain</span>
+<span class="sd">        cases, as described in the `documentation`_. Such concatenable strings</span>
+<span class="sd">        may contain formatted string literals (:term:`f-string`) within its scope.</span>
+
+<span class="sd">        .. _documentation: https://docs.python.org/3/reference/lexical_analysis.html#string-literal-concatenation</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_string_context</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context._process_fstring"><a class="viewcode-back" href="../api.html#poseur.Context._process_fstring">[docs]</a>    <span class="k">def</span> <span class="nf">_process_fstring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">PythonNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process formatted strings (:token:`f_string`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.PythonNode): formatted strings node</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_string_context</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context._concat"><a class="viewcode-back" href="../api.html#poseur.Context._concat">[docs]</a>    <span class="k">def</span> <span class="nf">_concat</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Concatenate final string.</span>
+
+<span class="sd">        This method tries to inserted the runtime check decorator function</span>
+<span class="sd">        at the very location where starts to contain positional-only parameters, i.e.</span>
+<span class="sd">        between the converted code as :attr:`self._prefix &lt;Context._prefix&gt;` and</span>
+<span class="sd">        :attr:`self._suffix &lt;Context._suffix&gt;`.</span>
+
+<span class="sd">        The inserted code is rendered from :data:`DECORATOR_TEMPLATE`. If</span>
+<span class="sd">        :attr:`self._pep8 &lt;Context._pep8&gt;` is :data:`True`, it will insert the code</span>
+<span class="sd">        in compliance with :pep:`8`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dismiss</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_expr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suffix</span>
+            <span class="k">return</span>
+
+        <span class="c1"># strip suffix comments</span>
+        <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_comments</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_suffix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(?P&lt;linesep&gt;(</span><span class="si">%s</span><span class="s1">)*)&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span><span class="p">,</span> <span class="n">suffix</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">ASCII</span><span class="p">)</span>
+        <span class="n">suffix_linesep</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;linesep&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="c1"># first, the prefix code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix</span> <span class="o">+</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">suffix_linesep</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pep8</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_before_expr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_before_expr</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;funcdef&#39;</span><span class="p">,</span> <span class="s1">&#39;classdef&#39;</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indent_level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">blank</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">blank</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_newlines</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                                                  <span class="n">expected</span><span class="o">=</span><span class="n">blank</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span><span class="p">)</span>
+
+        <span class="c1"># then, the decorator function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DECORATOR_TEMPLATE</span><span class="p">)</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">decorator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_decorator</span><span class="p">,</span>
+            <span class="n">indentation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_indentation</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span>
+
+        <span class="c1"># finally, the suffix code</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pep8</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_newlines</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                                                  <span class="n">expected</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">linesep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span> <span class="o">+=</span> <span class="n">suffix</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_linesep</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context.has_expr"><a class="viewcode-back" href="../api.html#poseur.Context.has_expr">[docs]</a>    <span class="nd">@final</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">has_expr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">NodeOrLeaf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Check if node has positional-only parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.tree.NodeOrLeaf): parso AST</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: if ``node`` has positional-only parameters</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;funcdef&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_funcdef</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;lambdef&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_lambdef</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">&#39;children&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">has_expr</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">))</span>  <span class="c1"># type: ignore[attr-defined]</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="c1"># backward compatibility and auxiliary alias</span>
+    <span class="n">has_poseur</span> <span class="o">=</span> <span class="n">has_expr</span>
+
+<div class="viewcode-block" id="Context._check_funcdef"><a class="viewcode-back" href="../api.html#poseur.Context._check_funcdef">[docs]</a>    <span class="nd">@final</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_funcdef</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Check if :term:`function` definition contains positional-only parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.Function): function definition</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: if :term:`function` definition contains positional-only parameters</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;parameters&#39;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;operator&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="kc">True</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">cls</span><span class="o">.</span><span class="n">has_expr</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="bp">cls</span><span class="o">.</span><span class="n">has_expr</span><span class="p">(</span><span class="n">child</span><span class="p">):</span>  <span class="c1"># suite / ...</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Context._check_lambdef"><a class="viewcode-back" href="../api.html#poseur.Context._check_lambdef">[docs]</a>    <span class="nd">@final</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_lambdef</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Lambda</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Check if :term:`lambda` definition contains positional-only parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.Lambda): lambda definition</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: if :term:`lambda` definition contains positional-only parameters</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">suite</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;param&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">has_expr</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">default</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="kc">True</span>
+                <span class="n">param</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">child</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;operator&#39;</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;:&#39;</span><span class="p">:</span>
+                <span class="n">param</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">suite</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">param</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;operator&#39;</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">suite</span> <span class="ow">and</span> <span class="bp">cls</span><span class="o">.</span><span class="n">has_expr</span><span class="p">(</span><span class="n">child</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Context.normalizer"><a class="viewcode-back" href="../api.html#poseur.Context.normalizer">[docs]</a>    <span class="nd">@final</span>
+    <span class="k">def</span> <span class="nf">normalizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Variable name normalizer.</span>
+
+<span class="sd">        If :attr:`self._cls_ctx &lt;poseur.Context._cls_ctx&gt;` is :data:`None`,</span>
+<span class="sd">        the methold will simply class :meth:`~bpc_utils.context.BaseContext.normalize`</span>
+<span class="sd">        on the variable name; otherwise, it will call</span>
+<span class="sd">        :meth:`~bpc_utils.context.BaseContext.mangle` on the variable name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): variable name</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: *normalized* variable name</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls_ctx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mangle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cls_ctx</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="StringContext"><a class="viewcode-back" href="../api.html#poseur.StringContext">[docs]</a><span class="k">class</span> <span class="nc">StringContext</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;String (f-string) conversion context.</span>
+
+<span class="sd">    This class is mainly used for converting **formatted strings**.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        node (parso.python.tree.PythonNode): parso AST</span>
+<span class="sd">        config (Config): conversion configurations</span>
+
+<span class="sd">    Keyword Args:</span>
+<span class="sd">        clx_ctx (Optional[str]): class context name</span>
+<span class="sd">        indent_level (int): current indentation level</span>
+<span class="sd">        raw (Literal[True]): raw processing flag</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        * ``raw`` should always be :data:`True`.</span>
+
+<span class="sd">    As the conversion in :class:`Context` changes the original expression,</span>
+<span class="sd">    which may change the content of *debug f-string*.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">PythonNode</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PoseurConfig</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                 <span class="n">clx_ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indent_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># convert using f2format first</span>
+        <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_whitespaces</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">get_code</span><span class="p">())</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">f2format</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">get_code</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">parso_parse</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">source_version</span><span class="p">)</span>
+
+        <span class="c1"># call super init</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">clx_ctx</span><span class="o">=</span><span class="n">clx_ctx</span><span class="p">,</span>
+                         <span class="n">indent_level</span><span class="o">=</span><span class="n">indent_level</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span> <span class="o">+</span> <span class="n">suffix</span></div>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># Public Interface</span>
+
+<span class="n">exec</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DECORATOR_TEMPLATE</span><span class="p">)</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span><span class="n">decorator</span><span class="o">=</span><span class="s1">&#39;decorator&#39;</span><span class="p">,</span> <span class="n">indentation</span><span class="o">=</span><span class="s1">&#39;    &#39;</span><span class="p">))</span>  <span class="c1"># nosec: B102; pylint: disable=exec-used</span>
+
+
+<div class="viewcode-block" id="convert"><a class="viewcode-back" href="../api.html#poseur.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">],</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+            <span class="n">source_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">linesep</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Linesep</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">indentation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pep8</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dismiss</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">decorator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert the given Python source code string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        code (Union[str, bytes]): the source code to be converted</span>
+<span class="sd">        filename (Optional[str]): an optional source file name to provide a context in case of error</span>
+
+<span class="sd">    Keyword Args:</span>
+<span class="sd">        source_version (Optional[str]): parse the code as this Python version (uses the latest version by default)</span>
+<span class="sd">        linesep (Optional[str]): line separator of code (``LF``, ``CRLF``, ``CR``) (auto detect by default)</span>
+<span class="sd">        indentation (Optional[Union[int, str]]): code indentation style, specify an integer for the number of spaces,</span>
+<span class="sd">            or ``&#39;t&#39;``/``&#39;tab&#39;`` for tabs (auto detect by default)</span>
+<span class="sd">        pep8 (Optional[bool]): whether to make code insertion :pep:`8` compliant</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">     - :envvar:`POSEUR_SOURCE_VERSION` -- same as the ``source_version`` argument and the ``--source-version`` option</span>
+<span class="sd">        in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_LINESEP` -- same as the `linesep` `argument` and the ``--linesep`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_INDENTATION` -- same as the ``indentation`` argument and the ``--indentation`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_PEP8` -- same as the ``pep8`` argument and the ``--no-pep8`` option in CLI (logical negation)</span>
+<span class="sd">     - :envvar:`POSEUR_DISMISS` -- same as the ``--dismiss-runtime`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_DECORATOR` -- same as the ``--decorator-name`` option in CLI</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: converted source code</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># parse source string</span>
+    <span class="n">source_version</span> <span class="o">=</span> <span class="n">_get_source_version_option</span><span class="p">(</span><span class="n">source_version</span><span class="p">)</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">parso_parse</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">source_version</span><span class="p">)</span>
+
+    <span class="c1"># get linesep, indentation and pep8 options</span>
+    <span class="n">linesep</span> <span class="o">=</span> <span class="n">_get_linesep_option</span><span class="p">(</span><span class="n">linesep</span><span class="p">)</span>
+    <span class="n">indentation</span> <span class="o">=</span> <span class="n">_get_indentation_option</span><span class="p">(</span><span class="n">indentation</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">linesep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">linesep</span> <span class="o">=</span> <span class="n">detect_linesep</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">indentation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">indentation</span> <span class="o">=</span> <span class="n">detect_indentation</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+    <span class="n">pep8</span> <span class="o">=</span> <span class="n">_get_pep8_option</span><span class="p">(</span><span class="n">pep8</span><span class="p">)</span>
+    <span class="n">dismiss</span> <span class="o">=</span> <span class="n">_get_dismiss_option</span><span class="p">(</span><span class="n">dismiss</span><span class="p">)</span>
+    <span class="n">decorator</span> <span class="o">=</span> <span class="n">_get_decorator_option</span><span class="p">(</span><span class="n">decorator</span><span class="p">)</span>
+
+    <span class="c1"># pack conversion configuration</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">linesep</span><span class="o">=</span><span class="n">linesep</span><span class="p">,</span> <span class="n">indentation</span><span class="o">=</span><span class="n">indentation</span><span class="p">,</span> <span class="n">pep8</span><span class="o">=</span><span class="n">pep8</span><span class="p">,</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">source_version</span><span class="o">=</span><span class="n">source_version</span><span class="p">,</span>
+                    <span class="n">dismiss</span><span class="o">=</span><span class="n">dismiss</span><span class="p">,</span> <span class="n">decorator</span><span class="o">=</span><span class="n">decorator</span><span class="p">)</span>
+
+    <span class="c1"># convert source string</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">string</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+    <span class="c1"># return conversion result</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="poseur"><a class="viewcode-back" href="../api.html#poseur.poseur">[docs]</a><span class="k">def</span> <span class="nf">poseur</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">source_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">linesep</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Linesep</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="n">indentation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pep8</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="n">dismiss</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">decorator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="n">quiet</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert the given Python source code file. The file will be overwritten.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): the file to convert</span>
+
+<span class="sd">    Keyword Args:</span>
+<span class="sd">        source_version (Optional[str]): parse the code as this Python version (uses the latest version by default)</span>
+<span class="sd">        linesep (Optional[str]): line separator of code (``LF``, ``CRLF``, ``CR``) (auto detect by default)</span>
+<span class="sd">        indentation (Optional[Union[int, str]]): code indentation style, specify an integer for the number of spaces,</span>
+<span class="sd">            or ``&#39;t&#39;``/``&#39;tab&#39;`` for tabs (auto detect by default)</span>
+<span class="sd">        pep8 (Optional[bool]): whether to make code insertion :pep:`8` compliant</span>
+<span class="sd">        quiet (Optional[bool]): whether to run in quiet mode</span>
+<span class="sd">        dry_run (bool): if :data:`True`, only print the name of the file to convert but do not perform any conversion</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">     - :envvar:`POSEUR_SOURCE_VERSION` -- same as the ``source-version`` argument and the ``--source-version`` option</span>
+<span class="sd">        in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_LINESEP` -- same as the ``linesep`` argument and the ``--linesep`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_INDENTATION` -- same as the ``indentation`` argument and the ``--indentation`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_PEP8` -- same as the ``pep8`` argument and the ``--no-pep8`` option in CLI (logical negation)</span>
+<span class="sd">     - :envvar:`POSEUR_QUIET` -- same as the ``quiet`` argument and the ``--quiet`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_DISMISS` -- same as the ``--dismiss-runtime`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_DECORATOR` -- same as the ``--decorator-name`` option in CLI</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">quiet</span> <span class="o">=</span> <span class="n">_get_quiet_option</span><span class="p">(</span><span class="n">quiet</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">TaskLock</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Now converting: </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dry_run</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="c1"># read file content</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="c1"># detect source code encoding</span>
+    <span class="n">encoding</span> <span class="o">=</span> <span class="n">detect_encoding</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+    <span class="c1"># get linesep and indentation</span>
+    <span class="n">linesep</span> <span class="o">=</span> <span class="n">_get_linesep_option</span><span class="p">(</span><span class="n">linesep</span><span class="p">)</span>
+    <span class="n">indentation</span> <span class="o">=</span> <span class="n">_get_indentation_option</span><span class="p">(</span><span class="n">indentation</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">linesep</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">indentation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">linesep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">linesep</span> <span class="o">=</span> <span class="n">detect_linesep</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">indentation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">indentation</span> <span class="o">=</span> <span class="n">detect_indentation</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="c1"># do the dirty things</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">source_version</span><span class="o">=</span><span class="n">source_version</span><span class="p">,</span>
+                     <span class="n">linesep</span><span class="o">=</span><span class="n">linesep</span><span class="p">,</span> <span class="n">indentation</span><span class="o">=</span><span class="n">indentation</span><span class="p">,</span> <span class="n">pep8</span><span class="o">=</span><span class="n">pep8</span><span class="p">,</span>
+                     <span class="n">dismiss</span><span class="o">=</span><span class="n">dismiss</span><span class="p">,</span> <span class="n">decorator</span><span class="o">=</span><span class="n">decorator</span><span class="p">)</span>
+
+    <span class="c1"># overwrite the file with conversion result</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># CLI &amp; Entry Point</span>
+
+<span class="c1"># option values display</span>
+<span class="c1"># these values are only intended for argparse help messages</span>
+<span class="c1"># this shows default values by default, environment variables may override them</span>
+<span class="n">__cwd__</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="n">__poseur_quiet__</span> <span class="o">=</span> <span class="s1">&#39;quiet mode&#39;</span> <span class="k">if</span> <span class="n">_get_quiet_option</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;non-quiet mode&#39;</span>
+<span class="n">__poseur_concurrency__</span> <span class="o">=</span> <span class="n">_get_concurrency_option</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;auto detect&#39;</span>
+<span class="n">__poseur_do_archive__</span> <span class="o">=</span> <span class="s1">&#39;will do archive&#39;</span> <span class="k">if</span> <span class="n">_get_do_archive_option</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;will not do archive&#39;</span>
+<span class="n">__poseur_archive_path__</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__cwd__</span><span class="p">,</span> <span class="n">_get_archive_path_option</span><span class="p">())</span>
+<span class="n">__poseur_source_version__</span> <span class="o">=</span> <span class="n">_get_source_version_option</span><span class="p">()</span>
+<span class="n">__poseur_linesep__</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">:</span> <span class="s1">&#39;LF&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">:</span> <span class="s1">&#39;CRLF&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">:</span> <span class="s1">&#39;CR&#39;</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">:</span> <span class="s1">&#39;auto detect&#39;</span>
+<span class="p">}[</span><span class="n">_get_linesep_option</span><span class="p">()]</span>
+<span class="n">__poseur_indentation__</span> <span class="o">=</span> <span class="n">_get_indentation_option</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">__poseur_indentation__</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">__poseur_indentation__</span> <span class="o">=</span> <span class="s1">&#39;auto detect&#39;</span>
+<span class="k">elif</span> <span class="n">__poseur_indentation__</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">:</span>
+    <span class="n">__poseur_indentation__</span> <span class="o">=</span> <span class="s1">&#39;tab&#39;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">__poseur_indentation__</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> spaces&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">__poseur_indentation__</span><span class="p">)</span>
+<span class="n">__poseur_pep8__</span> <span class="o">=</span> <span class="s1">&#39;will conform to PEP 8&#39;</span> <span class="k">if</span> <span class="n">_get_pep8_option</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;will not conform to PEP 8&#39;</span>
+<span class="n">__poseur_dismiss__</span> <span class="o">=</span> <span class="s1">&#39;will dismiss runtime checks&#39;</span> <span class="k">if</span> <span class="n">_get_dismiss_option</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;will not dismiss runtime checks&#39;</span>
+<span class="n">__poseur_decorator__</span> <span class="o">=</span> <span class="n">_get_decorator_option</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;__poseur_decorator&#39;</span>
+
+
+<div class="viewcode-block" id="get_parser"><a class="viewcode-back" href="../api.html#poseur.get_parser">[docs]</a><span class="k">def</span> <span class="nf">get_parser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Generate CLI parser.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        argparse.ArgumentParser: CLI parser for poseur</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s1">&#39;poseur&#39;</span><span class="p">,</span>
+                                     <span class="n">usage</span><span class="o">=</span><span class="s1">&#39;poseur [options] &lt;Python source files and directories...&gt;&#39;</span><span class="p">,</span>
+                                     <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Back-port compiler for Python 3.8 position-only parameters.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-V&#39;</span><span class="p">,</span> <span class="s1">&#39;--version&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">__version__</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-q&#39;</span><span class="p">,</span> <span class="s1">&#39;--quiet&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;run in quiet mode (current: </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">__poseur_quiet__</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-C&#39;</span><span class="p">,</span> <span class="s1">&#39;--concurrency&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;the number of concurrent processes for conversion (current: </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">__poseur_concurrency__</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--dry-run&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;list the files to be converted without actually performing conversion and archiving&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--simple&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;simple_args&#39;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;FILE&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;this option tells the program to operate in &quot;simple mode&quot;; &#39;</span>
+                             <span class="s1">&#39;if a file name is provided, the program will convert the file but print conversion &#39;</span>
+                             <span class="s1">&#39;result to standard output instead of overwriting the file; &#39;</span>
+                             <span class="s1">&#39;if no file names are provided, read code for conversion from standard input and print &#39;</span>
+                             <span class="s1">&#39;conversion result to standard output; &#39;</span>
+                             <span class="s1">&#39;in &quot;simple mode&quot;, no file names shall be provided via positional arguments&#39;</span><span class="p">)</span>
+
+    <span class="n">archive_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;archive options&#39;</span><span class="p">,</span>
+                                              <span class="n">description</span><span class="o">=</span><span class="s2">&quot;backup original files in case there&#39;re any issues&quot;</span><span class="p">)</span>
+    <span class="n">archive_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-na&#39;</span><span class="p">,</span> <span class="s1">&#39;--no-archive&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_false&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;do_archive&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">help</span><span class="o">=</span><span class="s1">&#39;do not archive original files (current: </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">__poseur_do_archive__</span><span class="p">)</span>
+    <span class="n">archive_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-k&#39;</span><span class="p">,</span> <span class="s1">&#39;--archive-path&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">__poseur_archive_path__</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;PATH&#39;</span><span class="p">,</span>
+                               <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to archive original files (current: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">)</span>
+    <span class="n">archive_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="s1">&#39;--recover&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;recover_file&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;ARCHIVE_FILE&#39;</span><span class="p">,</span>
+                               <span class="n">help</span><span class="o">=</span><span class="s1">&#39;recover files from a given archive file&#39;</span><span class="p">)</span>
+    <span class="n">archive_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-r2&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;remove the archive file after recovery&#39;</span><span class="p">)</span>
+    <span class="n">archive_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-r3&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;remove the archive file after recovery, &#39;</span>
+                                                                <span class="s1">&#39;and remove the archive directory if it becomes empty&#39;</span><span class="p">)</span>
+
+    <span class="c1"># TODO: revise ``--dismiss-runtime`` &amp; ``--decorator-name`` options</span>
+    <span class="n">convert_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;convert options&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;conversion configuration&#39;</span><span class="p">)</span>
+    <span class="n">convert_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-vs&#39;</span><span class="p">,</span> <span class="s1">&#39;-vf&#39;</span><span class="p">,</span> <span class="s1">&#39;--source-version&#39;</span><span class="p">,</span> <span class="s1">&#39;--from-version&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;VERSION&#39;</span><span class="p">,</span>
+                               <span class="n">default</span><span class="o">=</span><span class="n">__poseur_source_version__</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">POSEUR_SOURCE_VERSIONS</span><span class="p">,</span>
+                               <span class="n">help</span><span class="o">=</span><span class="s1">&#39;parse source code as this Python version (current: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">)</span>
+    <span class="n">convert_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-l&#39;</span><span class="p">,</span> <span class="s1">&#39;--linesep&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                               <span class="n">help</span><span class="o">=</span><span class="s1">&#39;line separator (LF, CRLF, CR) to read &#39;</span>
+                                    <span class="s1">&#39;source files (current: </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">__poseur_linesep__</span><span class="p">)</span>
+    <span class="n">convert_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="s1">&#39;--indentation&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;INDENT&#39;</span><span class="p">,</span>
+                               <span class="n">help</span><span class="o">=</span><span class="s1">&#39;code indentation style, specify an integer for the number of spaces, &#39;</span>
+                                    <span class="s2">&quot;or &#39;t&#39;/&#39;tab&#39; for tabs (current: </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">__poseur_indentation__</span><span class="p">)</span>
+    <span class="n">convert_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-n8&#39;</span><span class="p">,</span> <span class="s1">&#39;--no-pep8&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_false&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;pep8&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">help</span><span class="o">=</span><span class="s1">&#39;do not make code insertion PEP 8 compliant (current: </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">__poseur_pep8__</span><span class="p">)</span>
+    <span class="n">convert_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-nr&#39;</span><span class="p">,</span> <span class="s1">&#39;--dismiss-runtime&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;dismiss&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">help</span><span class="o">=</span><span class="s1">&#39;dismiss runtime checks for positional-only parameters (current: </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">__poseur_dismiss__</span><span class="p">)</span>  <span class="c1"># pylint: disable=line-too-long</span>
+    <span class="n">convert_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--decorator-name&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;decorator&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;NAME&#39;</span><span class="p">,</span>
+                               <span class="n">default</span><span class="o">=</span><span class="n">__poseur_decorator__</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;name of decorator for runtime checks (current: </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">__poseur_decorator__</span><span class="p">)</span>  <span class="c1"># pylint: disable=line-too-long</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;files&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&lt;Python source files and directories...&gt;&#39;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Python source files and directories to be converted&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<span class="k">def</span> <span class="nf">do_poseur</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper function to catch exceptions.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">poseur</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+        <span class="k">with</span> <span class="n">TaskLock</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Failed to convert file: </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../api.html#poseur.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Entry point for poseur.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        argv (Optional[List[str]]): CLI arguments</span>
+
+<span class="sd">    :Environment Variables:</span>
+<span class="sd">     - :envvar:`POSEUR_QUIET` -- same as the ``--quiet`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_CONCURRENCY` -- same as the ``--concurrency`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_DO_ARCHIVE` -- same as the ``--no-archive`` option in CLI (logical negation)</span>
+<span class="sd">     - :envvar:`POSEUR_ARCHIVE_PATH` -- same as the ``--archive-path`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_SOURCE_VERSION` -- same as the ``--source-version`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_LINESEP` -- same as the ``--linesep`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_INDENTATION` -- same as the ``--indentation`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_PEP8` -- same as the ``--no-pep8`` option in CLI (logical negation)</span>
+<span class="sd">     - :envvar:`POSEUR_DISMISS` -- same as the ``--dismiss-runtime`` option in CLI</span>
+<span class="sd">     - :envvar:`POSEUR_DECORATOR` -- same as the ``--decorator-name`` option in CLI</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;source_version&#39;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">source_version</span><span class="p">,</span>
+        <span class="s1">&#39;linesep&#39;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">linesep</span><span class="p">,</span>
+        <span class="s1">&#39;indentation&#39;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">indentation</span><span class="p">,</span>
+        <span class="s1">&#39;pep8&#39;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">pep8</span><span class="p">,</span>
+        <span class="s1">&#39;dismiss&#39;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">dismiss</span><span class="p">,</span>
+        <span class="s1">&#39;decorator&#39;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">decorator</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># check if running in simple mode</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">simple_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;no Python source files or directories shall be given as positional arguments in simple mode&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">simple_args</span><span class="p">:</span>  <span class="c1"># read from stdin</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># read from file</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">simple_args</span>
+            <span class="n">options</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">code</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">convert</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">))</span>  <span class="c1"># print conversion result to stdout</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="c1"># get options</span>
+    <span class="n">quiet</span> <span class="o">=</span> <span class="n">_get_quiet_option</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">)</span>
+    <span class="n">processes</span> <span class="o">=</span> <span class="n">_get_concurrency_option</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">concurrency</span><span class="p">)</span>
+    <span class="n">do_archive</span> <span class="o">=</span> <span class="n">_get_do_archive_option</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">do_archive</span><span class="p">)</span>
+    <span class="n">archive_path</span> <span class="o">=</span> <span class="n">_get_archive_path_option</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">archive_path</span><span class="p">)</span>
+
+    <span class="c1"># check if doing recovery</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">recover_file</span><span class="p">:</span>
+        <span class="n">recover_files</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recover_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Recovered files from archive: </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">recover_file</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="c1"># TODO: maybe implement deletion in bpc-utils?</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">r2</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">r3</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recover_file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">r3</span><span class="p">:</span>
+                <span class="n">archive_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">recover_file</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">archive_dir</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">rmdir</span><span class="p">(</span><span class="n">archive_dir</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="c1"># fetch file list</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;no Python source files or directories are given&#39;</span><span class="p">)</span>
+    <span class="n">filelist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">detect_files</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">files</span><span class="p">))</span>
+
+    <span class="c1"># terminate if no valid Python source files detected</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filelist</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
+            <span class="c1"># TODO: maybe use parser.error?</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: no valid Python source files found in </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">files</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="c1"># make archive</span>
+    <span class="k">if</span> <span class="n">do_archive</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
+        <span class="n">archive_files</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">archive_path</span><span class="p">)</span>
+
+    <span class="c1"># process files</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="s1">&#39;quiet&#39;</span><span class="p">:</span> <span class="n">quiet</span><span class="p">,</span>
+        <span class="s1">&#39;dry_run&#39;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">dry_run</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="n">map_tasks</span><span class="p">(</span><span class="n">do_poseur</span><span class="p">,</span> <span class="n">filelist</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">processes</span><span class="o">=</span><span class="n">processes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">poseur</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=pybpc&repo=poseur&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Python Backport Compiler Project.
+      
+    </div>
+
+    
+    <a href="https://github.com/pybpc/poseur" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

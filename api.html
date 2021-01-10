@@ -1,0 +1,1579 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Reference &#8212; poseur 0.4.3 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Algorithms" href="algorithms.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-poseur">
+<span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-poseur" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="public-interface">
+<h2>Public Interface<a class="headerlink" href="#public-interface" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="poseur.convert">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">convert</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">code</span></em>, <em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">source_version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">linesep</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">indentation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pep8</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dismiss</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">decorator</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the given Python source code string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>code</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em>]</em>) – the source code to be converted</p></li>
+<li><p><strong>filename</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – an optional source file name to provide a context in case of error</p></li>
+<li><p><strong>source_version</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>linesep</strong> (<em>Optional</em><em>[</em><em>Literal</em><em>[
+</em><em>, 
+</em><em>, </em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>indentation</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>pep8</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – </p></li>
+<li><p><strong>dismiss</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – </p></li>
+<li><p><strong>decorator</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>source_version</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – parse the code as this Python version (uses the latest version by default)</p></li>
+<li><p><strong>linesep</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – line separator of code (<code class="docutils literal notranslate"><span class="pre">LF</span></code>, <code class="docutils literal notranslate"><span class="pre">CRLF</span></code>, <code class="docutils literal notranslate"><span class="pre">CR</span></code>) (auto detect by default)</p></li>
+<li><p><strong>indentation</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – code indentation style, specify an integer for the number of spaces,
+or <code class="docutils literal notranslate"><span class="pre">'t'</span></code>/<code class="docutils literal notranslate"><span class="pre">'tab'</span></code> for tabs (auto detect by default)</p></li>
+<li><p><strong>pep8</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – whether to make code insertion <span class="target" id="index-0"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a> compliant</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Environment Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><dl class="simple">
+<dt><span class="target" id="index-1"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_SOURCE_VERSION</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">source_version</span></code> argument and the <code class="docutils literal notranslate"><span class="pre">--source-version</span></code> option</dt><dd><p>in CLI</p>
+</dd>
+</dl>
+</li>
+<li><p><span class="target" id="index-2"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_LINESEP</span></code> – same as the <cite>linesep</cite> <cite>argument</cite> and the <code class="docutils literal notranslate"><span class="pre">--linesep</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-3"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_INDENTATION</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">indentation</span></code> argument and the <code class="docutils literal notranslate"><span class="pre">--indentation</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-4"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_PEP8</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">pep8</span></code> argument and the <code class="docutils literal notranslate"><span class="pre">--no-pep8</span></code> option in CLI (logical negation)</p></li>
+<li><p><span class="target" id="index-5"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_DISMISS</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--dismiss-runtime</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-6"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_DECORATOR</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--decorator-name</span></code> option in CLI</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>converted source code</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="poseur.poseur">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">poseur</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">source_version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">linesep</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">indentation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pep8</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dismiss</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">decorator</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">quiet</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dry_run</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#poseur"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.poseur" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the given Python source code file. The file will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – the file to convert</p></li>
+<li><p><strong>source_version</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>linesep</strong> (<em>Optional</em><em>[</em><em>Literal</em><em>[
+</em><em>, 
+</em><em>, </em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>indentation</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>pep8</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – </p></li>
+<li><p><strong>dismiss</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – </p></li>
+<li><p><strong>decorator</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>quiet</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – </p></li>
+<li><p><strong>dry_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>source_version</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – parse the code as this Python version (uses the latest version by default)</p></li>
+<li><p><strong>linesep</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – line separator of code (<code class="docutils literal notranslate"><span class="pre">LF</span></code>, <code class="docutils literal notranslate"><span class="pre">CRLF</span></code>, <code class="docutils literal notranslate"><span class="pre">CR</span></code>) (auto detect by default)</p></li>
+<li><p><strong>indentation</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – code indentation style, specify an integer for the number of spaces,
+or <code class="docutils literal notranslate"><span class="pre">'t'</span></code>/<code class="docutils literal notranslate"><span class="pre">'tab'</span></code> for tabs (auto detect by default)</p></li>
+<li><p><strong>pep8</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – whether to make code insertion <span class="target" id="index-7"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a> compliant</p></li>
+<li><p><strong>quiet</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – whether to run in quiet mode</p></li>
+<li><p><strong>dry_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – if <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code></a>, only print the name of the file to convert but do not perform any conversion</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Environment Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><dl class="simple">
+<dt><span class="target" id="index-8"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_SOURCE_VERSION</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">source-version</span></code> argument and the <code class="docutils literal notranslate"><span class="pre">--source-version</span></code> option</dt><dd><p>in CLI</p>
+</dd>
+</dl>
+</li>
+<li><p><span class="target" id="index-9"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_LINESEP</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">linesep</span></code> argument and the <code class="docutils literal notranslate"><span class="pre">--linesep</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-10"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_INDENTATION</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">indentation</span></code> argument and the <code class="docutils literal notranslate"><span class="pre">--indentation</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-11"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_PEP8</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">pep8</span></code> argument and the <code class="docutils literal notranslate"><span class="pre">--no-pep8</span></code> option in CLI (logical negation)</p></li>
+<li><p><span class="target" id="index-12"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_QUIET</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">quiet</span></code> argument and the <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-13"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_DISMISS</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--dismiss-runtime</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-14"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_DECORATOR</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--decorator-name</span></code> option in CLI</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="poseur.main">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">argv</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Entry point for poseur.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>argv</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – CLI arguments</p>
+</dd>
+<dt class="field-even">Environment Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span class="target" id="index-15"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_QUIET</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-16"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_CONCURRENCY</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--concurrency</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-17"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_DO_ARCHIVE</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--no-archive</span></code> option in CLI (logical negation)</p></li>
+<li><p><span class="target" id="index-18"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_ARCHIVE_PATH</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--archive-path</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-19"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_SOURCE_VERSION</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--source-version</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-20"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_LINESEP</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--linesep</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-21"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_INDENTATION</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--indentation</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-22"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_PEP8</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--no-pep8</span></code> option in CLI (logical negation)</p></li>
+<li><p><span class="target" id="index-23"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_DISMISS</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--dismiss-runtime</span></code> option in CLI</p></li>
+<li><p><span class="target" id="index-24"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_DECORATOR</span></code> – same as the <code class="docutils literal notranslate"><span class="pre">--decorator-name</span></code> option in CLI</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="runtime-decorator">
+<h2>Runtime Decorator<a class="headerlink" href="#runtime-decorator" title="Permalink to this headline">¶</a></h2>
+<p>As you may wish to provide runtime positional-only parameter checks for
+your own code, <code class="docutils literal notranslate"><span class="pre">poseur</span></code> exposed the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> function for
+developers to use by themselves.</p>
+<dl class="py function">
+<dt id="poseur.decorator">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">decorator</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">poseur</span></em><span class="sig-paren">)</span><a class="headerlink" href="#poseur.decorator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positional-only parameters runtime checker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>*poseur</strong> – Name list of positional-only parameters.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><strong>TypeError</strong></a> – If any position-only parameters were passed as
+    keyword parameters.</p>
+</dd>
+</dl>
+<p>The decorator function may decorate regular <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> and/or
+<a class="reference external" href="https://docs.python.org/3/glossary.html#term-lambda" title="(in Python v3.9)"><span class="xref std std-term">lambda</span></a> function to provide runtime checks on the original
+positional-only parameters.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="conversion-implementation">
+<h2>Conversion Implementation<a class="headerlink" href="#conversion-implementation" title="Permalink to this headline">¶</a></h2>
+<p>The main logic of the <code class="docutils literal notranslate"><span class="pre">poseur</span></code> conversion is to extract all <em>positional-only
+parameters</em> and add a <strong>:term:`decorator`</strong> for the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> and/or <a class="reference external" href="https://docs.python.org/3/glossary.html#term-lambda" title="(in Python v3.9)"><span class="xref std std-term">lambda</span></a>
+definition to provide runtime checks with the extracted parameters.</p>
+<p>For conversion algorithms and details, please refer to <a class="reference internal" href="algorithms.html"><span class="doc">Algorithms</span></a>.</p>
+<div class="section" id="data-structures">
+<h3>Data Structures<a class="headerlink" href="#data-structures" title="Permalink to this headline">¶</a></h3>
+<p>During conversion, we utilised <a class="reference external" href="https://bpc-utils.readthedocs.io/en/latest/index.html#bpc_utils.Config" title="(in bpc-utils)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bpc_utils.Config</span></code></a> to store and deliver the
+configurations over the conversion <a class="reference internal" href="#poseur.Context" title="poseur.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> instances, which should
+be as following:</p>
+<dl class="py class">
+<dt id="poseur.Config">
+<em class="property">class </em><code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">Config</code><a class="reference internal" href="_modules/bpc_utils/misc.html#Config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configuration object shared over the conversion process of a single source file.</p>
+<dl class="py attribute">
+<dt id="poseur.Config.indentation">
+<code class="sig-name descname">indentation</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.Config.indentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indentation sequence.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Config.linesep">
+<code class="sig-name descname">linesep</code><em class="property">: Literal['\n', '\r\n', '\r']</em><a class="headerlink" href="#poseur.Config.linesep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Line separator.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Config.pep8">
+<code class="sig-name descname">pep8</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></em><a class="headerlink" href="#poseur.Config.pep8" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="target" id="index-25"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a> compliant conversion flag.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Config.filename">
+<code class="sig-name descname">filename</code><em class="property">: Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">]</span></em><a class="headerlink" href="#poseur.Config.filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>An optional source file name to provide a context in case of error.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Config.source_version">
+<code class="sig-name descname">source_version</code><em class="property">: Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">]</span></em><a class="headerlink" href="#poseur.Config.source_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the code as this Python version (uses the latest version by default).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Config.decorator">
+<code class="sig-name descname">decorator</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.Config.decorator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> function for runtime checks on original
+<em>positional-only parameters</em>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Config.dismiss">
+<code class="sig-name descname">dismiss</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></em><a class="headerlink" href="#poseur.Config.dismiss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag if integrate runtime checks, i.e. the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> function,
+on original <em>positional-only parameters</em>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="conversion-templates">
+<h3>Conversion Templates<a class="headerlink" href="#conversion-templates" title="Permalink to this headline">¶</a></h3>
+<p>For general conversion scenarios, the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> function will be
+rendered based on the following templates.</p>
+<dl class="py data">
+<dt id="poseur.DECORATOR_TEMPLATE">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">DECORATOR_TEMPLATE</code><em class="property">: List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">]</span></em><a class="headerlink" href="#poseur.DECORATOR_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;def </span><span class="si">%(decorator)s</span><span class="s1">(*poseur):&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">&quot;&quot;&quot;Positional-only parameters runtime checker.&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">    Args:&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">        *poseur: Name list of positional-only parameters.&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">    Raises:&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">        TypeError: If any position-only parameters were passed as&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">            keyword parameters.&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">    The decorator function may decorate regular :term:`function` and/or&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">    :term:`lambda` function to provide runtime checks on the original&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">    positional-only parameters.&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">&quot;&quot;&quot;&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">import functools&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">def caller(func):&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s%(indentation)s</span><span class="s1">@functools.wraps(func)&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s%(indentation)s</span><span class="s1">def wrapper(*args, **kwargs):&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s%(indentation)s%(indentation)s</span><span class="s1">poseur_args = set(poseur).intersection(kwargs)&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s%(indentation)s%(indentation)s</span><span class="s1">if poseur_args:&#39;</span><span class="p">,</span>
+ <span class="s2">&quot;</span><span class="si">%(indentation)s%(indentation)s%(indentation)s%(indentation)s</span><span class="s2">raise TypeError(&#39;</span><span class="si">%%</span><span class="s2">s() got some positional-only arguments passed as keyword arguments: </span><span class="si">%%</span><span class="s2">r&#39; </span><span class="si">%%</span><span class="s2"> (func.__name__, &#39;, &#39;.join(poseur_args)))&quot;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s%(indentation)s%(indentation)s</span><span class="s1">return func(*args, **kwargs)&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s%(indentation)s</span><span class="s1">return wrapper&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">return caller&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Decorator function to provide runtime checks on the original
+<em>positional-only parameters</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>decorator</strong> – <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> function name as defined in
+<a class="reference internal" href="#poseur.Config.decorator" title="poseur.Config.decorator"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Config.decorator</span></code></a></p></li>
+<li><p><strong>indentation</strong> – indentation sequence as defined in
+<a class="reference internal" href="#poseur.Config.indentation" title="poseur.Config.indentation"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Config.indentation</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Actually, the <a class="reference internal" href="#poseur.decorator" title="poseur.decorator"><code class="xref py py-func docutils literal notranslate"><span class="pre">poseur.decorator()</span></code></a> function is rendered and
+evaluated at runtime using this template.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="conversion-contexts">
+<h3>Conversion Contexts<a class="headerlink" href="#conversion-contexts" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
+<dt id="poseur.Context">
+<em class="property">class </em><code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">Context</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">clx_ctx</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">indent_level</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">raw</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">bpc_utils.context.BaseContext</span></code></p>
+<p>General conversion context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><em>parso.tree.NodeOrLeaf</em></a>) – parso AST</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="#poseur.Config" title="poseur.Config"><em>Config</em></a>) – conversion configurations</p></li>
+<li><p><strong>clx_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>indent_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>raw</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>clx_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – class context name</p></li>
+<li><p><strong>indent_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – current indentation level</p></li>
+<li><p><strong>raw</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – raw processing flag</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><code class="docutils literal notranslate"><span class="pre">raw</span></code> should be <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code></a> only if the <code class="docutils literal notranslate"><span class="pre">node</span></code> is in the clause of another <em>context</em>,
+where the converted wrapper functions should be inserted.</p>
+</div>
+<p>For the <a class="reference internal" href="#poseur.Context" title="poseur.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> class of <a class="reference internal" href="#module-poseur" title="poseur"><code class="xref py py-mod docutils literal notranslate"><span class="pre">poseur</span></code></a> module,
+it will process nodes with following methods:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-suite" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">suite</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_suite_node" title="poseur.Context._process_suite_node"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_suite_node()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-funcdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">funcdef</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_funcdef" title="poseur.Context._process_funcdef"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_funcdef()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><code class="xref std std-token docutils literal notranslate"><span class="pre">lambdef</span></code></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_lambdef" title="poseur.Context._process_lambdef"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_lambdef()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-async-funcdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">async_funcdef</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_async_funcdef" title="poseur.Context._process_async_funcdef"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_async_funcdef()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><code class="xref std std-token docutils literal notranslate"><span class="pre">async_stmt</span></code></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_async_stmt" title="poseur.Context._process_async_stmt"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_async_stmt()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-classdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">classdef</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_classdef" title="poseur.Context._process_classdef"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_classdef()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-if-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">if_stmt</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_if_stmt" title="poseur.Context._process_if_stmt"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_if_stmt()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-while-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">while_stmt</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_while_stmt" title="poseur.Context._process_while_stmt"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_while_stmt()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-for-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">for_stmt</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_for_stmt" title="poseur.Context._process_for_stmt"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_for_stmt()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-with-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">with_stmt</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_with_stmt" title="poseur.Context._process_with_stmt"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_with_stmt()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-try-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">try_stmt</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_try_stmt" title="poseur.Context._process_try_stmt"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_try_stmt()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-stringliteral" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">stringliteral</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_strings" title="poseur.Context._process_strings"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_strings()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#poseur.Context._process_string_context" title="poseur.Context._process_string_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_string_context()</span></code></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-f-string" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">f_string</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#poseur.Context._process_fstring" title="poseur.Context._process_fstring"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Context._process_fstring()</span></code></a></p></li>
+</ul>
+</li>
+</ul>
+<p>Initialize BaseContext.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeOrLeaf</span></code></a>) – parso AST</p></li>
+<li><p><strong>config</strong> (<a class="reference external" href="https://bpc-utils.readthedocs.io/en/latest/index.html#bpc_utils.Config" title="(in bpc-utils)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>) – conversion configurations</p></li>
+<li><p><strong>indent_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – current indentation level</p></li>
+<li><p><strong>raw</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – raw processing flag</p></li>
+<li><p><strong>clx_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="poseur.Context._check_funcdef">
+<em class="property">classmethod </em><code class="sig-name descname">_check_funcdef</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._check_funcdef"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._check_funcdef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> definition contains positional-only parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Function" title="(in parso v0.7)"><em>parso.python.tree.Function</em></a>) – function definition</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>if <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> definition contains positional-only parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._check_lambdef">
+<em class="property">classmethod </em><code class="sig-name descname">_check_lambdef</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._check_lambdef"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._check_lambdef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if <a class="reference external" href="https://docs.python.org/3/glossary.html#term-lambda" title="(in Python v3.9)"><span class="xref std std-term">lambda</span></a> definition contains positional-only parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Lambda" title="(in parso v0.7)"><em>parso.python.tree.Lambda</em></a>) – lambda definition</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>if <a class="reference external" href="https://docs.python.org/3/glossary.html#term-lambda" title="(in Python v3.9)"><span class="xref std std-term">lambda</span></a> definition contains positional-only parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._concat">
+<code class="sig-name descname">_concat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._concat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._concat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate final string.</p>
+<p>This method tries to inserted the runtime check decorator function
+at the very location where starts to contain positional-only parameters, i.e.
+between the converted code as <code class="xref py py-attr docutils literal notranslate"><span class="pre">self._prefix</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">self._suffix</span></code>.</p>
+<p>The inserted code is rendered from <a class="reference internal" href="#poseur.DECORATOR_TEMPLATE" title="poseur.DECORATOR_TEMPLATE"><code class="xref py py-data docutils literal notranslate"><span class="pre">DECORATOR_TEMPLATE</span></code></a>. If
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">self._pep8</span></code> is <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code></a>, it will insert the code
+in compliance with <span class="target" id="index-26"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_async_funcdef">
+<code class="sig-name descname">_process_async_funcdef</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_async_funcdef"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_async_funcdef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process <code class="docutils literal notranslate"><span class="pre">async</span></code> function definition (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-async-funcdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">async_funcdef</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – <code class="docutils literal notranslate"><span class="pre">async</span></code> function node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>This method processes an <code class="docutils literal notranslate"><span class="pre">async</span></code> function node. It will extract
+the <code class="docutils literal notranslate"><span class="pre">async</span></code> keyword node (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Keyword" title="(in parso v0.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">parso.python.tree.Keyword</span></code></a>)
+and the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> node (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Function" title="(in parso v0.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">parso.python.tree.Function</span></code></a>)
+then pass on the processing to
+<a class="reference internal" href="#poseur.Context._process_funcdef" title="poseur.Context._process_funcdef"><code class="xref py py-meth docutils literal notranslate"><span class="pre">self._process_funcdef</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_async_stmt">
+<code class="sig-name descname">_process_async_stmt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_async_stmt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_async_stmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process <code class="docutils literal notranslate"><span class="pre">async</span></code> statement (<code class="xref std std-token docutils literal notranslate"><span class="pre">async_stmt</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – <code class="docutils literal notranslate"><span class="pre">async</span></code> statement node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>This method processes an <code class="docutils literal notranslate"><span class="pre">async</span></code> statement node. If such statement is an
+<em>async</em> <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a>, then it will pass on the processing to
+<a class="reference internal" href="#poseur.Context._process_funcdef" title="poseur.Context._process_funcdef"><code class="xref py py-meth docutils literal notranslate"><span class="pre">self._process_funcdef</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_classdef">
+<code class="sig-name descname">_process_classdef</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_classdef"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_classdef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process class definition (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-classdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">classdef</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Class" title="(in parso v0.7)"><em>parso.python.tree.Class</em></a>) – class node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>This method converts the whole class suite context with
+<a class="reference internal" href="#poseur.Context._process_suite_node" title="poseur.Context._process_suite_node"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_process_suite_node()</span></code></a> through <a class="reference internal" href="#poseur.Context" title="poseur.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a>
+respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Class" title="(in parso v0.7)"><em>parso.python.tree.Class</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_for_stmt">
+<code class="sig-name descname">_process_for_stmt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_for_stmt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_for_stmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process for statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-for-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">for_stmt</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.ForStmt" title="(in parso v0.7)"><em>parso.python.tree.ForStmt</em></a>) – for node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>This method processes the indented suite under the <em>for</em> and optional
+<em>else</em> statements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.ForStmt" title="(in parso v0.7)"><em>parso.python.tree.ForStmt</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_fstring">
+<code class="sig-name descname">_process_fstring</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_fstring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_fstring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process formatted strings (<a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-f-string" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">f_string</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – formatted strings node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_funcdef">
+<code class="sig-name descname">_process_funcdef</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">async_ctx</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_funcdef"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_funcdef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process function definition (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-funcdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">funcdef</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Function" title="(in parso v0.7)"><em>parso.python.tree.Function</em></a>) – function node</p></li>
+<li><p><strong>async_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Keyword" title="(in parso v0.7)"><em>parso.python.tree.Keyword</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><p><strong>async_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Keyword" title="(in parso v0.7)"><em>parso.python.tree.Keyword</em></a><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">async</span></code> keyword AST node</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_if_stmt">
+<code class="sig-name descname">_process_if_stmt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_if_stmt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_if_stmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process if statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-if-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">if_stmt</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.IfStmt" title="(in parso v0.7)"><em>parso.python.tree.IfStmt</em></a>) – if node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>This method processes each indented suite under the <em>if</em>, <em>elif</em>,
+and <em>else</em> statements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.IfStmt" title="(in parso v0.7)"><em>parso.python.tree.IfStmt</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_lambdef">
+<code class="sig-name descname">_process_lambdef</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_lambdef"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_lambdef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process lambda definition (<code class="xref std std-token docutils literal notranslate"><span class="pre">lambdef</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Lambda" title="(in parso v0.7)"><em>parso.python.tree.Lambda</em></a>) – lambda node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_string_context">
+<code class="sig-name descname">_process_string_context</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_string_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_string_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process string contexts (<a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-stringliteral" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">stringliteral</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – string literals node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>This method first checks if <code class="docutils literal notranslate"><span class="pre">node</span></code> contains position-only parameters.
+If not, it will not perform any processing, rather just append the
+original source code to context buffer. Later it will check if
+<code class="docutils literal notranslate"><span class="pre">node</span></code> contains <em>debug f-string</em>. If not, it will process the
+<em>regular</em> processing on each child of such <code class="docutils literal notranslate"><span class="pre">node</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>The method calls <a class="reference external" href="https://bpc-f2format.readthedocs.io/en/latest/api.html#f2format.Context.has_debug_fstring" title="(in f2format)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">f2format.Context.has_debug_fstring()</span></code></a>
+to detect <em>debug f-strings</em>.</p>
+</div>
+<p>Otherwise, it will initiate a new <a class="reference internal" href="#poseur.StringContext" title="poseur.StringContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringContext</span></code></a> instance
+to perform the conversion process on such <code class="docutils literal notranslate"><span class="pre">node</span></code>, which will first
+use <a class="reference external" href="https://bpc-f2format.readthedocs.io/en/latest/api.html#module-f2format" title="(in f2format)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">f2format</span></code></a> to convert those formatted string literals.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When initialisation, <code class="docutils literal notranslate"><span class="pre">raw</span></code> parameter <strong>must</strong> be set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code></a>;
+as the converted wrapper functions should be inserted in the <em>outer</em>
+context, rather than the new <a class="reference internal" href="#poseur.StringContext" title="poseur.StringContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringContext</span></code></a> instance.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_strings">
+<code class="sig-name descname">_process_strings</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_strings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_strings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process concatenable strings (<a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-stringliteral" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">stringliteral</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – concatentable strings node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>As in Python, adjacent string literals can be concatenated in certain
+cases, as described in the <a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#string-literal-concatenation">documentation</a>. Such concatenable strings
+may contain formatted string literals (<a class="reference external" href="https://docs.python.org/3/glossary.html#term-f-string" title="(in Python v3.9)"><span class="xref std std-term">f-string</span></a>) within its scope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_suite_node">
+<code class="sig-name descname">_process_suite_node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">cls_ctx</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_suite_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_suite_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process indented suite (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-suite" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">suite</span></code></a> or others).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><em>parso.tree.NodeOrLeaf</em></a>) – suite node</p></li>
+<li><p><strong>cls_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><p><strong>cls_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – class context name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>This method first checks if <code class="docutils literal notranslate"><span class="pre">node</span></code> contains positional-only parameters.
+If not, it will not perform any processing, rather just append the
+original source code to context buffer.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">node</span></code> contains positional-only parameters, then it will initiate
+another Context` instance to perform the conversion process on such
+<code class="docutils literal notranslate"><span class="pre">node</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><em>parso.tree.NodeOrLeaf</em></a>) – </p></li>
+<li><p><strong>cls_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_try_stmt">
+<code class="sig-name descname">_process_try_stmt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_try_stmt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_try_stmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process try statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-try-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">try_stmt</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.TryStmt" title="(in parso v0.7)"><em>parso.python.tree.TryStmt</em></a>) – try node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>This method processes the indented suite under the <em>try</em>, <em>except</em>,
+<em>else</em>, and <em>finally</em> statements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.TryStmt" title="(in parso v0.7)"><em>parso.python.tree.TryStmt</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_while_stmt">
+<code class="sig-name descname">_process_while_stmt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_while_stmt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_while_stmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process while statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-while-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">while_stmt</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WhileStmt" title="(in parso v0.7)"><em>parso.python.tree.WhileStmt</em></a>) – while node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>This method processes the indented suite under the <em>while</em> and optional
+<em>else</em> statements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WhileStmt" title="(in parso v0.7)"><em>parso.python.tree.WhileStmt</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context._process_with_stmt">
+<code class="sig-name descname">_process_with_stmt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_with_stmt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context._process_with_stmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process with statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-with-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">with_stmt</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WithStmt" title="(in parso v0.7)"><em>parso.python.tree.WithStmt</em></a>) – with node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p>This method processes the indented suite under the <em>with</em> statement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WithStmt" title="(in parso v0.7)"><em>parso.python.tree.WithStmt</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context.has_expr">
+<em class="property">classmethod </em><code class="sig-name descname">has_expr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context.has_expr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context.has_expr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if node has positional-only parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><em>parso.tree.NodeOrLeaf</em></a>) – parso AST</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>if <code class="docutils literal notranslate"><span class="pre">node</span></code> has positional-only parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context.has_poseur">
+<em class="property">classmethod </em><code class="sig-name descname">has_poseur</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#poseur.Context.has_poseur" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if node has positional-only parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><em>parso.tree.NodeOrLeaf</em></a>) – parso AST</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>if <code class="docutils literal notranslate"><span class="pre">node</span></code> has positional-only parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context.normalizer">
+<code class="sig-name descname">normalizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context.normalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.Context.normalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variable name normalizer.</p>
+<p>If <a class="reference internal" href="#poseur.Context._cls_ctx" title="poseur.Context._cls_ctx"><code class="xref py py-attr docutils literal notranslate"><span class="pre">self._cls_ctx</span></code></a> is <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a>,
+the methold will simply class <code class="xref py py-meth docutils literal notranslate"><span class="pre">normalize()</span></code>
+on the variable name; otherwise, it will call
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">mangle()</span></code> on the variable name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – variable name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>normalized</em> variable name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Context._abc_impl">
+<code class="sig-name descname">_abc_impl</code><em class="property"> = &lt;_abc_data object&gt;</em><a class="headerlink" href="#poseur.Context._abc_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Context._cls_ctx">
+<code class="sig-name descname">_cls_ctx</code><em class="property">: Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">]</span></em><a class="headerlink" href="#poseur.Context._cls_ctx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class context name. This is rather useful as
+we might need to <em>mangle</em> and/or <em>normalize</em> variable names
+in certain scenario.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Context._decorator">
+<code class="sig-name descname">_decorator</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.Context._decorator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Context._dismiss">
+<code class="sig-name descname">_dismiss</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></em><a class="headerlink" href="#poseur.Context._dismiss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dismiss runtime checks for positional-only parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="poseur.Context.decorator">
+<em class="property">property </em><code class="sig-name descname">decorator</code><a class="headerlink" href="#poseur.Context.decorator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the <code class="docutils literal notranslate"><span class="pre">poseur</span></code> decorator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.Context.pattern_funcdef">
+<code class="sig-name descname">pattern_funcdef</code><em class="property"> = re.compile('^\\s*(async\\s+)?def\\s', re.ASCII)</em><a class="headerlink" href="#poseur.Context.pattern_funcdef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pattern to find the function definition line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>re.Pattern</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="poseur.StringContext">
+<em class="property">class </em><code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">StringContext</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">clx_ctx</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">indent_level</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">raw</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#StringContext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.StringContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#poseur.Context" title="poseur.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">poseur.Context</span></code></a></p>
+<p>String (f-string) conversion context.</p>
+<p>This class is mainly used for converting <strong>formatted strings</strong>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – parso AST</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="#poseur.Config" title="poseur.Config"><em>Config</em></a>) – conversion configurations</p></li>
+<li><p><strong>clx_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>indent_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>raw</strong> (<em>Literal</em><em>[</em><em>True</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>clx_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – class context name</p></li>
+<li><p><strong>indent_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – current indentation level</p></li>
+<li><p><strong>raw</strong> (<em>Literal</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.9)"><em>True</em></a><em>]</em>) – raw processing flag</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">raw</span></code> should always be <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">True</span></code></a>.</p></li>
+</ul>
+</div>
+<p>As the conversion in <a class="reference internal" href="#poseur.Context" title="poseur.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> changes the original expression,
+which may change the content of <em>debug f-string</em>.</p>
+<p>Initialize BaseContext.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PythonNode</span></code></a>) – parso AST</p></li>
+<li><p><strong>config</strong> (<a class="reference external" href="https://bpc-utils.readthedocs.io/en/latest/index.html#bpc_utils.Config" title="(in bpc-utils)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>) – conversion configurations</p></li>
+<li><p><strong>indent_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – current indentation level</p></li>
+<li><p><strong>raw</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[True]) – raw processing flag</p></li>
+<li><p><strong>clx_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="poseur.StringContext._abc_impl">
+<code class="sig-name descname">_abc_impl</code><em class="property"> = &lt;_abc_data object&gt;</em><a class="headerlink" href="#poseur.StringContext._abc_impl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._buffer">
+<code class="sig-name descname">_buffer</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.StringContext._buffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Final converted result.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._cls_ctx">
+<code class="sig-name descname">_cls_ctx</code><em class="property">: Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">]</span></em><a class="headerlink" href="#poseur.StringContext._cls_ctx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class context name. This is rather useful as
+we might need to <em>mangle</em> and/or <em>normalize</em> variable names
+in certain scenario.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._decorator">
+<code class="sig-name descname">_decorator</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.StringContext._decorator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._dismiss">
+<code class="sig-name descname">_dismiss</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></em><a class="headerlink" href="#poseur.StringContext._dismiss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dismiss runtime checks for positional-only parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._indent_level">
+<code class="sig-name descname">_indent_level</code><em class="property">: Final<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></em><a class="headerlink" href="#poseur.StringContext._indent_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Current indentation level.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._indentation">
+<code class="sig-name descname">_indentation</code><em class="property">: Final<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">]</span></em><a class="headerlink" href="#poseur.StringContext._indentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indentation sequence.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._linesep">
+<code class="sig-name descname">_linesep</code><em class="property">: Final<span class="p">[</span>Linesep<span class="p">]</span></em><a class="headerlink" href="#poseur.StringContext._linesep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Line seperator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Final[<code class="xref py py-data docutils literal notranslate"><span class="pre">Linesep</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._node_before_expr">
+<code class="sig-name descname">_node_before_expr</code><em class="property">: Optional<span class="p">[</span><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)">parso.tree.NodeOrLeaf</a><span class="p">]</span></em><a class="headerlink" href="#poseur.StringContext._node_before_expr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preceding node with the target expression, i.e. the <em>insertion point</em>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._pep8">
+<code class="sig-name descname">_pep8</code><em class="property">: Final<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a><span class="p">]</span></em><a class="headerlink" href="#poseur.StringContext._pep8" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="target" id="index-27"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a> compliant conversion flag.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._prefix">
+<code class="sig-name descname">_prefix</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.StringContext._prefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Code before insertion point.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._prefix_or_suffix">
+<code class="sig-name descname">_prefix_or_suffix</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></em><a class="headerlink" href="#poseur.StringContext._prefix_or_suffix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag to indicate whether buffer is now <a class="reference external" href="https://bpc-utils.readthedocs.io/en/latest/index.html#bpc_utils.BaseContext._prefix" title="(in bpc-utils)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">self._prefix</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._root">
+<code class="sig-name descname">_root</code><em class="property">: Final<span class="p">[</span><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)">parso.tree.NodeOrLeaf</a><span class="p">]</span></em><a class="headerlink" href="#poseur.StringContext._root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root node given by the <code class="docutils literal notranslate"><span class="pre">node</span></code> parameter.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._suffix">
+<code class="sig-name descname">_suffix</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.StringContext._suffix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Code after insertion point.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext._uuid_gen">
+<code class="sig-name descname">_uuid_gen</code><em class="property">: Final<span class="p">[</span>UUID4Generator<span class="p">]</span></em><a class="headerlink" href="#poseur.StringContext._uuid_gen" title="Permalink to this definition">¶</a></dt>
+<dd><p>UUID generator.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="poseur.StringContext.config">
+<code class="sig-name descname">config</code><em class="property">: Final<span class="p">[</span><a class="reference internal" href="#poseur.Config" title="poseur.Config">Config</a><span class="p">]</span></em><a class="headerlink" href="#poseur.StringContext.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal configurations.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="internal-auxiliaries">
+<h2>Internal Auxiliaries<a class="headerlink" href="#internal-auxiliaries" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="options-defaults">
+<h3>Options &amp; Defaults<a class="headerlink" href="#options-defaults" title="Permalink to this headline">¶</a></h3>
+<dl class="py data">
+<dt id="poseur.POSEUR_SOURCE_VERSIONS">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">POSEUR_SOURCE_VERSIONS</code><em class="property"> = ['3.8', '3.9', '3.10']</em><a class="headerlink" href="#poseur.POSEUR_SOURCE_VERSIONS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get supported source versions.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://bpc-utils.readthedocs.io/en/latest/index.html#bpc_utils.get_parso_grammar_versions" title="(in bpc-utils)"><code class="xref py py-func docutils literal notranslate"><span class="pre">bpc_utils.get_parso_grammar_versions()</span></code></a></p>
+</div>
+</dd></dl>
+
+<p>Below are option getter utility functions. Option value precedence is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">explicit</span> <span class="n">value</span> <span class="p">(</span><span class="n">CLI</span><span class="o">/</span><span class="n">API</span> <span class="n">arguments</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">environment</span> <span class="n">variable</span> <span class="o">&gt;</span> <span class="n">default</span> <span class="n">value</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt id="poseur._get_quiet_option">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_get_quiet_option</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">explicit</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_quiet_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur._get_quiet_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">quiet</span></code> option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>explicit</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – the value explicitly specified by user,
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> if not specified</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value for the <code class="docutils literal notranslate"><span class="pre">quiet</span></code> option</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+<dt class="field-even">Environment Variables</dt>
+<dd class="field-even"><p><span class="target" id="index-28"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_QUIET</span></code> – the value in environment variable</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._default_quiet" title="poseur._default_quiet"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_quiet</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="poseur._get_concurrency_option">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_get_concurrency_option</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">explicit</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_concurrency_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur._get_concurrency_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">concurrency</span></code> option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>explicit</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>]</em>) – the value explicitly specified by user,
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> if not specified</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value for the <code class="docutils literal notranslate"><span class="pre">concurrency</span></code> option;
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> means <em>auto detection</em> at runtime</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a>]</p>
+</dd>
+<dt class="field-even">Environment Variables</dt>
+<dd class="field-even"><p><span class="target" id="index-29"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_CONCURRENCY</span></code> – the value in environment variable</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._default_concurrency" title="poseur._default_concurrency"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_concurrency</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="poseur._get_do_archive_option">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_get_do_archive_option</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">explicit</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_do_archive_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur._get_do_archive_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">do_archive</span></code> option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>explicit</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – the value explicitly specified by user,
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> if not specified</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value for the <code class="docutils literal notranslate"><span class="pre">do_archive</span></code> option</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+<dt class="field-even">Environment Variables</dt>
+<dd class="field-even"><p><span class="target" id="index-30"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_DO_ARCHIVE</span></code> – the value in environment variable</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._default_do_archive" title="poseur._default_do_archive"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_do_archive</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="poseur._get_archive_path_option">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_get_archive_path_option</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">explicit</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_archive_path_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur._get_archive_path_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">archive_path</span></code> option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>explicit</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – the value explicitly specified by user,
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> if not specified</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value for the <code class="docutils literal notranslate"><span class="pre">archive_path</span></code> option</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+<dt class="field-even">Environment Variables</dt>
+<dd class="field-even"><p><span class="target" id="index-31"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_ARCHIVE_PATH</span></code> – the value in environment variable</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._default_archive_path" title="poseur._default_archive_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_archive_path</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="poseur._get_source_version_option">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_get_source_version_option</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">explicit</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_source_version_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur._get_source_version_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">source_version</span></code> option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>explicit</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – the value explicitly specified by user,
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> if not specified</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value for the <code class="docutils literal notranslate"><span class="pre">source_version</span></code> option</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+<dt class="field-even">Environment Variables</dt>
+<dd class="field-even"><p><span class="target" id="index-32"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_SOURCE_VERSION</span></code> – the value in environment variable</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._default_source_version" title="poseur._default_source_version"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_source_version</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="poseur._get_linesep_option">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_get_linesep_option</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">explicit</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_linesep_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur._get_linesep_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">linesep</span></code> option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>explicit</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – the value explicitly specified by user,
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> if not specified</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value for the <code class="docutils literal notranslate"><span class="pre">linesep</span></code> option;
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> means <em>auto detection</em> at runtime</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[Literal[‘\n’, ‘\r\n’, ‘\r’]]</p>
+</dd>
+<dt class="field-even">Environment Variables</dt>
+<dd class="field-even"><p><span class="target" id="index-33"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_LINESEP</span></code> – the value in environment variable</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._default_linesep" title="poseur._default_linesep"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_linesep</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="poseur._get_indentation_option">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_get_indentation_option</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">explicit</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_indentation_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur._get_indentation_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">indentation</span></code> option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>explicit</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>]</em><em>]</em>) – the value explicitly specified by user,
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> if not specified</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value for the <code class="docutils literal notranslate"><span class="pre">indentation</span></code> option;
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> means <em>auto detection</em> at runtime</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+<dt class="field-even">Environment Variables</dt>
+<dd class="field-even"><p><span class="target" id="index-34"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_INDENTATION</span></code> – the value in environment variable</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._default_indentation" title="poseur._default_indentation"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_indentation</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="poseur._get_pep8_option">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_get_pep8_option</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">explicit</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_pep8_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur._get_pep8_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">pep8</span></code> option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>explicit</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – the value explicitly specified by user,
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> if not specified</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value for the <code class="docutils literal notranslate"><span class="pre">pep8</span></code> option</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+<dt class="field-even">Environment Variables</dt>
+<dd class="field-even"><p><span class="target" id="index-35"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">POSEUR_PEP8</span></code> – the value in environment variable</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._default_pep8" title="poseur._default_pep8"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_pep8</span></code></a></p>
+</div>
+</dd></dl>
+
+<p>The following variables are used for fallback default values of options.</p>
+<dl class="py data">
+<dt id="poseur._default_quiet">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_default_quiet</code><em class="property"> = False</em><a class="headerlink" href="#poseur._default_quiet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">quiet</span></code> option.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur._default_concurrency">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_default_concurrency</code><em class="property"> = None</em><a class="headerlink" href="#poseur._default_concurrency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">concurrency</span></code> option.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur._default_do_archive">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_default_do_archive</code><em class="property"> = True</em><a class="headerlink" href="#poseur._default_do_archive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">do_archive</span></code> option.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur._default_archive_path">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_default_archive_path</code><em class="property"> = 'archive'</em><a class="headerlink" href="#poseur._default_archive_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">archive_path</span></code> option.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur._default_source_version">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_default_source_version</code><em class="property"> = '3.10'</em><a class="headerlink" href="#poseur._default_source_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">source_version</span></code> option.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur._default_linesep">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_default_linesep</code><em class="property"> = None</em><a class="headerlink" href="#poseur._default_linesep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">linesep</span></code> option.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur._default_indentation">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_default_indentation</code><em class="property"> = None</em><a class="headerlink" href="#poseur._default_indentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">indentation</span></code> option.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur._default_pep8">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">_default_pep8</code><em class="property"> = True</em><a class="headerlink" href="#poseur._default_pep8" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">pep8</span></code> option.</p>
+</dd></dl>
+
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>For <a class="reference internal" href="#poseur._default_concurrency" title="poseur._default_concurrency"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_concurrency</span></code></a>, <a class="reference internal" href="#poseur._default_linesep" title="poseur._default_linesep"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_linesep</span></code></a> and <a class="reference internal" href="#poseur._default_indentation" title="poseur._default_indentation"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_indentation</span></code></a>,
+<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> means <em>auto detection</em> during runtime.</p>
+</div>
+</div>
+<div class="section" id="cli-utilities">
+<h3>CLI Utilities<a class="headerlink" href="#cli-utilities" title="Permalink to this headline">¶</a></h3>
+<dl class="py function">
+<dt id="poseur.get_parser">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">get_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#get_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#poseur.get_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate CLI parser.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>CLI parser for poseur</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.9)">argparse.ArgumentParser</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>The following variables are used for help messages in the argument parser.</p>
+<dl class="py data">
+<dt id="poseur.poseur.__cwd__">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">__cwd__</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.poseur.__cwd__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Current working directory returned by <a class="reference external" href="https://docs.python.org/3/library/os.html#os.getcwd" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.getcwd()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur.poseur.__poseur_quiet__">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">__poseur_quiet__</code><em class="property">: Literal['quiet mode', 'non-quiet mode']</em><a class="headerlink" href="#poseur.poseur.__poseur_quiet__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> option.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._get_quiet_option" title="poseur._get_quiet_option"><code class="xref py py-func docutils literal notranslate"><span class="pre">poseur._get_quiet_option()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur.poseur.__poseur_concurrency__">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">__poseur_concurrency__</code><em class="property">: Union[int, Literal['auto detect']]</em><a class="headerlink" href="#poseur.poseur.__poseur_concurrency__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--concurrency</span></code> option.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._get_concurrency_option" title="poseur._get_concurrency_option"><code class="xref py py-func docutils literal notranslate"><span class="pre">poseur._get_concurrency_option()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur.poseur.__poseur_do_archive__">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">__poseur_do_archive__</code><em class="property">: Literal['will do archive', 'will not do archive']</em><a class="headerlink" href="#poseur.poseur.__poseur_do_archive__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--no-archive</span></code> option.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._get_do_archive_option" title="poseur._get_do_archive_option"><code class="xref py py-func docutils literal notranslate"><span class="pre">poseur._get_do_archive_option()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur.poseur.__poseur_archive_path__">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">__poseur_archive_path__</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.poseur.__poseur_archive_path__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--archive-path</span></code> option.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._get_archive_path_option" title="poseur._get_archive_path_option"><code class="xref py py-func docutils literal notranslate"><span class="pre">poseur._get_archive_path_option()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur.poseur.__poseur_source_version__">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">__poseur_source_version__</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.poseur.__poseur_source_version__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--source-version</span></code> option.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._get_source_version_option" title="poseur._get_source_version_option"><code class="xref py py-func docutils literal notranslate"><span class="pre">poseur._get_source_version_option()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur.poseur.__poseur_linesep__">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">__poseur_linesep__</code><em class="property">: Literal['LF', 'CRLF', 'CR', 'auto detect']</em><a class="headerlink" href="#poseur.poseur.__poseur_linesep__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--linesep</span></code> option.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._get_linesep_option" title="poseur._get_linesep_option"><code class="xref py py-func docutils literal notranslate"><span class="pre">poseur._get_linesep_option()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur.poseur.__poseur_indentation__">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">__poseur_indentation__</code><em class="property">: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></em><a class="headerlink" href="#poseur.poseur.__poseur_indentation__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--indentation</span></code> option.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._get_indentation_option" title="poseur._get_indentation_option"><code class="xref py py-func docutils literal notranslate"><span class="pre">poseur._get_indentation_option()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py data">
+<dt id="poseur.poseur.__poseur_pep8__">
+<code class="sig-prename descclassname">poseur.</code><code class="sig-name descname">__poseur_pep8__</code><em class="property">: Literal['will conform to PEP 8', 'will not conform to PEP 8']</em><a class="headerlink" href="#poseur.poseur.__poseur_pep8__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--no-pep8</span></code> option.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#poseur._get_pep8_option" title="poseur._get_pep8_option"><code class="xref py py-func docutils literal notranslate"><span class="pre">poseur._get_pep8_option()</span></code></a></p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">poseur</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=pybpc&repo=poseur&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#public-interface">Public Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#runtime-decorator">Runtime Decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conversion-implementation">Conversion Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-structures">Data Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conversion-templates">Conversion Templates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conversion-contexts">Conversion Contexts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#internal-auxiliaries">Internal Auxiliaries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#options-defaults">Options &amp; Defaults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli-utilities">CLI Utilities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="algorithms.html" title="previous chapter">Algorithms</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Python Backport Compiler Project.
+      
+      |
+      <a href="_sources/api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/pybpc/poseur" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
