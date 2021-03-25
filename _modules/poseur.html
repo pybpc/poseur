@@ -124,7 +124,7 @@
 <span class="sd">        :data:`_default_quiet`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># We need lazy evaluation, so first_non_none(a, b, c) does not work here</span>
+    <span class="c1"># We need short circuit evaluation, so first_non_none(a, b, c) does not work here</span>
     <span class="c1"># with PEP 505 we can simply write a ?? b ?? c</span>
     <span class="k">def</span> <span class="nf">_option_layers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">yield</span> <span class="n">explicit</span>
@@ -1179,6 +1179,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        str: converted source code</span>
 
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if ``decorator`` is not a valid identifier name or starts with double underscore</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># parse source string</span>
     <span class="n">source_version</span> <span class="o">=</span> <span class="n">_get_source_version_option</span><span class="p">(</span><span class="n">source_version</span><span class="p">)</span>
@@ -1195,14 +1198,13 @@
     <span class="n">dismiss</span> <span class="o">=</span> <span class="n">_get_dismiss_option</span><span class="p">(</span><span class="n">dismiss</span><span class="p">)</span>
     <span class="n">decorator</span> <span class="o">=</span> <span class="n">_get_decorator_option</span><span class="p">(</span><span class="n">decorator</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">decorator</span><span class="p">:</span>
-        <span class="c1"># validate decorator name</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">decorator</span><span class="o">.</span><span class="n">isidentifier</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid name of decorator for runtime checks </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">decorator</span><span class="p">)</span>
+    <span class="c1"># validate that decorator name is valid identifier</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">decorator</span><span class="o">.</span><span class="n">isidentifier</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;name of decorator for runtime checks is not a valid identifier name: </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">decorator</span><span class="p">)</span>
 
-        <span class="c1"># TODO: maybe display a warning message?</span>
-        <span class="c1"># mangle decorator name (only one prefixing underscore at most)</span>
-        <span class="n">decorator</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^__+&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">decorator</span><span class="p">)</span>
+    <span class="c1"># prevent using class-private names and dunder names</span>
+    <span class="k">if</span> <span class="n">decorator</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;name of decorator for runtime checks should not start with double underscore&#39;</span><span class="p">)</span>
 
     <span class="c1"># pack conversion configuration</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">linesep</span><span class="o">=</span><span class="n">linesep</span><span class="p">,</span> <span class="n">indentation</span><span class="o">=</span><span class="n">indentation</span><span class="p">,</span> <span class="n">pep8</span><span class="o">=</span><span class="n">pep8</span><span class="p">,</span>
