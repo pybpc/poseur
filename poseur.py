@@ -68,7 +68,7 @@ _default_pep8 = True
 #: Default value for the ``dismiss-runtime`` option.
 _default_dismiss = False
 #: Default value for the ``decorator-name`` option.
-_default_decorator = '__poseur_decorator'
+_default_decorator = '_poseur_decorator'
 
 # option getter utility functions
 # option value precedence is: explicit value (CLI/API arguments) > environment variable > default value
@@ -1162,6 +1162,15 @@ def convert(code: Union[str, bytes], filename: Optional[str] = None, *,
     dismiss = _get_dismiss_option(dismiss)
     decorator = _get_decorator_option(decorator)
 
+    if decorator:
+        # validate decorator name
+        if not decorator.isidentifier():
+            raise ValueError('invalid name of decorator for runtime checks %r' % decorator)
+
+        # TODO: maybe display a warning message?
+        # mangle decorator name (only one prefixing underscore at most)
+        decorator = re.sub(r'^__+', r'_', decorator)
+
     # pack conversion configuration
     config = Config(linesep=linesep, indentation=indentation, pep8=pep8,
                     filename=filename, source_version=source_version,
@@ -1264,7 +1273,7 @@ else:
     __poseur_indentation__ = '%d spaces' % len(__poseur_indentation__)
 __poseur_pep8__ = 'will conform to PEP 8' if _get_pep8_option() else 'will not conform to PEP 8'
 __poseur_dismiss__ = 'will dismiss runtime checks' if _get_dismiss_option() else 'will not dismiss runtime checks'
-__poseur_decorator__ = _get_decorator_option() or '__poseur_decorator'
+__poseur_decorator__ = _get_decorator_option() or '_poseur_decorator'
 
 
 def get_parser() -> argparse.ArgumentParser:
