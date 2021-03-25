@@ -17,13 +17,9 @@ verify_ssl = true
 poseur = {editable = true,path = "."}
 autopep8 = "*"
 bandit = "*"
-codecov = "*"
-coverage = "*"
-homebrew-pypi-poet = "*"
 ipython = "*"
 mypy = "*"
 pylint = "*"
-requests = "*"
 rstcheck = "*"
 sphinx = "*"
 sphinxemoji = "*"
@@ -33,7 +29,8 @@ sphinx-autodoc-typehints = "*"
 tbtrim = "*"
 parso = ">=0.6.0"
 bpc-f2format= {git = "https://github.com/pybpc/f2format.git"}
-bpc-utils = {git = "https://github.com/pybpc/bpc-utils.git"}
+bpc-utils = "*"
 
 [requires]
 python_version = "3.8"
+
