@@ -35,7 +35,7 @@ setup(
         'parso>=0.6.0',         # universal AST support
         'tbtrim>=0.2.1',        # traceback trim support
         'f2format',             # f-string compat
-        'bpc-utils>=0.9.0',     # utility library
+        'bpc-utils>=0.9.1',     # utility library
         'typing;python_version<"3.5"',
         'typing_extensions',
     ],

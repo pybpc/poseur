@@ -91,7 +91,7 @@ def _get_quiet_option(explicit: Optional[bool] = None) -> Optional[bool]:
         :data:`_default_quiet`
 
     """
-    # We need lazy evaluation, so first_non_none(a, b, c) does not work here
+    # We need short circuit evaluation, so first_non_none(a, b, c) does not work here
     # with PEP 505 we can simply write a ?? b ?? c
     def _option_layers() -> Generator[Optional[bool], None, None]:
         yield explicit
@@ -1146,6 +1146,9 @@ def convert(code: Union[str, bytes], filename: Optional[str] = None, *,
     Returns:
         str: converted source code
 
+    Raises:
+        ValueError: if ``decorator`` is not a valid identifier name or starts with double underscore
+
     """
     # parse source string
     source_version = _get_source_version_option(source_version)
@@ -1162,14 +1165,13 @@ def convert(code: Union[str, bytes], filename: Optional[str] = None, *,
     dismiss = _get_dismiss_option(dismiss)
     decorator = _get_decorator_option(decorator)
 
-    if decorator:
-        # validate decorator name
-        if not decorator.isidentifier():
-            raise ValueError('invalid name of decorator for runtime checks %r' % decorator)
+    # validate that decorator name is valid identifier
+    if not decorator.isidentifier():
+        raise ValueError('name of decorator for runtime checks is not a valid identifier name: %r' % decorator)
 
-        # TODO: maybe display a warning message?
-        # mangle decorator name (only one prefixing underscore at most)
-        decorator = re.sub(r'^__+', r'_', decorator)
+    # prevent using class-private names and dunder names
+    if decorator.startswith('__'):
+        raise ValueError('name of decorator for runtime checks should not start with double underscore')
 
     # pack conversion configuration
     config = Config(linesep=linesep, indentation=indentation, pep8=pep8,
