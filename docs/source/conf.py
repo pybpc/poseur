@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.abspath(
 # -- Project information -----------------------------------------------------
 
 project = 'poseur'
-copyright = '2020-2021, Python Backport Compiler Project'
+copyright = '2019-2021, Python Backport Compiler Project'
 author = 'Python Backport Compiler Project'
 
 # The full version, including alpha/beta/rc tags

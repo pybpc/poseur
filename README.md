@@ -4,6 +4,7 @@
 
 # poseur
 
+[![PyPI - Downloads](https://pepy.tech/badge/python-poseur)](https://pepy.tech/count/python-poseur)
 [![PyPI - Version](https://img.shields.io/pypi/v/bpc-poseur.svg)](https://pypi.org/project/bpc-poseur)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bpc-poseur.svg)](https://pypi.org/project/bpc-poseur)
 
