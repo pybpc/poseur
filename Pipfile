@@ -32,5 +32,4 @@ bpc-f2format= {git = "https://github.com/pybpc/f2format.git"}
 bpc-utils = "*"
 
 [requires]
-python_version = "3.8"
-
+python_version = "3.9"
