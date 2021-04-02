@@ -371,6 +371,7 @@ class Context(BaseContext):
     * :token:`lambdef`
 
       - :meth:`Context._process_lambdef`
+      - :meth:`Context._process_lambdef_nocond`
 
     * :token:`async_funcdef`
 
@@ -677,6 +678,15 @@ class Context(BaseContext):
                      lambdef=lambdef.strip(),
                      decorator=self._decorator, posonly=posonly_args,
                  )
+
+    def _process_lambdef_nocond(self, node: parso.python.tree.Lambda) -> None:
+        """Process lambda definition (:token:`lambdef`).
+
+        Args:
+            node (parso.python.tree.Lambda): lambda node
+
+        """
+        self._process_lambdef(node)
 
     def _process_string_context(self, node: parso.python.tree.PythonNode) -> None:
         """Process string contexts (:token:`stringliteral`).
