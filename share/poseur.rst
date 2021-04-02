@@ -7,7 +7,7 @@ back-port compiler for Python 3.8 positional-only parameter syntax
 ------------------------------------------------------------------
 
 :Version: v0.4.3
-:Date: April 03, 2021
+:Date: April 02, 2021
 :Manual section: 1
 :Author:
     Contributors of the Python Backport Compiler project.
