@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH POSEUR 1 "December 11, 2019" "v0.4.3" ""
+.TH POSEUR 1 "April 03, 2021" "v0.4.3" ""
 .SH NAME
 poseur \- back-port compiler for Python 3.8 positional-only parameter syntax
 .
@@ -32,7 +32,7 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 ..
 .SH SYNOPSIS
 .sp
-poseur [\fIoptions\fP] <\fIpython source files and folders\fP> ...
+poseur [\fIoptions\fP] <\fIPython source files and directories\fP> ...
 .SH DESCRIPTION
 .sp
 Since PEP 570, Python introduced \fIpositional\-only parameters\fP syntax in
@@ -42,12 +42,16 @@ a \fBbackport compiler\fP by removing \fIpositional\-only parameters\fP syntax
 whilst introduce a \fIdecorator\fP for runtime checks, which guarantees you to
 always write \fIpositional\-only parameters\fP in Python 3.8 flavour then compile
 for compatibility later.
+.sp
+This man page mainly introduces the CLI options of the \fBposeur\fP program.
+You can also checkout the online documentation at
+\fI\%https://bpc\-poseur.readthedocs.io/\fP for more details.
 .SH OPTIONS
 .SS positional arguments
 .INDENT 0.0
 .TP
 .B SOURCE
-python source files and folders to be converted
+Python source files and directories to be converted
 .UNINDENT
 .SS optional arguments
 .INDENT 0.0
@@ -61,48 +65,64 @@ show program\(aqs version number and exit
 .B \-q\fP,\fB  \-\-quiet
 run in quiet mode
 .UNINDENT
-.SS archive options
-.sp
-duplicate original files in case there\(aqs any issue
 .INDENT 0.0
 .TP
-.BI \-n\fB a\fP,\fB \ \-\-no\-archive
+.B \-C \fIN\fP, \-\-concurrency \fIN\fP
+the number of concurrent processes for conversion
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dry\-run
+list the files to be converted without actually performing conversion and archiving
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-s \fI[FILE]\fP, \-\-simple \fI[FILE]\fP
+this option tells the program to operate in "simple mode"; if a file name is provided, the program will convert
+the file but print conversion result to standard output instead of overwriting the file; if no file names are
+provided, read code for conversion from standard input and print conversion result to standard output; in
+"simple mode", no file names shall be provided via positional arguments
+.UNINDENT
+.SS archive options
+.sp
+backup original files in case there\(aqre any issues
+.INDENT 0.0
+.TP
+.BI \-n\fB a\fR,\fB \ \-\-no\-archive
 do not archive original files
 .UNINDENT
 .INDENT 0.0
 .TP
-.B \-p \fIPATH\fP, \-\-archive\-path \fIPATH\fP
+.B \-k \fIPATH\fP, \-\-archive\-path \fIPATH\fP
 path to archive original files
+.TP
+.B \-r \fIARCHIVE_FILE\fP, \-\-recover \fIARCHIVE_FILE\fP
+recover files from a given archive file
 .UNINDENT
+.sp
+\-r2                     remove the archive file after recovery
+\-r3                     remove the archive file after recovery, and remove the archive directory if it becomes empty
 .SS convert options
 .sp
-compatibility configuration for non\-unicode files
+conversion configuration
 .INDENT 0.0
 .TP
-.B \-c \fICODING\fP, \-\-encoding \fICODING\fP
-encoding to open source files
+.B \-vs \fIVERSION\fP, \-\-vf \fIVERSION\fP, \-\-source\-version \fIVERSION\fP, \-\-from\-version \fIVERSION\fP
+parse source code as this Python version
 .TP
-.B \-v \fIVERSION\fP, \-\-python \fIVERSION\fP
-convert against Python version
+.B \-l \fILINESEP\fP, \-\-linesep \fILINESEP\fP
+line separator (\fBLF\fP, \fBCRLF\fP, \fBCR\fP) to read source files
 .TP
-.B \-s \fISEP\fP, \-\-linesep \fISEP\fP
-line separator to process source files
+.B \-t \fIINDENT\fP, \-\-indentation \fIINDENT\fP
+code indentation style, specify an integer for the number of spaces, or \fB\(aqt\(aq\fP/\fB\(aqtab\(aq\fP for tabs
 .UNINDENT
+.sp
+\-n8, \-\-no\-pep8          do not make code insertion \fBPEP 8\fP compliant
+\-nr, \-\-dismiss\-runtime  dismiss runtime checks for positional\-only parameters
 .INDENT 0.0
 .TP
-.B \-d\fP,\fB  \-\-dismiss
-dismiss runtime checks for positional\-only parameters
-.TP
-.BI \-n\fB l\fP,\fB \ \-\-no\-linting
-do not lint converted codes
-.UNINDENT
-.INDENT 0.0
-.TP
-.B \-r \fIVAR\fP, \-\-decorator \fIVAR\fP
-name of decorator for runtime checks (${DECORATOR})
-.TP
-.B \-t \fIINDENT\fP, \-\-tabsize \fIINDENT\fP
-indentation tab size
+.B \-d \fINAME\fP, \-\-decorator\-name \fINAME\fP
+name of decorator for runtime checks
 .UNINDENT
 .SH ENVIRONMENT
 .sp
@@ -112,33 +132,39 @@ indentation tab size
 .B POSEUR_QUIET
 run in quiet mode
 .TP
-.B POSEUR_ENCODING
-encoding to open source files
+.B POSEUR_CONCURRENCY
+the number of concurrent processes for conversion
 .TP
-.B POSEUR_VERSION
-convert against Python version
+.B POSEUR_DO_ARCHIVE
+whether to perform archiving
+.TP
+.B POSEUR_ARCHIVE_PATH
+path to archive original files
+.TP
+.B POSEUR_SOURCE_VERSION
+parse source code as this Python version
 .TP
 .B POSEUR_LINESEP
-line separator to process source files
+line separator to read source files
+.TP
+.B POSEUR_INDENTATION
+code indentation style
+.TP
+.B POSEUR_PEP8
+whether to make code insertion \fBPEP 8\fP compliant
 .TP
 .B POSEUR_DISMISS
 dismiss runtime checks for positional\-only arguments
 .TP
-.B POSEUR_LINTING
-lint converted codes
-.TP
 .B POSEUR_DECORATOR
 name of decorator for runtime checks
-.TP
-.B POSEUR_TABSIZE
-indentation tab size
 .UNINDENT
 .SH SEE ALSO
 .sp
 pybpc(1), f2format(1), walrus(1), vermin(1)
 .SH AUTHOR
-Jarry Shaw, a newbie programmer, is the author, owner and maintainer
-of poseur. Please contact me at jarryshaw@icloud.com.
+Contributors of the Python Backport Compiler project.
+See https://github.com/pybpc
 .SH COPYRIGHT
 poseur is licensed under the MIT License.
 .\" Generated by docutils manpage writer.
