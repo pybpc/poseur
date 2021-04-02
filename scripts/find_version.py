@@ -3,7 +3,7 @@ import os
 import re
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-version_file = os.path.join(PROJECT_ROOT, 'template.py')
+version_file = os.path.join(PROJECT_ROOT, 'poseur.py')
 
 with open(version_file, 'r', encoding='utf-8') as f:
     code = f.read()
