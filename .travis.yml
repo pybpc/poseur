@@ -14,7 +14,7 @@ git:
 
 # command to install dependencies
 install:
-  - pip install -r requirements-ci.txt
+  - pip install -e .[test]
 
 # command to run tests
 script:

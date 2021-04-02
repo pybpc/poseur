@@ -1,13 +1,9 @@
 [run]
 branch = True
-source = poseur
+source = .
+omit = setup.py
+
 [report]
 exclude_lines =
-    if self.debug:
     pragma: no cover
-    raise NotImplementedError
-    if __name__ == .__main__.:
-ignore_errors = True
-omit =
-    tests/*
-    scripts/*
+    if TYPE_CHECKING:

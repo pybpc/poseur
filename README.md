@@ -4,14 +4,12 @@
 
 # poseur
 
-[![PyPI - Downloads](https://pepy.tech/badge/python-poseur)](https://pepy.tech/count/python-poseur)
-[![PyPI - Version](https://img.shields.io/pypi/v/python-poseur.svg)](https://pypi.org/project/python-poseur)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/python-poseur.svg)](https://pypi.org/project/python-poseur)
+[![PyPI - Version](https://img.shields.io/pypi/v/bpc-poseur.svg)](https://pypi.org/project/bpc-poseur)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bpc-poseur.svg)](https://pypi.org/project/bpc-poseur)
 
-[![Travis CI - Status](https://img.shields.io/travis/pybpc/poseur.svg)](https://travis-ci.com/pybpc/poseur)
-[![Codecov - Coverage](https://codecov.io/gh/pybpc/poseur/branch/master/graph/badge.svg)](https://codecov.io/gh/pybpc/poseur)
+[![GitHub Actions - Status](https://github.com/pybpc/bpc-poseur/workflows/Build/badge.svg)](https://github.com/pybpc/bpc-poseur/actions?query=workflow%3ABuild)
+[![Codecov - Coverage](https://codecov.io/gh/pybpc/bpc-poseur/branch/master/graph/badge.svg)](https://codecov.io/gh/pybpc/bpc-poseur)
 [![Documentation Status](https://readthedocs.org/projects/bpc-poseur/badge/?version=latest)](https://bpc-poseur.readthedocs.io/en/latest/)
-<!-- [![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE) -->
 
 > Write *positional-only parameters* in Python 3.8 flavour, and let `poseur` worry about back-port issues :beer:
 
@@ -35,4 +33,5 @@ Note that code must remain valid and reasonable.
 - [`pybpc`](https://github.com/pybpc/bpc) (formerly known as `python-babel`)
 - [`f2format`](https://github.com/pybpc/f2format)
 - [`walrus`](https://github.com/pybpc/walrus)
+- [`relaxedecor`](https://github.com/pybpc/relaxedecor)
 - [`vermin`](https://github.com/netromdk/vermin)
