@@ -404,6 +404,7 @@
 <span class="sd">    * :token:`lambdef`</span>
 
 <span class="sd">      - :meth:`Context._process_lambdef`</span>
+<span class="sd">      - :meth:`Context._process_lambdef_nocond`</span>
 
 <span class="sd">    * :token:`async_funcdef`</span>
 
@@ -710,6 +711,15 @@
                      <span class="n">lambdef</span><span class="o">=</span><span class="n">lambdef</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
                      <span class="n">decorator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_decorator</span><span class="p">,</span> <span class="n">posonly</span><span class="o">=</span><span class="n">posonly_args</span><span class="p">,</span>
                  <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context._process_lambdef_nocond"><a class="viewcode-back" href="../api.html#poseur.Context._process_lambdef_nocond">[docs]</a>    <span class="k">def</span> <span class="nf">_process_lambdef_nocond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">Lambda</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process lambda definition (:token:`lambdef`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (parso.python.tree.Lambda): lambda node</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_lambdef</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Context._process_string_context"><a class="viewcode-back" href="../api.html#poseur.Context._process_string_context">[docs]</a>    <span class="k">def</span> <span class="nf">_process_string_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">parso</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">PythonNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Process string contexts (:token:`stringliteral`).</span>
