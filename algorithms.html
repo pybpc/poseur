@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Algorithms &#8212; poseur 0.4.3 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
@@ -33,14 +32,14 @@
 
           <div class="body" role="main">
             
-  <section id="algorithms">
+  <div class="section" id="algorithms">
 <h1>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h1>
 <p>As discussed in <span class="target" id="index-0"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0570"><strong>PEP 570</strong></a>, <em>positional-only parameters</em> syntax is a way to indicate
 positional-only parameters in addition to <em>keyword-only parameters</em> and
 <em>positional-or-keyword parameters</em>, using the notation <code class="docutils literal notranslate"><span class="pre">/</span></code> in the parameter list.
 It can be <em>optional</em> and not so critical to developers, thus such syntax can simply
 by dismissed for compatibility with older Python versions.</p>
-<section id="basic-concepts">
+<div class="section" id="basic-concepts">
 <h2>Basic Concepts<a class="headerlink" href="#basic-concepts" title="Permalink to this headline">¶</a></h2>
 <p>To convert, <code class="docutils literal notranslate"><span class="pre">poseur</span></code> will first extract all <em>positional-only parameters</em> from the
 <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> parameter list, then add a <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> to the  original
@@ -56,7 +55,7 @@ by dismissed for compatibility with older Python versions.</p>
 </div>
 <p>Definition of the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> can be found as <a class="reference internal" href="api.html#poseur.decorator" title="poseur.decorator"><code class="xref py py-func docutils literal notranslate"><span class="pre">poseur.decorator()</span></code></a>,
 which takes a list of strings as names of the <em>positional-only parameters</em>.</p>
-<section id="runtime-decorator">
+<div class="section" id="runtime-decorator">
 <h3>Runtime Decorator<a class="headerlink" href="#runtime-decorator" title="Permalink to this headline">¶</a></h3>
 <p>The definition of the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> can be described as below:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="o">*</span><span class="n">poseur</span><span class="p">):</span>
@@ -89,8 +88,8 @@ which takes a list of strings as names of the <em>positional-only parameters</em
 <p>which will mimic the actual behaviour of the Python compiler and raises
 <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> if any <em>positional-only parameters</em> are provided as
 <em>keyword parameters</em>.</p>
-</section>
-<section id="formatted-string-literals">
+</div>
+<div class="section" id="formatted-string-literals">
 <h3>Formatted String Literals<a class="headerlink" href="#formatted-string-literals" title="Permalink to this headline">¶</a></h3>
 <p>Since Python 3.6, formatted string literals (<a class="reference external" href="https://docs.python.org/3/glossary.html#term-f-string" title="(in Python v3.9)"><span class="xref std std-term">f-string</span></a>) were introduced in
 <span class="target" id="index-2"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0498"><strong>PEP 498</strong></a>. And since Python 3.8, <em>f-string debugging syntax</em> were added to the grammar.
@@ -107,15 +106,15 @@ and debugging.)</p></li>
 <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> is to be added. (To prevent the converted code from breaking the quotes
 of the original string.)</p></li>
 </ol>
-</section>
-<section id="class-identifiers">
+</div>
+<div class="section" id="class-identifiers">
 <h3>Class Identifiers<a class="headerlink" href="#class-identifiers" title="Permalink to this headline">¶</a></h3>
 <p>In some corner cases, as all identifiers must be <em>mangled</em> and <em>normalised</em> in a
 <a class="reference external" href="https://docs.python.org/3/glossary.html#term-class" title="(in Python v3.9)"><span class="xref std std-term">class</span></a> context, names of the extracted <em>positional-only parameters</em> will
 have to be processed before putting into the parameter list of the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a>.</p>
-</section>
-</section>
-<section id="lambda-functions">
+</div>
+</div>
+<div class="section" id="lambda-functions">
 <h2>Lambda Functions<a class="headerlink" href="#lambda-functions" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://docs.python.org/3/glossary.html#term-lambda" title="(in Python v3.9)"><span class="xref std std-term">lambda</span></a> functions are alike regular <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a>, except that we cannot add
 a <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> to its definition, but we add simply put the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-lambda" title="(in Python v3.9)"><span class="xref std std-term">lambda</span></a> definition
@@ -128,8 +127,8 @@ inside a pair of parentheses <code class="docutils literal notranslate"><span cl
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">decorator</span><span class="p">(</span><span class="s1">&#39;p1&#39;</span><span class="p">,</span> <span class="s1">&#39;p2&#39;</span><span class="p">)(</span><span class="k">lambda</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p_or_kw</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">kw</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
-</section>
-</section>
+</div>
+</div>
 
 
           </div>
