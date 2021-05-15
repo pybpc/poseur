@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>API Reference &#8212; poseur 0.4.3 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -31,13 +32,13 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-poseur">
+  <section id="module-poseur">
 <span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-poseur" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="public-interface">
+<section id="public-interface">
 <h2>Public Interface<a class="headerlink" href="#public-interface" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="poseur.convert">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">convert</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pep8</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dismiss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decorator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.convert" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.convert">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pep8</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dismiss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decorator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.convert" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the given Python source code string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -90,8 +91,8 @@ or <code class="docutils literal notranslate"><span class="pre">'t'</span></code
 </dd></dl>
 
 <dl class="py function">
-<dt id="poseur.poseur">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">poseur</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pep8</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dismiss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decorator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#poseur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.poseur" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.poseur">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">poseur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linesep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pep8</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dismiss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decorator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#poseur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.poseur" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the given Python source code file. The file will be overwritten.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -142,8 +143,8 @@ or <code class="docutils literal notranslate"><span class="pre">'t'</span></code
 </dd></dl>
 
 <dl class="py function">
-<dt id="poseur.main">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.main" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.main">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.main" title="Permalink to this definition">¶</a></dt>
 <dd><p>Entry point for poseur.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -169,15 +170,15 @@ or <code class="docutils literal notranslate"><span class="pre">'t'</span></code
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="runtime-decorator">
+</section>
+<section id="runtime-decorator">
 <h2>Runtime Decorator<a class="headerlink" href="#runtime-decorator" title="Permalink to this headline">¶</a></h2>
 <p>As you may wish to provide runtime positional-only parameter checks for
 your own code, <code class="docutils literal notranslate"><span class="pre">poseur</span></code> exposed the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> function for
 developers to use by themselves.</p>
 <dl class="py function">
-<dt id="poseur.decorator">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">decorator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">poseur</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poseur.decorator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.decorator">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">decorator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">poseur</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poseur.decorator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Positional-only parameters runtime checker.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -193,76 +194,76 @@ developers to use by themselves.</p>
 positional-only parameters.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="conversion-implementation">
+</section>
+<section id="conversion-implementation">
 <h2>Conversion Implementation<a class="headerlink" href="#conversion-implementation" title="Permalink to this headline">¶</a></h2>
 <p>The main logic of the <code class="docutils literal notranslate"><span class="pre">poseur</span></code> conversion is to extract all <em>positional-only
 parameters</em> and add a <strong>:term:`decorator`</strong> for the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> and/or <a class="reference external" href="https://docs.python.org/3/glossary.html#term-lambda" title="(in Python v3.9)"><span class="xref std std-term">lambda</span></a>
 definition to provide runtime checks with the extracted parameters.</p>
 <p>For conversion algorithms and details, please refer to <a class="reference internal" href="algorithms.html"><span class="doc">Algorithms</span></a>.</p>
-<div class="section" id="data-structures">
+<section id="data-structures">
 <h3>Data Structures<a class="headerlink" href="#data-structures" title="Permalink to this headline">¶</a></h3>
 <p>During conversion, we utilised <a class="reference external" href="https://bpc-utils.readthedocs.io/en/latest/index.html#bpc_utils.Config" title="(in bpc-utils)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bpc_utils.Config</span></code></a> to store and deliver the
 configurations over the conversion <a class="reference internal" href="#poseur.Context" title="poseur.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> instances, which should
 be as following:</p>
 <dl class="py class">
-<dt id="poseur.Config">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">Config</span></code><a class="reference internal" href="_modules/bpc_utils/misc.html#Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Config">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><a class="reference internal" href="_modules/bpc_utils/misc.html#Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Configuration object shared over the conversion process of a single source file.</p>
 <dl class="py attribute">
-<dt id="poseur.Config.indentation">
-<code class="sig-name descname"><span class="pre">indentation</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.Config.indentation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Config.indentation">
+<span class="sig-name descname"><span class="pre">indentation</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.Config.indentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indentation sequence.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Config.linesep">
-<code class="sig-name descname"><span class="pre">linesep</span></code><em class="property"><span class="pre">:</span> <span class="pre">Literal['\n',</span> <span class="pre">'\r\n',</span> <span class="pre">'\r']</span></em><a class="headerlink" href="#poseur.Config.linesep" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Config.linesep">
+<span class="sig-name descname"><span class="pre">linesep</span></span><em class="property"><span class="pre">:</span> <span class="pre">Literal['\n',</span> <span class="pre">'\r\n',</span> <span class="pre">'\r']</span></em><a class="headerlink" href="#poseur.Config.linesep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Line separator.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Config.pep8">
-<code class="sig-name descname"><span class="pre">pep8</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#poseur.Config.pep8" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Config.pep8">
+<span class="sig-name descname"><span class="pre">pep8</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#poseur.Config.pep8" title="Permalink to this definition">¶</a></dt>
 <dd><p><span class="target" id="index-25"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a> compliant conversion flag.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Config.filename">
-<code class="sig-name descname"><span class="pre">filename</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.Config.filename" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Config.filename">
+<span class="sig-name descname"><span class="pre">filename</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.Config.filename" title="Permalink to this definition">¶</a></dt>
 <dd><p>An optional source file name to provide a context in case of error.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Config.source_version">
-<code class="sig-name descname"><span class="pre">source_version</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.Config.source_version" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Config.source_version">
+<span class="sig-name descname"><span class="pre">source_version</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.Config.source_version" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the code as this Python version (uses the latest version by default).</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Config.decorator">
-<code class="sig-name descname"><span class="pre">decorator</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.Config.decorator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Config.decorator">
+<span class="sig-name descname"><span class="pre">decorator</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.Config.decorator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> function for runtime checks on original
 <em>positional-only parameters</em>.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Config.dismiss">
-<code class="sig-name descname"><span class="pre">dismiss</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#poseur.Config.dismiss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Config.dismiss">
+<span class="sig-name descname"><span class="pre">dismiss</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#poseur.Config.dismiss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flag if integrate runtime checks, i.e. the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> function,
 on original <em>positional-only parameters</em>.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
-<div class="section" id="conversion-templates">
+</section>
+<section id="conversion-templates">
 <h3>Conversion Templates<a class="headerlink" href="#conversion-templates" title="Permalink to this headline">¶</a></h3>
 <p>For general conversion scenarios, the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-decorator" title="(in Python v3.9)"><span class="xref std std-term">decorator</span></a> function will be
 rendered based on the following templates.</p>
 <dl class="py data">
-<dt id="poseur.DECORATOR_TEMPLATE">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">DECORATOR_TEMPLATE</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.DECORATOR_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.DECORATOR_TEMPLATE">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">DECORATOR_TEMPLATE</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.DECORATOR_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;def </span><span class="si">%(decorator)s</span><span class="s1">(*poseur):&#39;</span><span class="p">,</span>
  <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">&quot;&quot;&quot;Positional-only parameters runtime checker.&#39;</span><span class="p">,</span>
  <span class="s1">&#39;</span><span class="si">%(indentation)s</span><span class="s1">&#39;</span><span class="p">,</span>
@@ -309,13 +310,13 @@ evaluated at runtime using this template.</p>
 </div>
 </dd></dl>
 
-</div>
-<div class="section" id="conversion-contexts">
+</section>
+<section id="conversion-contexts">
 <h3>Conversion Contexts<a class="headerlink" href="#conversion-contexts" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
-<dt id="poseur.Context">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">Context</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clx_ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">bpc_utils.context.BaseContext</span></code></p>
+<dt class="sig sig-object py" id="poseur.Context">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">Context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clx_ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://bpc-utils.readthedocs.io/en/latest/index.html#bpc_utils.BaseContext" title="(in bpc-utils)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bpc_utils.context.BaseContext</span></code></a></p>
 <p>General conversion context.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -423,8 +424,8 @@ it will process nodes with following methods:</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="poseur.Context._check_funcdef">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">_check_funcdef</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._check_funcdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._check_funcdef" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._check_funcdef">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">_check_funcdef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._check_funcdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._check_funcdef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> definition contains positional-only parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -440,8 +441,8 @@ it will process nodes with following methods:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._check_lambdef">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">_check_lambdef</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._check_lambdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._check_lambdef" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._check_lambdef">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">_check_lambdef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._check_lambdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._check_lambdef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if <a class="reference external" href="https://docs.python.org/3/glossary.html#term-lambda" title="(in Python v3.9)"><span class="xref std std-term">lambda</span></a> definition contains positional-only parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -457,8 +458,8 @@ it will process nodes with following methods:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._concat">
-<code class="sig-name descname"><span class="pre">_concat</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._concat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._concat" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._concat">
+<span class="sig-name descname"><span class="pre">_concat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._concat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._concat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Concatenate final string.</p>
 <p>This method tries to inserted the runtime check decorator function
 at the very location where starts to contain positional-only parameters, i.e.
@@ -475,8 +476,8 @@ in compliance with <span class="target" id="index-26"></span><a class="pep refer
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_async_funcdef">
-<code class="sig-name descname"><span class="pre">_process_async_funcdef</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_async_funcdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_async_funcdef" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_async_funcdef">
+<span class="sig-name descname"><span class="pre">_process_async_funcdef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_async_funcdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_async_funcdef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process <code class="docutils literal notranslate"><span class="pre">async</span></code> function definition (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-async-funcdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">async_funcdef</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -502,8 +503,8 @@ then pass on the processing to
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_async_stmt">
-<code class="sig-name descname"><span class="pre">_process_async_stmt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_async_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_async_stmt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_async_stmt">
+<span class="sig-name descname"><span class="pre">_process_async_stmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_async_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_async_stmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process <code class="docutils literal notranslate"><span class="pre">async</span></code> statement (<code class="xref std std-token docutils literal notranslate"><span class="pre">async_stmt</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -527,8 +528,8 @@ then pass on the processing to
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_classdef">
-<code class="sig-name descname"><span class="pre">_process_classdef</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_classdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_classdef" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_classdef">
+<span class="sig-name descname"><span class="pre">_process_classdef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_classdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_classdef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process class definition (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-classdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">classdef</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -552,8 +553,8 @@ respectively.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_for_stmt">
-<code class="sig-name descname"><span class="pre">_process_for_stmt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_for_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_for_stmt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_for_stmt">
+<span class="sig-name descname"><span class="pre">_process_for_stmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_for_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_for_stmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process for statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-for-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">for_stmt</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -576,8 +577,8 @@ respectively.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_fstring">
-<code class="sig-name descname"><span class="pre">_process_fstring</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_fstring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_fstring" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_fstring">
+<span class="sig-name descname"><span class="pre">_process_fstring</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_fstring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_fstring" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process formatted strings (<a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-f-string" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">f_string</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -590,8 +591,8 @@ respectively.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_funcdef">
-<code class="sig-name descname"><span class="pre">_process_funcdef</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_funcdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_funcdef" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_funcdef">
+<span class="sig-name descname"><span class="pre">_process_funcdef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">async_ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_funcdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_funcdef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process function definition (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-funcdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">funcdef</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -610,8 +611,8 @@ respectively.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_if_stmt">
-<code class="sig-name descname"><span class="pre">_process_if_stmt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_if_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_if_stmt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_if_stmt">
+<span class="sig-name descname"><span class="pre">_process_if_stmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_if_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_if_stmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process if statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-if-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">if_stmt</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -634,8 +635,8 @@ and <em>else</em> statements.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_lambdef">
-<code class="sig-name descname"><span class="pre">_process_lambdef</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_lambdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_lambdef" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_lambdef">
+<span class="sig-name descname"><span class="pre">_process_lambdef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_lambdef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_lambdef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process lambda definition (<code class="xref std std-token docutils literal notranslate"><span class="pre">lambdef</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -648,8 +649,8 @@ and <em>else</em> statements.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_string_context">
-<code class="sig-name descname"><span class="pre">_process_string_context</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_string_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_string_context" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_string_context">
+<span class="sig-name descname"><span class="pre">_process_string_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_string_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_string_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process string contexts (<a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-stringliteral" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">stringliteral</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -689,8 +690,8 @@ context, rather than the new <a class="reference internal" href="#poseur.StringC
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_strings">
-<code class="sig-name descname"><span class="pre">_process_strings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_strings" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_strings">
+<span class="sig-name descname"><span class="pre">_process_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_strings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_strings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process concatenable strings (<a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-stringliteral" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">stringliteral</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -714,8 +715,8 @@ may contain formatted string literals (<a class="reference external" href="https
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_suite_node">
-<code class="sig-name descname"><span class="pre">_process_suite_node</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls_ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_suite_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_suite_node" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_suite_node">
+<span class="sig-name descname"><span class="pre">_process_suite_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls_ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_suite_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_suite_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process indented suite (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-suite" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">suite</span></code></a> or others).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -751,8 +752,8 @@ another Context` instance to perform the conversion process on such
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_try_stmt">
-<code class="sig-name descname"><span class="pre">_process_try_stmt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_try_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_try_stmt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_try_stmt">
+<span class="sig-name descname"><span class="pre">_process_try_stmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_try_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_try_stmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process try statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-try-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">try_stmt</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -775,8 +776,8 @@ another Context` instance to perform the conversion process on such
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_while_stmt">
-<code class="sig-name descname"><span class="pre">_process_while_stmt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_while_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_while_stmt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_while_stmt">
+<span class="sig-name descname"><span class="pre">_process_while_stmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_while_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_while_stmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process while statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-while-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">while_stmt</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -799,8 +800,8 @@ another Context` instance to perform the conversion process on such
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context._process_with_stmt">
-<code class="sig-name descname"><span class="pre">_process_with_stmt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_with_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_with_stmt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._process_with_stmt">
+<span class="sig-name descname"><span class="pre">_process_with_stmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context._process_with_stmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context._process_with_stmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process with statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-with-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">with_stmt</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -822,8 +823,8 @@ another Context` instance to perform the conversion process on such
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context.has_expr">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">has_expr</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context.has_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context.has_expr" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context.has_expr">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">has_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context.has_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context.has_expr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if node has positional-only parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -839,8 +840,8 @@ another Context` instance to perform the conversion process on such
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context.has_poseur">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">has_poseur</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poseur.Context.has_poseur" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context.has_poseur">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">has_poseur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poseur.Context.has_poseur" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if node has positional-only parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -856,8 +857,8 @@ another Context` instance to perform the conversion process on such
 </dd></dl>
 
 <dl class="py method">
-<dt id="poseur.Context.normalizer">
-<code class="sig-name descname"><span class="pre">normalizer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context.normalizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context.normalizer" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context.normalizer">
+<span class="sig-name descname"><span class="pre">normalizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#Context.normalizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.Context.normalizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Variable name normalizer.</p>
 <p>If <a class="reference internal" href="#poseur.Context._cls_ctx" title="poseur.Context._cls_ctx"><code class="xref py py-attr docutils literal notranslate"><span class="pre">self._cls_ctx</span></code></a> is <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a>,
 the methold will simply class <code class="xref py py-meth docutils literal notranslate"><span class="pre">normalize()</span></code>
@@ -877,13 +878,13 @@ on the variable name; otherwise, it will call
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Context._abc_impl">
-<code class="sig-name descname"><span class="pre">_abc_impl</span></code><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#poseur.Context._abc_impl" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#poseur.Context._abc_impl" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Context._cls_ctx">
-<code class="sig-name descname"><span class="pre">_cls_ctx</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.Context._cls_ctx" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._cls_ctx">
+<span class="sig-name descname"><span class="pre">_cls_ctx</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.Context._cls_ctx" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class context name. This is rather useful as
 we might need to <em>mangle</em> and/or <em>normalize</em> variable names
 in certain scenario.</p>
@@ -895,8 +896,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Context._decorator">
-<code class="sig-name descname"><span class="pre">_decorator</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.Context._decorator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._decorator">
+<span class="sig-name descname"><span class="pre">_decorator</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.Context._decorator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -906,8 +907,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Context._dismiss">
-<code class="sig-name descname"><span class="pre">_dismiss</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#poseur.Context._dismiss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context._dismiss">
+<span class="sig-name descname"><span class="pre">_dismiss</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#poseur.Context._dismiss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dismiss runtime checks for positional-only parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -916,9 +917,9 @@ in certain scenario.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="poseur.Context.decorator">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">decorator</span></code><a class="headerlink" href="#poseur.Context.decorator" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="poseur.Context.decorator">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">decorator</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#poseur.Context.decorator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the <code class="docutils literal notranslate"><span class="pre">poseur</span></code> decorator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
@@ -928,8 +929,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.Context.pattern_funcdef">
-<code class="sig-name descname"><span class="pre">pattern_funcdef</span></code><em class="property"> <span class="pre">=</span> <span class="pre">re.compile('^\\s*(async\\s+)?def\\s',</span> <span class="pre">re.ASCII)</span></em><a class="headerlink" href="#poseur.Context.pattern_funcdef" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.Context.pattern_funcdef">
+<span class="sig-name descname"><span class="pre">pattern_funcdef</span></span><em class="property"> <span class="pre">=</span> <span class="pre">re.compile('^\\s*(async\\s+)?def\\s',</span> <span class="pre">re.ASCII)</span></em><a class="headerlink" href="#poseur.Context.pattern_funcdef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pattern to find the function definition line.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -941,8 +942,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="poseur.StringContext">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">StringContext</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clx_ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#StringContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.StringContext" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">StringContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clx_ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#StringContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.StringContext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#poseur.Context" title="poseur.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">poseur.Context</span></code></a></p>
 <p>String (f-string) conversion context.</p>
 <p>This class is mainly used for converting <strong>formatted strings</strong>.</p>
@@ -985,19 +986,19 @@ which may change the content of <em>debug f-string</em>.</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="poseur.StringContext._abc_impl">
-<code class="sig-name descname"><span class="pre">_abc_impl</span></code><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#poseur.StringContext._abc_impl" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#poseur.StringContext._abc_impl" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._buffer">
-<code class="sig-name descname"><span class="pre">_buffer</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.StringContext._buffer" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._buffer">
+<span class="sig-name descname"><span class="pre">_buffer</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.StringContext._buffer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Final converted result.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._cls_ctx">
-<code class="sig-name descname"><span class="pre">_cls_ctx</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._cls_ctx" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._cls_ctx">
+<span class="sig-name descname"><span class="pre">_cls_ctx</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._cls_ctx" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class context name. This is rather useful as
 we might need to <em>mangle</em> and/or <em>normalize</em> variable names
 in certain scenario.</p>
@@ -1009,8 +1010,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._decorator">
-<code class="sig-name descname"><span class="pre">_decorator</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.StringContext._decorator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._decorator">
+<span class="sig-name descname"><span class="pre">_decorator</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.StringContext._decorator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1020,8 +1021,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._dismiss">
-<code class="sig-name descname"><span class="pre">_dismiss</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#poseur.StringContext._dismiss" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._dismiss">
+<span class="sig-name descname"><span class="pre">_dismiss</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#poseur.StringContext._dismiss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dismiss runtime checks for positional-only parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1031,20 +1032,20 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._indent_level">
-<code class="sig-name descname"><span class="pre">_indent_level</span></code><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._indent_level" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._indent_level">
+<span class="sig-name descname"><span class="pre">_indent_level</span></span><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._indent_level" title="Permalink to this definition">¶</a></dt>
 <dd><p>Current indentation level.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._indentation">
-<code class="sig-name descname"><span class="pre">_indentation</span></code><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._indentation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._indentation">
+<span class="sig-name descname"><span class="pre">_indentation</span></span><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._indentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indentation sequence.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._linesep">
-<code class="sig-name descname"><span class="pre">_linesep</span></code><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">Linesep</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._linesep" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._linesep">
+<span class="sig-name descname"><span class="pre">_linesep</span></span><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">Linesep</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._linesep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Line seperator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1054,64 +1055,64 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._node_before_expr">
-<code class="sig-name descname"><span class="pre">_node_before_expr</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><span class="pre">parso.tree.NodeOrLeaf</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._node_before_expr" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._node_before_expr">
+<span class="sig-name descname"><span class="pre">_node_before_expr</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><span class="pre">parso.tree.NodeOrLeaf</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._node_before_expr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Preceding node with the target expression, i.e. the <em>insertion point</em>.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._pep8">
-<code class="sig-name descname"><span class="pre">_pep8</span></code><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._pep8" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._pep8">
+<span class="sig-name descname"><span class="pre">_pep8</span></span><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._pep8" title="Permalink to this definition">¶</a></dt>
 <dd><p><span class="target" id="index-27"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a> compliant conversion flag.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._prefix">
-<code class="sig-name descname"><span class="pre">_prefix</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.StringContext._prefix" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._prefix">
+<span class="sig-name descname"><span class="pre">_prefix</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.StringContext._prefix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Code before insertion point.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._prefix_or_suffix">
-<code class="sig-name descname"><span class="pre">_prefix_or_suffix</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#poseur.StringContext._prefix_or_suffix" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._prefix_or_suffix">
+<span class="sig-name descname"><span class="pre">_prefix_or_suffix</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#poseur.StringContext._prefix_or_suffix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flag to indicate whether buffer is now <a class="reference external" href="https://bpc-utils.readthedocs.io/en/latest/index.html#bpc_utils.BaseContext._prefix" title="(in bpc-utils)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">self._prefix</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._root">
-<code class="sig-name descname"><span class="pre">_root</span></code><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><span class="pre">parso.tree.NodeOrLeaf</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._root" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._root">
+<span class="sig-name descname"><span class="pre">_root</span></span><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><span class="pre">parso.tree.NodeOrLeaf</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._root" title="Permalink to this definition">¶</a></dt>
 <dd><p>Root node given by the <code class="docutils literal notranslate"><span class="pre">node</span></code> parameter.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._suffix">
-<code class="sig-name descname"><span class="pre">_suffix</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.StringContext._suffix" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._suffix">
+<span class="sig-name descname"><span class="pre">_suffix</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.StringContext._suffix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Code after insertion point.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext._uuid_gen">
-<code class="sig-name descname"><span class="pre">_uuid_gen</span></code><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">UUID4Generator</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._uuid_gen" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext._uuid_gen">
+<span class="sig-name descname"><span class="pre">_uuid_gen</span></span><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><span class="pre">UUID4Generator</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._uuid_gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>UUID generator.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="poseur.StringContext.config">
-<code class="sig-name descname"><span class="pre">config</span></code><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#poseur.Config" title="poseur.Config"><span class="pre">Config</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext.config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.StringContext.config">
+<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#poseur.Config" title="poseur.Config"><span class="pre">Config</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext.config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Internal configurations.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="internal-auxiliaries">
+</section>
+</section>
+<section id="internal-auxiliaries">
 <h2>Internal Auxiliaries<a class="headerlink" href="#internal-auxiliaries" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="options-defaults">
+<section id="options-defaults">
 <h3>Options &amp; Defaults<a class="headerlink" href="#options-defaults" title="Permalink to this headline">¶</a></h3>
 <dl class="py data">
-<dt id="poseur.POSEUR_SOURCE_VERSIONS">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">POSEUR_SOURCE_VERSIONS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">['3.8',</span> <span class="pre">'3.9',</span> <span class="pre">'3.10']</span></em><a class="headerlink" href="#poseur.POSEUR_SOURCE_VERSIONS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.POSEUR_SOURCE_VERSIONS">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">POSEUR_SOURCE_VERSIONS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">['3.8',</span> <span class="pre">'3.9',</span> <span class="pre">'3.10']</span></em><a class="headerlink" href="#poseur.POSEUR_SOURCE_VERSIONS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get supported source versions.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -1124,8 +1125,8 @@ in certain scenario.</p>
 </pre></div>
 </div>
 <dl class="py function">
-<dt id="poseur._get_quiet_option">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_get_quiet_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_quiet_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_quiet_option" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._get_quiet_option">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_get_quiet_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_quiet_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_quiet_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">quiet</span></code> option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1149,8 +1150,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="poseur._get_concurrency_option">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_get_concurrency_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_concurrency_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_concurrency_option" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._get_concurrency_option">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_get_concurrency_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_concurrency_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_concurrency_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">concurrency</span></code> option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1175,8 +1176,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="poseur._get_do_archive_option">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_get_do_archive_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_do_archive_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_do_archive_option" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._get_do_archive_option">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_get_do_archive_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_do_archive_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_do_archive_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">do_archive</span></code> option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1200,8 +1201,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="poseur._get_archive_path_option">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_get_archive_path_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_archive_path_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_archive_path_option" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._get_archive_path_option">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_get_archive_path_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_archive_path_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_archive_path_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">archive_path</span></code> option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1225,8 +1226,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="poseur._get_source_version_option">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_get_source_version_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_source_version_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_source_version_option" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._get_source_version_option">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_get_source_version_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_source_version_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_source_version_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">source_version</span></code> option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1250,8 +1251,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="poseur._get_linesep_option">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_get_linesep_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_linesep_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_linesep_option" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._get_linesep_option">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_get_linesep_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_linesep_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_linesep_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">linesep</span></code> option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1276,8 +1277,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="poseur._get_indentation_option">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_get_indentation_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_indentation_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_indentation_option" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._get_indentation_option">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_get_indentation_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_indentation_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_indentation_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">indentation</span></code> option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1302,8 +1303,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="poseur._get_pep8_option">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_get_pep8_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_pep8_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_pep8_option" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._get_pep8_option">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_get_pep8_option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">explicit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#_get_pep8_option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur._get_pep8_option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value for the <code class="docutils literal notranslate"><span class="pre">pep8</span></code> option.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1328,50 +1329,50 @@ in certain scenario.</p>
 
 <p>The following variables are used for fallback default values of options.</p>
 <dl class="py data">
-<dt id="poseur._default_quiet">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_default_quiet</span></code><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#poseur._default_quiet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._default_quiet">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_default_quiet</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#poseur._default_quiet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">quiet</span></code> option.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur._default_concurrency">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_default_concurrency</span></code><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#poseur._default_concurrency" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._default_concurrency">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_default_concurrency</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#poseur._default_concurrency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">concurrency</span></code> option.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur._default_do_archive">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_default_do_archive</span></code><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#poseur._default_do_archive" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._default_do_archive">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_default_do_archive</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#poseur._default_do_archive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">do_archive</span></code> option.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur._default_archive_path">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_default_archive_path</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'archive'</span></em><a class="headerlink" href="#poseur._default_archive_path" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._default_archive_path">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_default_archive_path</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'archive'</span></em><a class="headerlink" href="#poseur._default_archive_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">archive_path</span></code> option.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur._default_source_version">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_default_source_version</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'3.10'</span></em><a class="headerlink" href="#poseur._default_source_version" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._default_source_version">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_default_source_version</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'3.10'</span></em><a class="headerlink" href="#poseur._default_source_version" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">source_version</span></code> option.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur._default_linesep">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_default_linesep</span></code><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#poseur._default_linesep" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._default_linesep">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_default_linesep</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#poseur._default_linesep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">linesep</span></code> option.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur._default_indentation">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_default_indentation</span></code><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#poseur._default_indentation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._default_indentation">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_default_indentation</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#poseur._default_indentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">indentation</span></code> option.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur._default_pep8">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">_default_pep8</span></code><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#poseur._default_pep8" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur._default_pep8">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">_default_pep8</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#poseur._default_pep8" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">pep8</span></code> option.</p>
 </dd></dl>
 
@@ -1380,12 +1381,12 @@ in certain scenario.</p>
 <p>For <a class="reference internal" href="#poseur._default_concurrency" title="poseur._default_concurrency"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_concurrency</span></code></a>, <a class="reference internal" href="#poseur._default_linesep" title="poseur._default_linesep"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_linesep</span></code></a> and <a class="reference internal" href="#poseur._default_indentation" title="poseur._default_indentation"><code class="xref py py-data docutils literal notranslate"><span class="pre">_default_indentation</span></code></a>,
 <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">None</span></code></a> means <em>auto detection</em> during runtime.</p>
 </div>
-</div>
-<div class="section" id="cli-utilities">
+</section>
+<section id="cli-utilities">
 <h3>CLI Utilities<a class="headerlink" href="#cli-utilities" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
-<dt id="poseur.get_parser">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">get_parser</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.get_parser" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.get_parser">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/poseur.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#poseur.get_parser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate CLI parser.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1399,14 +1400,14 @@ in certain scenario.</p>
 
 <p>The following variables are used for help messages in the argument parser.</p>
 <dl class="py data">
-<dt id="poseur.poseur.__cwd__">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">__cwd__</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.poseur.__cwd__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.poseur.__cwd__">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">__cwd__</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.poseur.__cwd__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Current working directory returned by <a class="reference external" href="https://docs.python.org/3/library/os.html#os.getcwd" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.getcwd()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur.poseur.__poseur_quiet__">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">__poseur_quiet__</span></code><em class="property"><span class="pre">:</span> <span class="pre">Literal['quiet</span> <span class="pre">mode',</span> <span class="pre">'non-quiet</span> <span class="pre">mode']</span></em><a class="headerlink" href="#poseur.poseur.__poseur_quiet__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.poseur.__poseur_quiet__">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">__poseur_quiet__</span></span><em class="property"><span class="pre">:</span> <span class="pre">Literal['quiet</span> <span class="pre">mode',</span> <span class="pre">'non-quiet</span> <span class="pre">mode']</span></em><a class="headerlink" href="#poseur.poseur.__poseur_quiet__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> option.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -1415,8 +1416,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur.poseur.__poseur_concurrency__">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">__poseur_concurrency__</span></code><em class="property"><span class="pre">:</span> <span class="pre">Union[int,</span> <span class="pre">Literal['auto</span> <span class="pre">detect']]</span></em><a class="headerlink" href="#poseur.poseur.__poseur_concurrency__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.poseur.__poseur_concurrency__">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">__poseur_concurrency__</span></span><em class="property"><span class="pre">:</span> <span class="pre">Union[int,</span> <span class="pre">Literal['auto</span> <span class="pre">detect']]</span></em><a class="headerlink" href="#poseur.poseur.__poseur_concurrency__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--concurrency</span></code> option.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -1425,8 +1426,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur.poseur.__poseur_do_archive__">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">__poseur_do_archive__</span></code><em class="property"><span class="pre">:</span> <span class="pre">Literal['will</span> <span class="pre">do</span> <span class="pre">archive',</span> <span class="pre">'will</span> <span class="pre">not</span> <span class="pre">do</span> <span class="pre">archive']</span></em><a class="headerlink" href="#poseur.poseur.__poseur_do_archive__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.poseur.__poseur_do_archive__">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">__poseur_do_archive__</span></span><em class="property"><span class="pre">:</span> <span class="pre">Literal['will</span> <span class="pre">do</span> <span class="pre">archive',</span> <span class="pre">'will</span> <span class="pre">not</span> <span class="pre">do</span> <span class="pre">archive']</span></em><a class="headerlink" href="#poseur.poseur.__poseur_do_archive__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--no-archive</span></code> option.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -1435,8 +1436,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur.poseur.__poseur_archive_path__">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">__poseur_archive_path__</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.poseur.__poseur_archive_path__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.poseur.__poseur_archive_path__">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">__poseur_archive_path__</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.poseur.__poseur_archive_path__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--archive-path</span></code> option.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -1445,8 +1446,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur.poseur.__poseur_source_version__">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">__poseur_source_version__</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.poseur.__poseur_source_version__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.poseur.__poseur_source_version__">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">__poseur_source_version__</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.poseur.__poseur_source_version__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--source-version</span></code> option.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -1455,8 +1456,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur.poseur.__poseur_linesep__">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">__poseur_linesep__</span></code><em class="property"><span class="pre">:</span> <span class="pre">Literal['LF',</span> <span class="pre">'CRLF',</span> <span class="pre">'CR',</span> <span class="pre">'auto</span> <span class="pre">detect']</span></em><a class="headerlink" href="#poseur.poseur.__poseur_linesep__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.poseur.__poseur_linesep__">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">__poseur_linesep__</span></span><em class="property"><span class="pre">:</span> <span class="pre">Literal['LF',</span> <span class="pre">'CRLF',</span> <span class="pre">'CR',</span> <span class="pre">'auto</span> <span class="pre">detect']</span></em><a class="headerlink" href="#poseur.poseur.__poseur_linesep__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--linesep</span></code> option.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -1465,8 +1466,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur.poseur.__poseur_indentation__">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">__poseur_indentation__</span></code><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.poseur.__poseur_indentation__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.poseur.__poseur_indentation__">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">__poseur_indentation__</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#poseur.poseur.__poseur_indentation__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--indentation</span></code> option.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -1475,8 +1476,8 @@ in certain scenario.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt id="poseur.poseur.__poseur_pep8__">
-<code class="sig-prename descclassname"><span class="pre">poseur.</span></code><code class="sig-name descname"><span class="pre">__poseur_pep8__</span></code><em class="property"><span class="pre">:</span> <span class="pre">Literal['will</span> <span class="pre">conform</span> <span class="pre">to</span> <span class="pre">PEP</span> <span class="pre">8',</span> <span class="pre">'will</span> <span class="pre">not</span> <span class="pre">conform</span> <span class="pre">to</span> <span class="pre">PEP</span> <span class="pre">8']</span></em><a class="headerlink" href="#poseur.poseur.__poseur_pep8__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="poseur.poseur.__poseur_pep8__">
+<span class="sig-prename descclassname"><span class="pre">poseur.</span></span><span class="sig-name descname"><span class="pre">__poseur_pep8__</span></span><em class="property"><span class="pre">:</span> <span class="pre">Literal['will</span> <span class="pre">conform</span> <span class="pre">to</span> <span class="pre">PEP</span> <span class="pre">8',</span> <span class="pre">'will</span> <span class="pre">not</span> <span class="pre">conform</span> <span class="pre">to</span> <span class="pre">PEP</span> <span class="pre">8']</span></em><a class="headerlink" href="#poseur.poseur.__poseur_pep8__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default value for the <code class="docutils literal notranslate"><span class="pre">--no-pep8</span></code> option.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -1484,9 +1485,9 @@ in certain scenario.</p>
 </div>
 </dd></dl>
 
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
           </div>
