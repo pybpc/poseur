@@ -321,7 +321,7 @@ evaluated at runtime using this template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><em>parso.tree.NodeOrLeaf</em></a>) – parso AST</p></li>
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.8)"><em>parso.tree.NodeOrLeaf</em></a>) – parso AST</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="#poseur.Config" title="poseur.Config"><em>Config</em></a>) – conversion configurations</p></li>
 <li><p><strong>clx_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>indent_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
@@ -415,7 +415,7 @@ it will process nodes with following methods:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeOrLeaf</span></code></a>) – parso AST</p></li>
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeOrLeaf</span></code></a>) – parso AST</p></li>
 <li><p><strong>config</strong> (<a class="reference external" href="https://bpc-utils.readthedocs.io/en/latest/index.html#bpc_utils.Config" title="(in bpc-utils)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>) – conversion configurations</p></li>
 <li><p><strong>indent_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – current indentation level</p></li>
 <li><p><strong>raw</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – raw processing flag</p></li>
@@ -429,7 +429,7 @@ it will process nodes with following methods:</p>
 <dd><p>Check if <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> definition contains positional-only parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Function" title="(in parso v0.7)"><em>parso.python.tree.Function</em></a>) – function definition</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Function" title="(in parso v0.8)"><em>parso.python.tree.Function</em></a>) – function definition</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>if <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> definition contains positional-only parameters</p>
@@ -446,7 +446,7 @@ it will process nodes with following methods:</p>
 <dd><p>Check if <a class="reference external" href="https://docs.python.org/3/glossary.html#term-lambda" title="(in Python v3.9)"><span class="xref std std-term">lambda</span></a> definition contains positional-only parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Lambda" title="(in parso v0.7)"><em>parso.python.tree.Lambda</em></a>) – lambda definition</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Lambda" title="(in parso v0.8)"><em>parso.python.tree.Lambda</em></a>) – lambda definition</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>if <a class="reference external" href="https://docs.python.org/3/glossary.html#term-lambda" title="(in Python v3.9)"><span class="xref std std-term">lambda</span></a> definition contains positional-only parameters</p>
@@ -481,15 +481,15 @@ in compliance with <span class="target" id="index-26"></span><a class="pep refer
 <dd><p>Process <code class="docutils literal notranslate"><span class="pre">async</span></code> function definition (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-async-funcdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">async_funcdef</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – <code class="docutils literal notranslate"><span class="pre">async</span></code> function node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><em>parso.python.tree.PythonNode</em></a>) – <code class="docutils literal notranslate"><span class="pre">async</span></code> function node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 <p>This method processes an <code class="docutils literal notranslate"><span class="pre">async</span></code> function node. It will extract
-the <code class="docutils literal notranslate"><span class="pre">async</span></code> keyword node (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Keyword" title="(in parso v0.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">parso.python.tree.Keyword</span></code></a>)
-and the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> node (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Function" title="(in parso v0.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">parso.python.tree.Function</span></code></a>)
+the <code class="docutils literal notranslate"><span class="pre">async</span></code> keyword node (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Keyword" title="(in parso v0.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">parso.python.tree.Keyword</span></code></a>)
+and the <a class="reference external" href="https://docs.python.org/3/glossary.html#term-function" title="(in Python v3.9)"><span class="xref std std-term">function</span></a> node (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Function" title="(in parso v0.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">parso.python.tree.Function</span></code></a>)
 then pass on the processing to
 <a class="reference internal" href="#poseur.Context._process_funcdef" title="poseur.Context._process_funcdef"><code class="xref py py-meth docutils literal notranslate"><span class="pre">self._process_funcdef</span></code></a>.</p>
 <dl class="field-list simple">
@@ -497,7 +497,7 @@ then pass on the processing to
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – </p>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><em>parso.python.tree.PythonNode</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -508,7 +508,7 @@ then pass on the processing to
 <dd><p>Process <code class="docutils literal notranslate"><span class="pre">async</span></code> statement (<code class="xref std std-token docutils literal notranslate"><span class="pre">async_stmt</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – <code class="docutils literal notranslate"><span class="pre">async</span></code> statement node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><em>parso.python.tree.PythonNode</em></a>) – <code class="docutils literal notranslate"><span class="pre">async</span></code> statement node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -522,7 +522,7 @@ then pass on the processing to
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – </p>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><em>parso.python.tree.PythonNode</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -533,7 +533,7 @@ then pass on the processing to
 <dd><p>Process class definition (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-classdef" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">classdef</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Class" title="(in parso v0.7)"><em>parso.python.tree.Class</em></a>) – class node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Class" title="(in parso v0.8)"><em>parso.python.tree.Class</em></a>) – class node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -547,7 +547,7 @@ respectively.</p>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Class" title="(in parso v0.7)"><em>parso.python.tree.Class</em></a>) – </p>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Class" title="(in parso v0.8)"><em>parso.python.tree.Class</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -558,7 +558,7 @@ respectively.</p>
 <dd><p>Process for statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-for-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">for_stmt</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.ForStmt" title="(in parso v0.7)"><em>parso.python.tree.ForStmt</em></a>) – for node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.ForStmt" title="(in parso v0.8)"><em>parso.python.tree.ForStmt</em></a>) – for node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -571,7 +571,7 @@ respectively.</p>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.ForStmt" title="(in parso v0.7)"><em>parso.python.tree.ForStmt</em></a>) – </p>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.ForStmt" title="(in parso v0.8)"><em>parso.python.tree.ForStmt</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -582,7 +582,7 @@ respectively.</p>
 <dd><p>Process formatted strings (<a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-f-string" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">f_string</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – formatted strings node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><em>parso.python.tree.PythonNode</em></a>) – formatted strings node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
@@ -597,12 +597,12 @@ respectively.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Function" title="(in parso v0.7)"><em>parso.python.tree.Function</em></a>) – function node</p></li>
-<li><p><strong>async_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Keyword" title="(in parso v0.7)"><em>parso.python.tree.Keyword</em></a><em>]</em>) – </p></li>
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Function" title="(in parso v0.8)"><em>parso.python.tree.Function</em></a>) – function node</p></li>
+<li><p><strong>async_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Keyword" title="(in parso v0.8)"><em>parso.python.tree.Keyword</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Keyword Arguments</dt>
-<dd class="field-even"><p><strong>async_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Keyword" title="(in parso v0.7)"><em>parso.python.tree.Keyword</em></a><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">async</span></code> keyword AST node</p>
+<dd class="field-even"><p><strong>async_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Keyword" title="(in parso v0.8)"><em>parso.python.tree.Keyword</em></a><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">async</span></code> keyword AST node</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
@@ -616,7 +616,7 @@ respectively.</p>
 <dd><p>Process if statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-if-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">if_stmt</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.IfStmt" title="(in parso v0.7)"><em>parso.python.tree.IfStmt</em></a>) – if node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.IfStmt" title="(in parso v0.8)"><em>parso.python.tree.IfStmt</em></a>) – if node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -629,7 +629,7 @@ and <em>else</em> statements.</p>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.IfStmt" title="(in parso v0.7)"><em>parso.python.tree.IfStmt</em></a>) – </p>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.IfStmt" title="(in parso v0.8)"><em>parso.python.tree.IfStmt</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -640,7 +640,7 @@ and <em>else</em> statements.</p>
 <dd><p>Process lambda definition (<code class="xref std std-token docutils literal notranslate"><span class="pre">lambdef</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Lambda" title="(in parso v0.7)"><em>parso.python.tree.Lambda</em></a>) – lambda node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.Lambda" title="(in parso v0.8)"><em>parso.python.tree.Lambda</em></a>) – lambda node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
@@ -654,7 +654,7 @@ and <em>else</em> statements.</p>
 <dd><p>Process string contexts (<a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-stringliteral" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">stringliteral</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – string literals node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><em>parso.python.tree.PythonNode</em></a>) – string literals node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -684,7 +684,7 @@ context, rather than the new <a class="reference internal" href="#poseur.StringC
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – </p>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><em>parso.python.tree.PythonNode</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -695,7 +695,7 @@ context, rather than the new <a class="reference internal" href="#poseur.StringC
 <dd><p>Process concatenable strings (<a class="reference external" href="https://docs.python.org/3/reference/lexical_analysis.html#grammar-token-stringliteral" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">stringliteral</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – concatentable strings node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><em>parso.python.tree.PythonNode</em></a>) – concatentable strings node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -709,7 +709,7 @@ may contain formatted string literals (<a class="reference external" href="https
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – </p>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><em>parso.python.tree.PythonNode</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -721,7 +721,7 @@ may contain formatted string literals (<a class="reference external" href="https
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><em>parso.tree.NodeOrLeaf</em></a>) – suite node</p></li>
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.8)"><em>parso.tree.NodeOrLeaf</em></a>) – suite node</p></li>
 <li><p><strong>cls_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -744,7 +744,7 @@ another Context` instance to perform the conversion process on such
 </dd>
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><em>parso.tree.NodeOrLeaf</em></a>) – </p></li>
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.8)"><em>parso.tree.NodeOrLeaf</em></a>) – </p></li>
 <li><p><strong>cls_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -757,7 +757,7 @@ another Context` instance to perform the conversion process on such
 <dd><p>Process try statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-try-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">try_stmt</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.TryStmt" title="(in parso v0.7)"><em>parso.python.tree.TryStmt</em></a>) – try node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.TryStmt" title="(in parso v0.8)"><em>parso.python.tree.TryStmt</em></a>) – try node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -770,7 +770,7 @@ another Context` instance to perform the conversion process on such
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.TryStmt" title="(in parso v0.7)"><em>parso.python.tree.TryStmt</em></a>) – </p>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.TryStmt" title="(in parso v0.8)"><em>parso.python.tree.TryStmt</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -781,7 +781,7 @@ another Context` instance to perform the conversion process on such
 <dd><p>Process while statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-while-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">while_stmt</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WhileStmt" title="(in parso v0.7)"><em>parso.python.tree.WhileStmt</em></a>) – while node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WhileStmt" title="(in parso v0.8)"><em>parso.python.tree.WhileStmt</em></a>) – while node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -794,7 +794,7 @@ another Context` instance to perform the conversion process on such
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WhileStmt" title="(in parso v0.7)"><em>parso.python.tree.WhileStmt</em></a>) – </p>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WhileStmt" title="(in parso v0.8)"><em>parso.python.tree.WhileStmt</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -805,7 +805,7 @@ another Context` instance to perform the conversion process on such
 <dd><p>Process with statement (<a class="reference external" href="https://docs.python.org/3/reference/compound_stmts.html#grammar-token-with-stmt" title="(in Python v3.9)"><code class="xref std std-token docutils literal notranslate"><span class="pre">with_stmt</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WithStmt" title="(in parso v0.7)"><em>parso.python.tree.WithStmt</em></a>) – with node</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WithStmt" title="(in parso v0.8)"><em>parso.python.tree.WithStmt</em></a>) – with node</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -817,7 +817,7 @@ another Context` instance to perform the conversion process on such
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WithStmt" title="(in parso v0.7)"><em>parso.python.tree.WithStmt</em></a>) – </p>
+<dd class="field-even"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.WithStmt" title="(in parso v0.8)"><em>parso.python.tree.WithStmt</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -828,7 +828,7 @@ another Context` instance to perform the conversion process on such
 <dd><p>Check if node has positional-only parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><em>parso.tree.NodeOrLeaf</em></a>) – parso AST</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.8)"><em>parso.tree.NodeOrLeaf</em></a>) – parso AST</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>if <code class="docutils literal notranslate"><span class="pre">node</span></code> has positional-only parameters</p>
@@ -845,7 +845,7 @@ another Context` instance to perform the conversion process on such
 <dd><p>Check if node has positional-only parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><em>parso.tree.NodeOrLeaf</em></a>) – parso AST</p>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.8)"><em>parso.tree.NodeOrLeaf</em></a>) – parso AST</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>if <code class="docutils literal notranslate"><span class="pre">node</span></code> has positional-only parameters</p>
@@ -950,7 +950,7 @@ in certain scenario.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><em>parso.python.tree.PythonNode</em></a>) – parso AST</p></li>
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><em>parso.python.tree.PythonNode</em></a>) – parso AST</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="#poseur.Config" title="poseur.Config"><em>Config</em></a>) – conversion configurations</p></li>
 <li><p><strong>clx_ctx</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>indent_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
@@ -977,7 +977,7 @@ which may change the content of <em>debug f-string</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PythonNode</span></code></a>) – parso AST</p></li>
+<li><p><strong>node</strong> (<a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.python.tree.PythonNode" title="(in parso v0.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PythonNode</span></code></a>) – parso AST</p></li>
 <li><p><strong>config</strong> (<a class="reference external" href="https://bpc-utils.readthedocs.io/en/latest/index.html#bpc_utils.Config" title="(in bpc-utils)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>) – conversion configurations</p></li>
 <li><p><strong>indent_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – current indentation level</p></li>
 <li><p><strong>raw</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[True]) – raw processing flag</p></li>
@@ -1056,7 +1056,7 @@ in certain scenario.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="poseur.StringContext._node_before_expr">
-<span class="sig-name descname"><span class="pre">_node_before_expr</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><span class="pre">parso.tree.NodeOrLeaf</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._node_before_expr" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_node_before_expr</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.8)"><span class="pre">parso.tree.NodeOrLeaf</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._node_before_expr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Preceding node with the target expression, i.e. the <em>insertion point</em>.</p>
 </dd></dl>
 
@@ -1080,7 +1080,7 @@ in certain scenario.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="poseur.StringContext._root">
-<span class="sig-name descname"><span class="pre">_root</span></span><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.7)"><span class="pre">parso.tree.NodeOrLeaf</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._root" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_root</span></span><em class="property"><span class="pre">:</span> <span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://parso.readthedocs.io/en/latest/docs/parser-tree.html#parso.tree.NodeOrLeaf" title="(in parso v0.8)"><span class="pre">parso.tree.NodeOrLeaf</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#poseur.StringContext._root" title="Permalink to this definition">¶</a></dt>
 <dd><p>Root node given by the <code class="docutils literal notranslate"><span class="pre">node</span></code> parameter.</p>
 </dd></dl>
 
