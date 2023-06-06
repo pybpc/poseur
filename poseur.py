@@ -24,7 +24,7 @@ from typing_extensions import Literal, final
 __all__ = ['main', 'poseur', 'convert', 'decorator']  # pylint: disable=undefined-all-variable
 
 # version string
-__version__ = '0.4.3'
+__version__ = '0.4.3.post1'
 
 ###############################################################################
 # Typings
