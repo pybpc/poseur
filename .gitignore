@@ -15,3 +15,5 @@ __pycache__
 .tox/
 .mypy_cache
 .pytest_cache
+
+/.env
